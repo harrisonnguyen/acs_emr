@@ -1,0 +1,16 @@
+template:
+  params:
+    bootswatch: flatly
+toc:
+  depth: 2
+output:
+  number_sections: true
+authors:
+  Harrison Nguyen:
+    href: "https://github.sydney.edu.au/speed-extract/"
+home:
+  links:
+  - text: Github
+    href: https://github.sydney.edu.au/speed-extract/acs
+  - text: Get shareable versions of analysis
+    href: https://github.sydney.edu.au/speed-extract/doc

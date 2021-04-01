@@ -1,0 +1,9 @@
+.Rproj.user
+inst/doc
+Meta
+data/*
+inst/*
+doc/*.Rmd
+doc/*.R
+.Rhistory
+renv/library
