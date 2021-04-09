@@ -10,3 +10,10 @@
 #' A dataset containing diagnosises
 #'
 "diagnosis_data"
+
+
+#' Contains journeys as defined by ACS for `encounter_data`
+#'
+#'
+#'
+"journey_analysis_base"

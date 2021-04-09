@@ -7,3 +7,4 @@ doc/*.Rmd
 doc/*.R
 .Rhistory
 renv/library
+data-raw/*.csv

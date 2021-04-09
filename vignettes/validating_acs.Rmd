@@ -1,0 +1,126 @@
+---
+title: "Validating ACS rules"
+author: "Harrison"
+date: "`r Sys.Date()`"
+output:  
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning=FALSE, message=FALSE
+)
+```
+
+```{r import}
+library(acs)
+library(magrittr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+```{r}
+load("../data/journey_analysis_base.rda")
+
+```
+
+```{r}
+n_encounters <- dplyr::n_distinct(journey_analysis_base$encntr_key)
+
+n_journeys <- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)
+```
+# Introduction
+
+We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results.
+The cohort under investigation are encounters across the NSLHD between the dates **`r as.Date(min(journey_analysis_base$admit_dttm))`** - **`r as.Date(max(journey_analysis_base$admit_dttm))`**. 
+
+Across this period there are **`r n_encounters`** unique encounters and **`r n_journeys`** unique journeys (a collection of encounters that have occurred within a specified time interval).
+
+
+```{r}
+stemi <-journey_analysis_base %>%
+  dplyr::mutate(STEMI = stringr::str_detect(icd10_diagnosis_list,"[^N]STEMI") | stringr::str_starts(icd10_diagnosis_list,"STEMI")) %>%
+  dplyr::select(encntr_key,journey_acs_rule1,journey_acs_rule2,journey_above_normal_trop,JOURNEY_KEY,STEMI) %>%
+  dplyr::distinct(JOURNEY_KEY,.keep_all=TRUE)
+```
+
+# Troponin Results
+
+There are three different rules that can define a ACS patient
+
+## ACS Rule 1: 
+ **Relative to first troponin reading of journey:**
+ Find the first Troponin result for the journey 
+ (According to `result_start_dttm`.) 
+ 
+ Now, for every subsequent troponin result, if a given result's value
+ (`result_discrete_value`) exceeds the first by `> %30`, ie: 
+ 
+ `result[i] > 1.3*result[1]` for *i* within *2* and *n* where *n* is 
+ the total number of results for that journey. 
+ 
+  For a result that exceeds this, set `pct_change_thresh_flag <- TRUE`,
+ 
+ If this flag is set for any result row in a particular journey, 
+ for all rows in that journey set `group_pass_pct_thresh <- TRUE`
+
+```{r}
+kable_confusion_matrix <- function(table, row_name, col_name){
+  span <- c(1,2)
+  names(span) <- c(" ", col_name)
+  result <- knitr::kable(table) %>%
+  kableExtra::add_header_above(span) %>%
+  kableExtra::pack_rows(row_name, 1, 2) %>%
+  kableExtra::kable_styling(full_width = F)
+  result
+}
+
+```
+ 
+```{r}
+kable_confusion_matrix(table(stemi$journey_acs_rule1,stemi$STEMI), "ACS rule1", "ICD-10 STEMI")
+```
+
+## ACS Rule 2: 
+ **Relative to absolute value:**
+ 
+ This rule is simpler than **ACS Rule 1**, and simply involves comparing
+ each `result_discrete_value` with a large number, chosen to be `1000`.
+ 
+ If a result exceeds that, flag its row with `abs_high_thresh_flag <- TRUE`,
+
+ and flag all rows in that journey with `group_pass_abs_high_thresh <- TRUE`
+ 
+```{r}
+kable_confusion_matrix(table(stemi$journey_acs_rule2,stemi$STEMI), "ACS rule 2", "ICD-10 STEMI")
+```
+
+
+## Troponin Rule 3:
+  **Compare** `result_discrete_value` **to value of** `normal_high` 
+  *(Upper threshhold for normal).*
+  
+  For each row, a column, `normal_high`, is given, specifying what the upper
+  limit for that result **SHOULD** be for it to be considered "normal". 
+  
+  For each row in a journey, if `result_discrete_value > normal_high`,
+ flag that row with `above_normal_flag <- TRUE` and for each row in the 
+  journey, `group_above_normal <- TRUE`.
+ 
+```{r}
+kable_confusion_matrix(table(stemi$journey_above_normal_trop,stemi$STEMI),"HIGH TROPONIN", "ICD-10 STEMI")
+```
+

@@ -6,13 +6,7 @@
 #encounter_prepr <- pipetree::load_merged_partitions("encounter_prepr", cache = cache)$encounter_prepr
 library(magrittr)
 library(dplyr)
-encounter_file <- system.file(
-  "extdata",
-  "encounter_prepr.csv",
-  package = "acs"
-)
-
-encounter_prepr <- read.csv(encounter_file, stringsAsFactors = FALSE)
+encounter_prepr <- read.csv(here::here("data-raw", "encounter_prepr.csv"), stringsAsFactors = FALSE)
 
 encounter_data <- encounter_prepr %>%
   dplyr::filter(admit_dttm > as.POSIXct("2016-05-01") &

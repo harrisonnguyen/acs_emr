@@ -1,22 +1,22 @@
-Package: speed-extract/acs
+Package: acs
 Title: Anaylsis for ACS
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "Harrison",
            family = "Nguyen",
            role = c("aut", "cre"),
            email = "harrison.nguyen@sydney.edu.au")
-Description: Provides various analysis and data cleaning for ACS cohort at 
+Description: Provides various analysis and data cleaning for ACS cohort at
     Northern Sydney Local Health District based from the data preparation of `SPEED-EXTRACT`.
 License: use_mit_license()
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Suggests: 
+Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-Depends: 
+Depends:
     R (>= 2.10)
 URL: https://github.sydney.edu.au/speed-extract/acs, https://pages.github.sydney.edu.au/speed-extract/acs
