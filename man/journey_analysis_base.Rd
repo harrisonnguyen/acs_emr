@@ -5,7 +5,7 @@
 \alias{journey_analysis_base}
 \title{Contains journeys as defined by ACS for \code{encounter_data}}
 \format{
-An object of class \code{data.frame} with 532486 rows and 36 columns.
+An object of class \code{data.table} (inherits from \code{data.frame}) with 305633 rows and 36 columns.
 }
 \usage{
 journey_analysis_base

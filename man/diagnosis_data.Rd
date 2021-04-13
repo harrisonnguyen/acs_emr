@@ -5,7 +5,7 @@
 \alias{diagnosis_data}
 \title{Diagnosis for the encounters given by \code{encounter_data}}
 \format{
-An object of class \code{data.frame} with 721899 rows and 26 columns.
+An object of class \code{data.table} (inherits from \code{data.frame}) with 192535 rows and 27 columns.
 }
 \usage{
 diagnosis_data

@@ -5,7 +5,7 @@
 \alias{encounter_data}
 \title{Encounters for the years between 2016-2018 at RNS.}
 \format{
-An object of class \code{data.frame} with 602594 rows and 35 columns.
+An object of class \code{data.table} (inherits from \code{data.frame}) with 27852 rows and 35 columns.
 }
 \usage{
 encounter_data

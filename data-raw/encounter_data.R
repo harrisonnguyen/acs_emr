@@ -6,7 +6,18 @@
 #encounter_prepr <- pipetree::load_merged_partitions("encounter_prepr", cache = cache)$encounter_prepr
 library(magrittr)
 library(dplyr)
-encounter_prepr <- read.csv(here::here("data-raw", "encounter_prepr.csv"), stringsAsFactors = FALSE)
+library(portrpaths)
+library(pipetree)
+options(pipetree.config="D:/projects/SPEED-EXTRACT.pipeline/local.yaml")
+pp <- pipetree::get_portrpath()
+
+pp$profile <- "3m_hpc"
+#### get the cache that we can use with drake ####
+cache <- pipetree::get_cache()
+
+encounter_prepr <- pipetree::load_merged_partitions(encounter_prepr,cache=cache)$encounter_prepr
+
+#encounter_prepr <- read.csv(here::here("data-raw", "encounter_prepr.csv"), stringsAsFactors = FALSE)
 
 encounter_data <- encounter_prepr %>%
   dplyr::filter(admit_dttm > as.POSIXct("2016-05-01") &
