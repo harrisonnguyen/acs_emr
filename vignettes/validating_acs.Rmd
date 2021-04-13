@@ -33,8 +33,9 @@ library(kableExtra)
 ```
 
 ```{r}
-load("../data/journey_analysis_base.rda")
-
+#load("../data/journey_analysis_base.rda")
+journey_analysis_base <-read.csv(here::here("data-raw", "journey_analysis_base.csv"), stringsAsFactors = FALSE)
+#data("journey_analysis_base")
 ```
 
 ```{r}
@@ -52,8 +53,9 @@ Across this period there are **`r n_encounters`** unique encounters and **`r n_j
 
 ```{r}
 stemi <-journey_analysis_base %>%
+  dplyr::filter(admit_dttm > as.POSIXct("2016-05-01") &
+                  admit_dttm < as.POSIXct("2018-04-30")) %>%
   dplyr::mutate(STEMI = stringr::str_detect(icd10_diagnosis_list,"[^N]STEMI") | stringr::str_starts(icd10_diagnosis_list,"STEMI")) %>%
-  dplyr::select(encntr_key,journey_acs_rule1,journey_acs_rule2,journey_above_normal_trop,JOURNEY_KEY,STEMI) %>%
   dplyr::distinct(JOURNEY_KEY,.keep_all=TRUE)
 ```
 
@@ -61,7 +63,7 @@ stemi <-journey_analysis_base %>%
 
 There are three different rules that can define a ACS patient
 
-## ACS Rule 1: 
+## ACS Rule 1
  **Relative to first troponin reading of journey:**
  Find the first Troponin result for the journey 
  (According to `result_start_dttm`.) 
@@ -71,11 +73,6 @@ There are three different rules that can define a ACS patient
  
  `result[i] > 1.3*result[1]` for *i* within *2* and *n* where *n* is 
  the total number of results for that journey. 
- 
-  For a result that exceeds this, set `pct_change_thresh_flag <- TRUE`,
- 
- If this flag is set for any result row in a particular journey, 
- for all rows in that journey set `group_pass_pct_thresh <- TRUE`
 
 ```{r}
 kable_confusion_matrix <- function(table, row_name, col_name){
@@ -94,33 +91,96 @@ kable_confusion_matrix <- function(table, row_name, col_name){
 kable_confusion_matrix(table(stemi$journey_acs_rule1,stemi$STEMI), "ACS rule1", "ICD-10 STEMI")
 ```
 
-## ACS Rule 2: 
+## ACS Rule 2
  **Relative to absolute value:**
  
  This rule is simpler than **ACS Rule 1**, and simply involves comparing
  each `result_discrete_value` with a large number, chosen to be `1000`.
- 
- If a result exceeds that, flag its row with `abs_high_thresh_flag <- TRUE`,
-
- and flag all rows in that journey with `group_pass_abs_high_thresh <- TRUE`
  
 ```{r}
 kable_confusion_matrix(table(stemi$journey_acs_rule2,stemi$STEMI), "ACS rule 2", "ICD-10 STEMI")
 ```
 
 
-## Troponin Rule 3:
+## Troponin Rule 3
   **Compare** `result_discrete_value` **to value of** `normal_high` 
   *(Upper threshhold for normal).*
   
   For each row, a column, `normal_high`, is given, specifying what the upper
   limit for that result **SHOULD** be for it to be considered "normal". 
   
-  For each row in a journey, if `result_discrete_value > normal_high`,
- flag that row with `above_normal_flag <- TRUE` and for each row in the 
-  journey, `group_above_normal <- TRUE`.
- 
 ```{r}
 kable_confusion_matrix(table(stemi$journey_above_normal_trop,stemi$STEMI),"HIGH TROPONIN", "ICD-10 STEMI")
 ```
+### Other Criteria
 
+#### Original 3 Criteria
+We also look at 3 other inclusions criteria being:
+
+1. The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.
+2. Orders were placed in the EMR for a troponin test OR a 12 lead ECG OR for any of the following investigations: coronary angiogram, exercise stress test, stress echocardiogram, sestamibi scan, CT coronary angiogram, CT pulmonary angiogram.
+3.  The encounter contained a scanned 12-lead ECG image.
+
+```{r}
+cohort_flags <- stemi %>%
+  dplyr::rename_all(toupper) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(
+    CF1_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[1]),
+    CF2_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[2]),
+    CF3_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[3]),
+    CF5_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[5]),
+    CF6_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[6]),
+    CF7_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[7])
+  ) %>%
+  dplyr::mutate(
+    CRITERIA = CF1_derived | CF3_derived | CF7_derived
+  )
+```
+
+```{r}
+criteria_table <- table(cohort_flags$CRITERIA,cohort_flags$STEMI)
+kable_confusion_matrix(criteria_table,"SELECTION CRITERIA", "ICD-10 STEMI")
+```
+
+#### Alternate Criteria
+Given that the above results show a lot of false positives, we strengthen the second criteria and only include patients with **ONLY** troponin orders. In other words, the new criteria is:
+
+1. The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.
+2. **Orders were placed in the EMR for a troponin test.**
+3.  The encounter contained a scanned 12-lead ECG image.
+
+```{r}
+load(file.path(here::here("data"),"troponin_encounter_order.rda"))
+```
+
+```{r}
+troponin_order_flag <- troponin_encounter_order %>% 
+  dplyr::distinct(ENCNTR_KEY,.keep_all=TRUE)%>%
+  dplyr::mutate(TROPONIN_FLAG=TRUE) %>%
+  dplyr::select(ENCNTR_KEY,TROPONIN_FLAG)
+
+
+new_cohort_flags <- cohort_flags %>%
+  dplyr::left_join(troponin_order_flag, by="ENCNTR_KEY") %>%
+  dplyr::mutate(
+    TROPONIN_FLAG = tidyr::replace_na(TROPONIN_FLAG,FALSE)
+      )%>%
+  dplyr::mutate(
+    CRITERIA_NEW = CF1_derived | TROPONIN_FLAG | CF7_derived
+  )
+```
+
+```{r}
+criteria_new_table <- table(new_cohort_flags$CRITERIA_NEW,new_cohort_flags$STEMI)
+kable_confusion_matrix(criteria_new_table,"SELECTION CRITERIA", "ICD-10 STEMI")
+```
+```{r}
+new_fp <- criteria_new_table[2][1]
+
+old_fp <- criteria_table[2][1]
+
+diff <- old_fp - new_fp
+```
+
+The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by `r diff` out of the original `r old_fp`, a decrease of `r diff/old_fp*100`%.

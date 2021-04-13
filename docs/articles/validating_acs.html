@@ -82,7 +82,7 @@
       <h1 data-toc-skip>Validating ACS rules</h1>
                         <h4 class="author">Harrison</h4>
             
-            <h4 class="date">2021-04-09</h4>
+            <h4 class="date">2021-04-13</h4>
       
       
       <div class="hidden name"><code>validating_acs.Rmd</code></div>
@@ -98,7 +98,9 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/">knitr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"../data/journey_analysis_base.rda"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="co">#load("../data/journey_analysis_base.rda")</span>
+<span class="va">journey_analysis_base</span> <span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html">here</a></span><span class="op">(</span><span class="st">"data-raw"</span>, <span class="st">"journey_analysis_base.csv"</span><span class="op">)</span>, stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<span class="co">#data("journey_analysis_base")</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n_encounters</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html">n_distinct</a></span><span class="op">(</span><span class="va">journey_analysis_base</span><span class="op">$</span><span class="va">encntr_key</span><span class="op">)</span>
 
@@ -110,8 +112,9 @@
 <p>Across this period there are <strong>529957</strong> unique encounters and <strong>491041</strong> unique journeys (a collection of encounters that have occurred within a specified time interval).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">stemi</span> <span class="op">&lt;-</span><span class="va">journey_analysis_base</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">admit_dttm</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">"2016-05-01"</span><span class="op">)</span> <span class="op">&amp;</span>
+                  <span class="va">admit_dttm</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">"2018-04-30"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>STEMI <span class="op">=</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html">str_detect</a></span><span class="op">(</span><span class="va">icd10_diagnosis_list</span>,<span class="st">"[^N]STEMI"</span><span class="op">)</span> <span class="op">|</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_starts</a></span><span class="op">(</span><span class="va">icd10_diagnosis_list</span>,<span class="st">"STEMI"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">encntr_key</span>,<span class="va">journey_acs_rule1</span>,<span class="va">journey_acs_rule2</span>,<span class="va">journey_above_normal_trop</span>,<span class="va">JOURNEY_KEY</span>,<span class="va">STEMI</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">JOURNEY_KEY</span>,.keep_all<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="troponin-results" class="section level1">
@@ -120,12 +123,10 @@
 <p>There are three different rules that can define a ACS patient</p>
 <div id="acs-rule-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#acs-rule-1" class="anchor"></a>ACS Rule 1:</h2>
+<a href="#acs-rule-1" class="anchor"></a>ACS Rule 1</h2>
 <p><strong>Relative to first troponin reading of journey:</strong> Find the first Troponin result for the journey (According to <code>result_start_dttm</code>.)</p>
 <p>Now, for every subsequent troponin result, if a given result’s value (<code>result_discrete_value</code>) exceeds the first by <code>&gt; %30</code>, ie:</p>
 <p><code>result[i] &gt; 1.3*result[1]</code> for <em>i</em> within <em>2</em> and <em>n</em> where <em>n</em> is the total number of results for that journey.</p>
-<p>For a result that exceeds this, set <code>pct_change_thresh_flag &lt;- TRUE</code>,</p>
-<p>If this flag is set for any result row in a particular journey, for all rows in that journey set <code>group_pass_pct_thresh &lt;- TRUE</code></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">kable_confusion_matrix</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">table</span>, <span class="va">row_name</span>, <span class="va">col_name</span><span class="op">)</span><span class="op">{</span>
   <span class="va">span</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>
@@ -193,11 +194,9 @@ TRUE
 </div>
 <div id="acs-rule-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#acs-rule-2" class="anchor"></a>ACS Rule 2:</h2>
+<a href="#acs-rule-2" class="anchor"></a>ACS Rule 2</h2>
 <p><strong>Relative to absolute value:</strong></p>
 <p>This rule is simpler than <strong>ACS Rule 1</strong>, and simply involves comparing each <code>result_discrete_value</code> with a large number, chosen to be <code>1000</code>.</p>
-<p>If a result exceeds that, flag its row with <code>abs_high_thresh_flag &lt;- TRUE</code>,</p>
-<p>and flag all rows in that journey with <code>group_pass_abs_high_thresh &lt;- TRUE</code></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>, <span class="st">"ACS rule 2"</span>, <span class="st">"ICD-10 STEMI"</span><span class="op">)</span></code></pre></div>
 <table class="table table">
@@ -255,10 +254,9 @@ TRUE
 </div>
 <div id="troponin-rule-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#troponin-rule-3" class="anchor"></a>Troponin Rule 3:</h2>
+<a href="#troponin-rule-3" class="anchor"></a>Troponin Rule 3</h2>
 <p><strong>Compare</strong> <code>result_discrete_value</code> <strong>to value of</strong> <code>normal_high</code> <em>(Upper threshhold for normal).</em></p>
 <p>For each row, a column, <code>normal_high</code>, is given, specifying what the upper limit for that result <strong>SHOULD</strong> be for it to be considered “normal”.</p>
-<p>For each row in a journey, if <code>result_discrete_value &gt; normal_high</code>, flag that row with <code>above_normal_flag &lt;- TRUE</code> and for each row in the journey, <code>group_above_normal &lt;- TRUE</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_above_normal_trop</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>,<span class="st">"HIGH TROPONIN"</span>, <span class="st">"ICD-10 STEMI"</span><span class="op">)</span></code></pre></div>
 <table class="table table">
@@ -313,6 +311,179 @@ TRUE
 </tr>
 </tbody>
 </table>
+<div id="other-criteria" class="section level3">
+<h3 class="hasAnchor">
+<a href="#other-criteria" class="anchor"></a>Other Criteria</h3>
+<div id="original-3-criteria" class="section level4">
+<h4 class="hasAnchor">
+<a href="#original-3-criteria" class="anchor"></a>Original 3 Criteria</h4>
+<p>We also look at 3 other inclusions criteria being:</p>
+<ol style="list-style-type: decimal">
+<li>The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.</li>
+<li>Orders were placed in the EMR for a troponin test OR a 12 lead ECG OR for any of the following investigations: coronary angiogram, exercise stress test, stress echocardiogram, sestamibi scan, CT coronary angiogram, CT pulmonary angiogram.</li>
+<li>The encounter contained a scanned 12-lead ECG image.</li>
+</ol>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">cohort_flags</span> <span class="op">&lt;-</span> <span class="va">stemi</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select_all.html">rename_all</a></span><span class="op">(</span><span class="va">toupper</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
+    CF1_derived <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html">intToBits</a></span><span class="op">(</span><span class="va">COHORT_FLAG_DERIVED</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,
+    CF2_derived <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html">intToBits</a></span><span class="op">(</span><span class="va">COHORT_FLAG_DERIVED</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,
+    CF3_derived <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html">intToBits</a></span><span class="op">(</span><span class="va">COHORT_FLAG_DERIVED</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>,
+    CF5_derived <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html">intToBits</a></span><span class="op">(</span><span class="va">COHORT_FLAG_DERIVED</span><span class="op">)</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span>,
+    CF6_derived <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html">intToBits</a></span><span class="op">(</span><span class="va">COHORT_FLAG_DERIVED</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span>,
+    CF7_derived <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html">intToBits</a></span><span class="op">(</span><span class="va">COHORT_FLAG_DERIVED</span><span class="op">)</span><span class="op">[</span><span class="fl">7</span><span class="op">]</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
+    CRITERIA <span class="op">=</span> <span class="va">CF1_derived</span> <span class="op">|</span> <span class="va">CF3_derived</span> <span class="op">|</span> <span class="va">CF7_derived</span>
+  <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">criteria_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">cohort_flags</span><span class="op">$</span><span class="va">CRITERIA</span>,<span class="va">cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
+<span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">criteria_table</span>,<span class="st">"SELECTION CRITERIA"</span>, <span class="st">"ICD-10 STEMI"</span><span class="op">)</span></code></pre></div>
+<table class="table table">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+ICD-10 STEMI
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+FALSE
+</th>
+<th style="text-align:right;">
+TRUE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="2">
+<td colspan="3" style="border-bottom: 1px solid;">
+<strong>SELECTION CRITERIA</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+FALSE
+</td>
+<td style="text-align:right;">
+221352
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+TRUE
+</td>
+<td style="text-align:right;">
+268585
+</td>
+<td style="text-align:right;">
+1093
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="alternate-criteria" class="section level4">
+<h4 class="hasAnchor">
+<a href="#alternate-criteria" class="anchor"></a>Alternate Criteria</h4>
+<p>Given that the above results show a lot of false positives, we strengthen the second criteria and only include patients with <strong>ONLY</strong> troponin orders. In other words, the new criteria is:</p>
+<ol style="list-style-type: decimal">
+<li>The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.</li>
+<li><strong>Orders were placed in the EMR for a troponin test.</strong></li>
+<li>The encounter contained a scanned 12-lead ECG image.</li>
+</ol>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html">here</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span>,<span class="st">"troponin_encounter_order.rda"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">troponin_order_flag</span> <span class="op">&lt;-</span> <span class="va">troponin_encounter_order</span> <span class="op">%&gt;%</span> 
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">ENCNTR_KEY</span>,.keep_all<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>TROPONIN_FLAG<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">ENCNTR_KEY</span>,<span class="va">TROPONIN_FLAG</span><span class="op">)</span>
+
+
+<span class="va">new_cohort_flags</span> <span class="op">&lt;-</span> <span class="va">cohort_flags</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">troponin_order_flag</span>, by<span class="op">=</span><span class="st">"ENCNTR_KEY"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
+    TROPONIN_FLAG <span class="op">=</span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/replace_na.html">replace_na</a></span><span class="op">(</span><span class="va">TROPONIN_FLAG</span>,<span class="cn">FALSE</span><span class="op">)</span>
+      <span class="op">)</span><span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
+    CRITERIA_NEW <span class="op">=</span> <span class="va">CF1_derived</span> <span class="op">|</span> <span class="va">TROPONIN_FLAG</span> <span class="op">|</span> <span class="va">CF7_derived</span>
+  <span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">criteria_new_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CRITERIA_NEW</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
+<span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">criteria_new_table</span>,<span class="st">"SELECTION CRITERIA"</span>, <span class="st">"ICD-10 STEMI"</span><span class="op">)</span></code></pre></div>
+<table class="table table">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+ICD-10 STEMI
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+FALSE
+</th>
+<th style="text-align:right;">
+TRUE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="2">
+<td colspan="3" style="border-bottom: 1px solid;">
+<strong>SELECTION CRITERIA</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+FALSE
+</td>
+<td style="text-align:right;">
+221568
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+TRUE
+</td>
+<td style="text-align:right;">
+268369
+</td>
+<td style="text-align:right;">
+1093
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">new_fp</span> <span class="op">&lt;-</span> <span class="va">criteria_new_table</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
+
+<span class="va">old_fp</span> <span class="op">&lt;-</span> <span class="va">criteria_table</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
+
+<span class="va">diff</span> <span class="op">&lt;-</span> <span class="va">old_fp</span> <span class="op">-</span> <span class="va">new_fp</span></code></pre></div>
+<p>The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by 216 out of the original 268585, a decrease of 0.0804215%.</p>
+</div>
+</div>
 </div>
 </div>
   </div>

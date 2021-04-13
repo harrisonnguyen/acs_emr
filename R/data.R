@@ -17,3 +17,10 @@
 #'
 #'
 "journey_analysis_base"
+
+
+#' CContain troponin orders based on `encounter_order`
+#'
+#'
+#'
+"troponin_encounter_order"

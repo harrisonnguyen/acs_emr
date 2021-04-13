@@ -11,7 +11,7 @@
 
 <meta name="author" content="Harrison" />
 
-<meta name="date" content="2021-04-09" />
+<meta name="date" content="2021-04-13" />
 
 <title>Validating ACS rules</title>
 
@@ -1793,7 +1793,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Validating ACS rules</h1>
 <h4 class="author">Harrison</h4>
-<h4 class="date">2021-04-09</h4>
+<h4 class="date">2021-04-13</h4>
 
 </div>
 
@@ -1803,7 +1803,9 @@ library(magrittr)
 library(dplyr)
 library(knitr)
 library(kableExtra)</code></pre>
-<pre class="r"><code>load(&quot;../data/journey_analysis_base.rda&quot;)</code></pre>
+<pre class="r"><code>#load(&quot;../data/journey_analysis_base.rda&quot;)
+journey_analysis_base &lt;-read.csv(here::here(&quot;data-raw&quot;, &quot;journey_analysis_base.csv&quot;), stringsAsFactors = FALSE)
+#data(&quot;journey_analysis_base&quot;)</code></pre>
 <pre class="r"><code>n_encounters &lt;- dplyr::n_distinct(journey_analysis_base$encntr_key)
 
 n_journeys &lt;- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)</code></pre>
@@ -1812,20 +1814,19 @@ n_journeys &lt;- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)</code></pr
 <p>We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results. The cohort under investigation are encounters across the NSLHD between the dates <strong>2016-05-01</strong> - <strong>2018-04-29</strong>.</p>
 <p>Across this period there are <strong>529957</strong> unique encounters and <strong>491041</strong> unique journeys (a collection of encounters that have occurred within a specified time interval).</p>
 <pre class="r"><code>stemi &lt;-journey_analysis_base %&gt;%
+  dplyr::filter(admit_dttm &gt; as.POSIXct(&quot;2016-05-01&quot;) &amp;
+                  admit_dttm &lt; as.POSIXct(&quot;2018-04-30&quot;)) %&gt;%
   dplyr::mutate(STEMI = stringr::str_detect(icd10_diagnosis_list,&quot;[^N]STEMI&quot;) | stringr::str_starts(icd10_diagnosis_list,&quot;STEMI&quot;)) %&gt;%
-  dplyr::select(encntr_key,journey_acs_rule1,journey_acs_rule2,journey_above_normal_trop,JOURNEY_KEY,STEMI) %&gt;%
   dplyr::distinct(JOURNEY_KEY,.keep_all=TRUE)</code></pre>
 </div>
 <div id="troponin-results" class="section level1">
 <h1><span class="header-section-number">2</span> Troponin Results</h1>
 <p>There are three different rules that can define a ACS patient</p>
 <div id="acs-rule-1" class="section level2">
-<h2><span class="header-section-number">2.1</span> ACS Rule 1:</h2>
+<h2><span class="header-section-number">2.1</span> ACS Rule 1</h2>
 <p><strong>Relative to first troponin reading of journey:</strong> Find the first Troponin result for the journey (According to <code>result_start_dttm</code>.)</p>
 <p>Now, for every subsequent troponin result, if a given result’s value (<code>result_discrete_value</code>) exceeds the first by <code>&gt; %30</code>, ie:</p>
 <p><code>result[i] &gt; 1.3*result[1]</code> for <em>i</em> within <em>2</em> and <em>n</em> where <em>n</em> is the total number of results for that journey.</p>
-<p>For a result that exceeds this, set <code>pct_change_thresh_flag &lt;- TRUE</code>,</p>
-<p>If this flag is set for any result row in a particular journey, for all rows in that journey set <code>group_pass_pct_thresh &lt;- TRUE</code></p>
 <pre class="r"><code>kable_confusion_matrix &lt;- function(table, row_name, col_name){
   span &lt;- c(1,2)
   names(span) &lt;- c(&quot; &quot;, col_name)
@@ -1890,11 +1891,9 @@ TRUE
 </table>
 </div>
 <div id="acs-rule-2" class="section level2">
-<h2><span class="header-section-number">2.2</span> ACS Rule 2:</h2>
+<h2><span class="header-section-number">2.2</span> ACS Rule 2</h2>
 <p><strong>Relative to absolute value:</strong></p>
 <p>This rule is simpler than <strong>ACS Rule 1</strong>, and simply involves comparing each <code>result_discrete_value</code> with a large number, chosen to be <code>1000</code>.</p>
-<p>If a result exceeds that, flag its row with <code>abs_high_thresh_flag &lt;- TRUE</code>,</p>
-<p>and flag all rows in that journey with <code>group_pass_abs_high_thresh &lt;- TRUE</code></p>
 <pre class="r"><code>kable_confusion_matrix(table(stemi$journey_acs_rule2,stemi$STEMI), &quot;ACS rule 2&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -1950,10 +1949,9 @@ TRUE
 </table>
 </div>
 <div id="troponin-rule-3" class="section level2">
-<h2><span class="header-section-number">2.3</span> Troponin Rule 3:</h2>
+<h2><span class="header-section-number">2.3</span> Troponin Rule 3</h2>
 <p><strong>Compare</strong> <code>result_discrete_value</code> <strong>to value of</strong> <code>normal_high</code> <em>(Upper threshhold for normal).</em></p>
 <p>For each row, a column, <code>normal_high</code>, is given, specifying what the upper limit for that result <strong>SHOULD</strong> be for it to be considered “normal”.</p>
-<p>For each row in a journey, if <code>result_discrete_value &gt; normal_high</code>, flag that row with <code>above_normal_flag &lt;- TRUE</code> and for each row in the journey, <code>group_above_normal &lt;- TRUE</code>.</p>
 <pre class="r"><code>kable_confusion_matrix(table(stemi$journey_above_normal_trop,stemi$STEMI),&quot;HIGH TROPONIN&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -2007,6 +2005,170 @@ TRUE
 </tr>
 </tbody>
 </table>
+<div id="other-criteria" class="section level3">
+<h3><span class="header-section-number">2.3.1</span> Other Criteria</h3>
+<div id="original-3-criteria" class="section level4">
+<h4><span class="header-section-number">2.3.1.1</span> Original 3 Criteria</h4>
+<p>We also look at 3 other inclusions criteria being:</p>
+<ol style="list-style-type: decimal">
+<li>The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.</li>
+<li>Orders were placed in the EMR for a troponin test OR a 12 lead ECG OR for any of the following investigations: coronary angiogram, exercise stress test, stress echocardiogram, sestamibi scan, CT coronary angiogram, CT pulmonary angiogram.</li>
+<li>The encounter contained a scanned 12-lead ECG image.</li>
+</ol>
+<pre class="r"><code>cohort_flags &lt;- stemi %&gt;%
+  dplyr::rename_all(toupper) %&gt;%
+  dplyr::rowwise() %&gt;%
+  dplyr::mutate(
+    CF1_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[1]),
+    CF2_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[2]),
+    CF3_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[3]),
+    CF5_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[5]),
+    CF6_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[6]),
+    CF7_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[7])
+  ) %&gt;%
+  dplyr::mutate(
+    CRITERIA = CF1_derived | CF3_derived | CF7_derived
+  )</code></pre>
+<pre class="r"><code>criteria_table &lt;- table(cohort_flags$CRITERIA,cohort_flags$STEMI)
+kable_confusion_matrix(criteria_table,&quot;SELECTION CRITERIA&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+ICD-10 STEMI
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+FALSE
+</th>
+<th style="text-align:right;">
+TRUE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="2">
+<td colspan="3" style="border-bottom: 1px solid;">
+<strong>SELECTION CRITERIA</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+FALSE
+</td>
+<td style="text-align:right;">
+221352
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+TRUE
+</td>
+<td style="text-align:right;">
+268585
+</td>
+<td style="text-align:right;">
+1093
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="alternate-criteria" class="section level4">
+<h4><span class="header-section-number">2.3.1.2</span> Alternate Criteria</h4>
+<p>Given that the above results show a lot of false positives, we strengthen the second criteria and only include patients with <strong>ONLY</strong> troponin orders. In other words, the new criteria is:</p>
+<ol style="list-style-type: decimal">
+<li>The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.</li>
+<li><strong>Orders were placed in the EMR for a troponin test.</strong></li>
+<li>The encounter contained a scanned 12-lead ECG image.</li>
+</ol>
+<pre class="r"><code>load(file.path(here::here(&quot;data&quot;),&quot;troponin_encounter_order.rda&quot;))</code></pre>
+<pre class="r"><code>troponin_order_flag &lt;- troponin_encounter_order %&gt;% 
+  dplyr::distinct(ENCNTR_KEY,.keep_all=TRUE)%&gt;%
+  dplyr::mutate(TROPONIN_FLAG=TRUE) %&gt;%
+  dplyr::select(ENCNTR_KEY,TROPONIN_FLAG)
+
+
+new_cohort_flags &lt;- cohort_flags %&gt;%
+  dplyr::left_join(troponin_order_flag, by=&quot;ENCNTR_KEY&quot;) %&gt;%
+  dplyr::mutate(
+    TROPONIN_FLAG = tidyr::replace_na(TROPONIN_FLAG,FALSE)
+      )%&gt;%
+  dplyr::mutate(
+    CRITERIA_NEW = CF1_derived | TROPONIN_FLAG | CF7_derived
+  )</code></pre>
+<pre class="r"><code>criteria_new_table &lt;- table(new_cohort_flags$CRITERIA_NEW,new_cohort_flags$STEMI)
+kable_confusion_matrix(criteria_new_table,&quot;SELECTION CRITERIA&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+ICD-10 STEMI
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+FALSE
+</th>
+<th style="text-align:right;">
+TRUE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="2">
+<td colspan="3" style="border-bottom: 1px solid;">
+<strong>SELECTION CRITERIA</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+FALSE
+</td>
+<td style="text-align:right;">
+221568
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+TRUE
+</td>
+<td style="text-align:right;">
+268369
+</td>
+<td style="text-align:right;">
+1093
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>new_fp &lt;- criteria_new_table[2][1]
+
+old_fp &lt;- criteria_table[2][1]
+
+diff &lt;- old_fp - new_fp</code></pre>
+<p>The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by 216 out of the original 268585, a decrease of 0.0804215%.</p>
+</div>
+</div>
 </div>
 </div>
 
