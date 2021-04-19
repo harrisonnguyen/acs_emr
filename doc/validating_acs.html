@@ -11,7 +11,6 @@
 
 <meta name="author" content="Harrison" />
 
-<meta name="date" content="2021-04-13" />
 
 <title>Validating ACS rules</title>
 
@@ -1793,7 +1792,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Validating ACS rules</h1>
 <h4 class="author">Harrison</h4>
-<h4 class="date">2021-04-13</h4>
+<h4 class="date">19/4/2021</h4>
 
 </div>
 
@@ -1806,13 +1805,37 @@ library(kableExtra)</code></pre>
 <pre class="r"><code>#load(&quot;../data/journey_analysis_base.rda&quot;)
 journey_analysis_base &lt;-read.csv(here::here(&quot;data-raw&quot;, &quot;journey_analysis_base.csv&quot;), stringsAsFactors = FALSE)
 #data(&quot;journey_analysis_base&quot;)</code></pre>
+<pre class="r"><code>
+# should be standard
+`%notin%` &lt;- Negate(`%in%`)
+
+NSLHD &lt;- c(&quot;Royal North Shore&quot;, &quot;Hornsby&quot;, &quot;Ryde&quot;, &quot;Manly&quot;, &quot;Mona Vale&quot;)
+CCLHD &lt;- c(&quot;Gosford&quot;, &quot;Woy Woy&quot;, &quot;Wyong&quot;, &quot;Long Jetty&quot;)
+
+is.ACS &lt;- function(.x) {
+  any(.x %in% c(&quot;STEMI&quot;, &quot;NSTEMI&quot;, &quot;UNSTABLE_ANGINA&quot;, &quot;UNSPECIFIED_ACS&quot;), 
+      na.rm=T)
+}
+
+internal_transfers = c(
+  # &quot;Internal Ambulance / Transport&quot;,
+  # &quot;Retrieval&quot;,
+  &quot;Internal Bed / Wheelchair&quot;
+)
+
+journey_analysis_base %&lt;&gt;%  
+  dplyr::group_by(JOURNEY_KEY) %&gt;%
+  dplyr::filter(
+    any(enclass == &quot;ED.Admitted&quot; &amp; facility %in% NSLHD &amp; admit_mode %notin% internal_transfers, na.rm=T))%&gt;%
+  dplyr::ungroup()</code></pre>
 <pre class="r"><code>n_encounters &lt;- dplyr::n_distinct(journey_analysis_base$encntr_key)
 
 n_journeys &lt;- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)</code></pre>
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results. The cohort under investigation are encounters across the NSLHD between the dates <strong>2016-05-01</strong> - <strong>2018-04-29</strong>.</p>
-<p>Across this period there are <strong>529957</strong> unique encounters and <strong>491041</strong> unique journeys (a collection of encounters that have occurred within a specified time interval).</p>
+<p>We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results. The cohort under investigation are journeys with admission dates between <strong>2016-05-01</strong> - <strong>2018-04-29</strong>.</p>
+<p>The cohort is further filtered for those who are ED admitted in NSLHD and not an internal transfer OR was transferred to RNS as an ED admission.</p>
+<p>Across this period there are <strong>144282</strong> unique encounters and <strong>127461</strong> unique journeys (a collection of encounters that have occurred within a specified time interval).</p>
 <pre class="r"><code>stemi &lt;-journey_analysis_base %&gt;%
   dplyr::filter(admit_dttm &gt; as.POSIXct(&quot;2016-05-01&quot;) &amp;
                   admit_dttm &lt; as.POSIXct(&quot;2018-04-30&quot;)) %&gt;%
@@ -1835,8 +1858,11 @@ n_journeys &lt;- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)</code></pr
   kableExtra::pack_rows(row_name, 1, 2) %&gt;%
   kableExtra::kable_styling(full_width = F)
   result
-}</code></pre>
-<pre class="r"><code>kable_confusion_matrix(table(stemi$journey_acs_rule1,stemi$STEMI), &quot;ACS rule1&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
+}
+
+table_list &lt;- list()</code></pre>
+<pre class="r"><code>acs_1 &lt;- table(stemi$journey_acs_rule1,stemi$STEMI)
+kable_confusion_matrix(acs_1, &quot;ACS rule1&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -1870,10 +1896,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-474200
+117036
 </td>
 <td style="text-align:right;">
-252
+133
 </td>
 </tr>
 <tr>
@@ -1881,20 +1907,23 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-15737
+9792
 </td>
 <td style="text-align:right;">
-852
+500
 </td>
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>
+table_list[[1]] &lt;- acs_1</code></pre>
 </div>
 <div id="acs-rule-2" class="section level2">
 <h2><span class="header-section-number">2.2</span> ACS Rule 2</h2>
 <p><strong>Relative to absolute value:</strong></p>
 <p>This rule is simpler than <strong>ACS Rule 1</strong>, and simply involves comparing each <code>result_discrete_value</code> with a large number, chosen to be <code>1000</code>.</p>
-<pre class="r"><code>kable_confusion_matrix(table(stemi$journey_acs_rule2,stemi$STEMI), &quot;ACS rule 2&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
+<pre class="r"><code>acs_2 &lt;- table(stemi$journey_acs_rule2,stemi$STEMI )
+kable_confusion_matrix(acs_2, &quot;ACS rule 2&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -1928,10 +1957,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-487276
+125393
 </td>
 <td style="text-align:right;">
-274
+153
 </td>
 </tr>
 <tr>
@@ -1939,20 +1968,23 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-2661
+1435
 </td>
 <td style="text-align:right;">
-830
+480
 </td>
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>
+table_list[[2]] &lt;- acs_2</code></pre>
 </div>
-<div id="troponin-rule-3" class="section level2">
-<h2><span class="header-section-number">2.3</span> Troponin Rule 3</h2>
+<div id="acs-rule-3" class="section level2">
+<h2><span class="header-section-number">2.3</span> ACS Rule 3</h2>
 <p><strong>Compare</strong> <code>result_discrete_value</code> <strong>to value of</strong> <code>normal_high</code> <em>(Upper threshhold for normal).</em></p>
 <p>For each row, a column, <code>normal_high</code>, is given, specifying what the upper limit for that result <strong>SHOULD</strong> be for it to be considered “normal”.</p>
-<pre class="r"><code>kable_confusion_matrix(table(stemi$journey_above_normal_trop,stemi$STEMI),&quot;HIGH TROPONIN&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
+<pre class="r"><code>acs_3 &lt;- table(stemi$journey_above_normal_trop,stemi$STEMI)
+kable_confusion_matrix(acs_3,&quot;HIGH TROPONIN&quot;, &quot;ICD-10 STEMI&quot;)</code></pre>
 <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -1986,10 +2018,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-470701
+115305
 </td>
 <td style="text-align:right;">
-112
+70
 </td>
 </tr>
 <tr>
@@ -1997,18 +2029,22 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-19236
+11523
 </td>
 <td style="text-align:right;">
-992
+563
 </td>
 </tr>
 </tbody>
 </table>
-<div id="other-criteria" class="section level3">
-<h3><span class="header-section-number">2.3.1</span> Other Criteria</h3>
-<div id="original-3-criteria" class="section level4">
-<h4><span class="header-section-number">2.3.1.1</span> Original 3 Criteria</h4>
+<pre class="r"><code>
+table_list[[3]] &lt;- acs_3</code></pre>
+</div>
+</div>
+<div id="other-criteria" class="section level1">
+<h1><span class="header-section-number">3</span> Other Criteria</h1>
+<div id="original-3-criteria" class="section level2">
+<h2><span class="header-section-number">3.1</span> Original 3 Criteria</h2>
 <p>We also look at 3 other inclusions criteria being:</p>
 <ol style="list-style-type: decimal">
 <li>The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.</li>
@@ -2064,10 +2100,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-221352
+30888
 </td>
 <td style="text-align:right;">
-11
+4
 </td>
 </tr>
 <tr>
@@ -2075,17 +2111,19 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-268585
+95940
 </td>
 <td style="text-align:right;">
-1093
+629
 </td>
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>
+table_list[[4]] &lt;- criteria_table</code></pre>
 </div>
-<div id="alternate-criteria" class="section level4">
-<h4><span class="header-section-number">2.3.1.2</span> Alternate Criteria</h4>
+<div id="alternate-criteria" class="section level2">
+<h2><span class="header-section-number">3.2</span> Alternate Criteria</h2>
 <p>Given that the above results show a lot of false positives, we strengthen the second criteria and only include patients with <strong>ONLY</strong> troponin orders. In other words, the new criteria is:</p>
 <ol style="list-style-type: decimal">
 <li>The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.</li>
@@ -2142,10 +2180,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-221568
+30985
 </td>
 <td style="text-align:right;">
-11
+4
 </td>
 </tr>
 <tr>
@@ -2153,23 +2191,133 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-268369
+95843
 </td>
 <td style="text-align:right;">
-1093
+629
 </td>
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>
+table_list[[5]] &lt;- criteria_new_table</code></pre>
 <pre class="r"><code>new_fp &lt;- criteria_new_table[2][1]
 
 old_fp &lt;- criteria_table[2][1]
 
 diff &lt;- old_fp - new_fp</code></pre>
-<p>The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by 216 out of the original 268585, a decrease of 0.0804215%.</p>
+<p>The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by 97 out of the original 95940, a decrease of 0.1011049%.</p>
 </div>
 </div>
-</div>
+<div id="summary" class="section level1">
+<h1><span class="header-section-number">4</span> Summary</h1>
+<p>We summarise the various cohort selection criteria using <em>precision</em> and <em>sensitivity</em>.</p>
+<pre class="r"><code>precision &lt;- function(table){
+  tp &lt;- table[4]
+  fp &lt;- table[2]
+  
+  return(tp/(tp+fp))
+}
+
+specificity &lt;- function(table){
+  tn &lt;- table[1]
+  fp &lt;- table[3]
+  return(tn/(tn+fp))
+}
+
+sensitivity &lt;- function(table){
+  tp &lt;- table[4]
+  fn &lt;- table[3]
+  
+  return(tp/(tp+fn))
+}</code></pre>
+<pre class="r"><code>df &lt;- data.frame(
+                 precision = double(),
+                 sensitivity = double())
+for(i in 1:length(table_list)){
+  df %&lt;&gt;% dplyr::add_row(
+     precision = precision(table_list[[i]]),
+      sensitivity= sensitivity(table_list[[i]])
+  )
+}
+
+rownames(df) &lt;- c(&quot;ACS1&quot;, &quot;ACS2&quot;, &quot;ACS3&quot;,&quot;Criteria 1&quot;,&quot;Criteria 2&quot;)
+
+knitr::kable(df %&gt;% dplyr::mutate_if(is.numeric, format, digits=2), align=&quot;r&quot;) %&gt;%
+  kableExtra::kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+precision
+</th>
+<th style="text-align:right;">
+sensitivity
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ACS1
+</td>
+<td style="text-align:right;">
+0.0486
+</td>
+<td style="text-align:right;">
+0.79
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ACS2
+</td>
+<td style="text-align:right;">
+0.2507
+</td>
+<td style="text-align:right;">
+0.76
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ACS3
+</td>
+<td style="text-align:right;">
+0.0466
+</td>
+<td style="text-align:right;">
+0.89
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Criteria 1
+</td>
+<td style="text-align:right;">
+0.0065
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Criteria 2
+</td>
+<td style="text-align:right;">
+0.0065
+</td>
+<td style="text-align:right;">
+0.99
+</td>
+</tr>
+</tbody>
+</table>
+<p>Using Rule 2, choosing the cohort by using a threshold on the troponin score, produces the highest precision.</p>
+<p>There little difference between including orders for procedures such as angiograms/ECGs or not as a selection criteria. Whilst these selection methods produce the highest sensitivity, at the same time, produces the highest number of false positives and thus lowest precision.</p>
 </div>
 
 
