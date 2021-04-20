@@ -1,7 +1,7 @@
 ---
 title: "Validating ACS rules"
 author: "Harrison"
-date: "`r Sys.Date()`"
+date: 19/4/2021
 output:  
   html_document:
     code_folding: hide
@@ -39,6 +39,32 @@ journey_analysis_base <-read.csv(here::here("data-raw", "journey_analysis_base.c
 ```
 
 ```{r}
+
+# should be standard
+`%notin%` <- Negate(`%in%`)
+
+NSLHD <- c("Royal North Shore", "Hornsby", "Ryde", "Manly", "Mona Vale")
+CCLHD <- c("Gosford", "Woy Woy", "Wyong", "Long Jetty")
+
+is.ACS <- function(.x) {
+  any(.x %in% c("STEMI", "NSTEMI", "UNSTABLE_ANGINA", "UNSPECIFIED_ACS"), 
+      na.rm=T)
+}
+
+internal_transfers = c(
+  # "Internal Ambulance / Transport",
+  # "Retrieval",
+  "Internal Bed / Wheelchair"
+)
+
+journey_analysis_base %<>%  
+  dplyr::group_by(JOURNEY_KEY) %>%
+  dplyr::filter(
+    any(enclass == "ED.Admitted" & facility %in% NSLHD & admit_mode %notin% internal_transfers, na.rm=T))%>%
+  dplyr::ungroup()
+```
+
+```{r}
 n_encounters <- dplyr::n_distinct(journey_analysis_base$encntr_key)
 
 n_journeys <- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)
@@ -46,7 +72,9 @@ n_journeys <- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)
 # Introduction
 
 We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results.
-The cohort under investigation are encounters across the NSLHD between the dates **`r as.Date(min(journey_analysis_base$admit_dttm))`** - **`r as.Date(max(journey_analysis_base$admit_dttm))`**. 
+The cohort under investigation are journeys with admission dates between **`r as.Date(min(journey_analysis_base$admit_dttm))`** - **`r as.Date(max(journey_analysis_base$admit_dttm))`**. 
+
+The cohort is further filtered for those who are ED admitted in NSLHD and not an internal transfer OR was transferred to RNS as an ED admission.
 
 Across this period there are **`r n_encounters`** unique encounters and **`r n_journeys`** unique journeys (a collection of encounters that have occurred within a specified time interval).
 
@@ -85,10 +113,14 @@ kable_confusion_matrix <- function(table, row_name, col_name){
   result
 }
 
+table_list <- list()
 ```
  
 ```{r}
-kable_confusion_matrix(table(stemi$journey_acs_rule1,stemi$STEMI), "ACS rule1", "ICD-10 STEMI")
+acs_1 <- table(stemi$journey_acs_rule1,stemi$STEMI)
+kable_confusion_matrix(acs_1, "ACS rule1", "ICD-10 STEMI")
+
+table_list[[1]] <- acs_1
 ```
 
 ## ACS Rule 2
@@ -98,11 +130,14 @@ kable_confusion_matrix(table(stemi$journey_acs_rule1,stemi$STEMI), "ACS rule1", 
  each `result_discrete_value` with a large number, chosen to be `1000`.
  
 ```{r}
-kable_confusion_matrix(table(stemi$journey_acs_rule2,stemi$STEMI), "ACS rule 2", "ICD-10 STEMI")
+acs_2 <- table(stemi$journey_acs_rule2,stemi$STEMI )
+kable_confusion_matrix(acs_2, "ACS rule 2", "ICD-10 STEMI")
+
+table_list[[2]] <- acs_2
 ```
 
 
-## Troponin Rule 3
+## ACS Rule 3
   **Compare** `result_discrete_value` **to value of** `normal_high` 
   *(Upper threshhold for normal).*
   
@@ -110,11 +145,14 @@ kable_confusion_matrix(table(stemi$journey_acs_rule2,stemi$STEMI), "ACS rule 2",
   limit for that result **SHOULD** be for it to be considered "normal". 
   
 ```{r}
-kable_confusion_matrix(table(stemi$journey_above_normal_trop,stemi$STEMI),"HIGH TROPONIN", "ICD-10 STEMI")
-```
-### Other Criteria
+acs_3 <- table(stemi$journey_above_normal_trop,stemi$STEMI)
+kable_confusion_matrix(acs_3,"HIGH TROPONIN", "ICD-10 STEMI")
 
-#### Original 3 Criteria
+table_list[[3]] <- acs_3
+```
+# Other Criteria
+
+## Original 3 Criteria
 We also look at 3 other inclusions criteria being:
 
 1. The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.
@@ -141,9 +179,11 @@ cohort_flags <- stemi %>%
 ```{r}
 criteria_table <- table(cohort_flags$CRITERIA,cohort_flags$STEMI)
 kable_confusion_matrix(criteria_table,"SELECTION CRITERIA", "ICD-10 STEMI")
+
+table_list[[4]] <- criteria_table
 ```
 
-#### Alternate Criteria
+## Alternate Criteria
 Given that the above results show a lot of false positives, we strengthen the second criteria and only include patients with **ONLY** troponin orders. In other words, the new criteria is:
 
 1. The “Reason for Visit” (free text field) for the presentation contained any of the ACS-related symptoms or keywords described in Supplementary Information Part 1.
@@ -174,6 +214,8 @@ new_cohort_flags <- cohort_flags %>%
 ```{r}
 criteria_new_table <- table(new_cohort_flags$CRITERIA_NEW,new_cohort_flags$STEMI)
 kable_confusion_matrix(criteria_new_table,"SELECTION CRITERIA", "ICD-10 STEMI")
+
+table_list[[5]] <- criteria_new_table
 ```
 ```{r}
 new_fp <- criteria_new_table[2][1]
@@ -184,3 +226,49 @@ diff <- old_fp - new_fp
 ```
 
 The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by `r diff` out of the original `r old_fp`, a decrease of `r diff/old_fp*100`%.
+
+# Summary
+  
+We summarise the various cohort selection criteria using *precision* and *sensitivity*. 
+
+```{r}
+precision <- function(table){
+  tp <- table[4]
+  fp <- table[2]
+  
+  return(tp/(tp+fp))
+}
+
+specificity <- function(table){
+  tn <- table[1]
+  fp <- table[3]
+  return(tn/(tn+fp))
+}
+
+sensitivity <- function(table){
+  tp <- table[4]
+  fn <- table[3]
+  
+  return(tp/(tp+fn))
+}
+```
+
+```{r}
+df <- data.frame(
+                 precision = double(),
+                 sensitivity = double())
+for(i in 1:length(table_list)){
+  df %<>% dplyr::add_row(
+     precision = precision(table_list[[i]]),
+      sensitivity= sensitivity(table_list[[i]])
+  )
+}
+
+rownames(df) <- c("ACS1", "ACS2", "ACS3","Criteria 1","Criteria 2")
+
+knitr::kable(df %>% dplyr::mutate_if(is.numeric, format, digits=2), align="r") %>%
+  kableExtra::kable_styling()
+```
+Using Rule 2, choosing the cohort by using a threshold on the troponin score, produces the highest precision. 
+
+There little difference between including orders for procedures such as angiograms/ECGs or not as a selection criteria. Whilst these selection methods produce the highest sensitivity, at the same time, produces the highest number of false positives and thus lowest precision. 
