@@ -18,7 +18,6 @@
 #'
 "journey_analysis_base"
 
-
 #' Contains journeys according to ACS rule 2
 #'
 #'
@@ -38,3 +37,9 @@
 
 #' Contains door to balloon time for select patients
 "acs_door_to_baloon"
+
+#' Contain troponin orders based on `encounter_order`
+#'
+#'
+#'
+"troponin_encounter_order"

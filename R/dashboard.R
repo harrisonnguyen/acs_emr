@@ -16,6 +16,8 @@ data(acs_procedures)
 
 data(acs_door_to_balloon)
 
+data(troponin_encounter_order)
+
 antiplatelets = c("P2Y12 receptor blocker", "Other antiplatelet")
 exclusions <- c("death", "dama", "private hospital")
 
@@ -55,7 +57,39 @@ write.csv(acs_door_to_balloon,
           file.path(here::here("output"),"acs_door_to_balloon.csv"),
           row.names=FALSE)
 
-temp <- journey_acs %>% dplyr::left_join(acs_procedures, by="encntr_key")
+troponin_encounter_acs <- troponin_encounter_order %>%
+  dplyr::filter(ENCNTR_KEY %in% journey_acs$encntr_key) %>%
+  dplyr::filter(ORDER_STATUS == "Completed")
 
-acs_procedures %>%
-  dplyr::filter(angiogram | PCI | cabg)
+write.csv(troponin_encounter_acs,
+          file.path(here::here("output"),"troponin_encounter_acs.csv"),
+          row.names=FALSE)
+
+troponin_encounter_count <- journey_acs %>%
+  dplyr::left_join(troponin_encounter_acs, by = c("encntr_key" = "ENCNTR_KEY")) %>%
+  dplyr::group_by(JOURNEY_KEY) %>%
+  dplyr::summarise(TROPONIN_ORDER_COUNT = sum(!is.na(ORDER_MNEMONIC))) %>%
+  dplyr::ungroup()
+
+write.csv(troponin_encounter_count,
+          file.path(here::here("output"),"troponin_encounter_count.csv"),
+          row.names=FALSE)
+
+data(troponin_path)
+
+troponin_result <- troponin_path %>%
+  dplyr::filter(ENCNTR_KEY %in% journey_acs$encntr_key)
+
+write.csv(troponin_result,
+          file.path(here::here("output"),"troponin_result.csv"),
+          row.names=FALSE)
+
+troponin_result_count <- journey_acs %>%
+  dplyr::left_join(troponin_result, by = c("encntr_key" = "ENCNTR_KEY")) %>%
+  dplyr::group_by(JOURNEY_KEY) %>%
+  dplyr::summarise(TROPONIN_RESULT_COUNT = sum(!is.na(RESULT_DISCRETE_VALUE))) %>%
+  dplyr::ungroup()
+
+write.csv(troponin_result_count,
+          file.path(here::here("output"),"troponin_result_count.csv"),
+          row.names=FALSE)
