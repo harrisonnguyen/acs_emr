@@ -36,6 +36,20 @@ library(kableExtra)
 #load("../data/journey_analysis_base.rda")
 journey_analysis_base <-read.csv(here::here("data-raw", "journey_analysis_base.csv"), stringsAsFactors = FALSE)
 #data("journey_analysis_base")
+
+STEMI_SNOMED <- "(?i)acute( inferior | anterior |\\s)st segment elevation|(ST elevation myocardial infarction)|(Acute STEMI)"
+
+
+load("../data/diagnosis_data.rda")
+```
+
+```{r}
+snomed <-  diagnosis_data %>%
+  dplyr::filter(confirmation_status == "Confirmed" & (classification == "ED Medical" | classification == "Medical" | classification == "ED Nursing")) %>%
+  dplyr::filter(n_source_vocabulary_disp == "SNOMED CT")
+
+snomed_stemi <- snomed %>%
+  dplyr::filter(stringr::str_detect(source_string_cap, STEMI_SNOMED))
 ```
 
 ```{r}
@@ -65,10 +79,31 @@ journey_analysis_base %<>%
 ```
 
 ```{r}
-n_encounters <- dplyr::n_distinct(journey_analysis_base$encntr_key)
-
-n_journeys <- dplyr::n_distinct(journey_analysis_base$JOURNEY_KEY)
+snomed_journeys <- snomed_stemi %>%
+  dplyr::select(encntr_key,source_string_cap) %>%
+  dplyr::right_join(journey_analysis_base, by="encntr_key") %>%
+  dplyr::filter(!is.na(source_string_cap))
 ```
+
+```{r}
+stemi <-journey_analysis_base %>%
+  dplyr::filter(admit_dttm > as.POSIXct("2016-05-01") &
+                  admit_dttm < as.POSIXct("2018-04-30")) %>%
+  dplyr::mutate(STEMI = stringr::str_detect(icd10_diagnosis_list,"[^N]STEMI") | stringr::str_starts(icd10_diagnosis_list,"STEMI")) %>%
+  dplyr::distinct(JOURNEY_KEY,.keep_all=TRUE) %>%
+  dplyr::mutate(SNOMED_STEMI = JOURNEY_KEY %in% snomed_journeys$JOURNEY_KEY)
+```
+
+```{r}
+n_encounters <- dplyr::n_distinct(stemi$encntr_key)
+
+n_journeys <- dplyr::n_distinct(stemi$JOURNEY_KEY)
+
+n_icd10_stemi <- sum(stemi$STEMI)
+
+n_snomed_stemi <- sum(stemi$SNOMED_STEMI)
+```
+
 # Introduction
 
 We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results.
@@ -78,14 +113,13 @@ The cohort is further filtered for those who are ED admitted in NSLHD and not an
 
 Across this period there are **`r n_encounters`** unique encounters and **`r n_journeys`** unique journeys (a collection of encounters that have occurred within a specified time interval).
 
+The ICD-10 STEMI definitions can be found in an earlier analysis, shown [here](https://pages.github.sydney.edu.au/speed-extract/acs/articles/snomed_icd10_stemi.html#icd-10-1) and the SNOMED-STEMI definitions can be found at this [link](https://pages.github.sydney.edu.au/speed-extract/acs/articles/snomed_icd10_stemi.html#snomed-code-1).
 
-```{r}
-stemi <-journey_analysis_base %>%
-  dplyr::filter(admit_dttm > as.POSIXct("2016-05-01") &
-                  admit_dttm < as.POSIXct("2018-04-30")) %>%
-  dplyr::mutate(STEMI = stringr::str_detect(icd10_diagnosis_list,"[^N]STEMI") | stringr::str_starts(icd10_diagnosis_list,"STEMI")) %>%
-  dplyr::distinct(JOURNEY_KEY,.keep_all=TRUE)
-```
+
+All percentages have used the number of unique journeys, **`r n_journeys`**, as the denominator. In total there are
+
+- **`r n_icd10_stemi`** ICD-10 STEMIS and 
+- **`r n_snomed_stemi`** SNOMED STEMIS.
 
 # Troponin Results
 
@@ -114,13 +148,19 @@ kable_confusion_matrix <- function(table, row_name, col_name){
 }
 
 table_list <- list()
+i <- 1
+criteria_name <- list()
 ```
  
+The table shows a confusion matrix between those who have either been defined as a ICD10-STEMI or not and whether they have satisfied the troponin criteria.  
+ 
 ```{r}
-acs_1 <- table(stemi$journey_acs_rule1,stemi$STEMI)
-kable_confusion_matrix(acs_1, "ACS rule1", "ICD-10 STEMI")
+stemi_table_name <-  "ICD-10 STEMI"
+criteria_name[[i]] <- 'ACS rule1'
 
-table_list[[1]] <- acs_1
+table_list[[i]] <- table(stemi$journey_acs_rule1,stemi$STEMI)
+kable_confusion_matrix(table_list[[i]], criteria_name[[i]],stemi_table_name)
+i <- i + 1
 ```
 
 ## ACS Rule 2
@@ -130,12 +170,12 @@ table_list[[1]] <- acs_1
  each `result_discrete_value` with a large number, chosen to be `1000`.
  
 ```{r}
-acs_2 <- table(stemi$journey_acs_rule2,stemi$STEMI )
-kable_confusion_matrix(acs_2, "ACS rule 2", "ICD-10 STEMI")
+criteria_name[[i]] <- 'ACS rule2'
+table_list[[i]]  <- table(stemi$journey_acs_rule2,stemi$STEMI )
+kable_confusion_matrix(table_list[[i]], criteria_name[[i]], stemi_table_name)
 
-table_list[[2]] <- acs_2
+i <- i + 1
 ```
-
 
 ## ACS Rule 3
   **Compare** `result_discrete_value` **to value of** `normal_high` 
@@ -145,11 +185,42 @@ table_list[[2]] <- acs_2
   limit for that result **SHOULD** be for it to be considered "normal". 
   
 ```{r}
-acs_3 <- table(stemi$journey_above_normal_trop,stemi$STEMI)
-kable_confusion_matrix(acs_3,"HIGH TROPONIN", "ICD-10 STEMI")
 
-table_list[[3]] <- acs_3
+criteria_name[[i]] <- 'High troponin'
+table_list[[i]] <- table(stemi$journey_above_normal_trop,stemi$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+
+i <- i + 1
 ```
+
+## Combining ACS rules
+
+We analyse the results in a similar manner by combining the troponin rules.
+
+Note that the threshold used for Rule 2 is generally higher than the above normal range used in Rule 3, thus the cohort of patients who satisfy rule 2 is a subset of rule 3.
+
+### ACS rule 1 OR ACS rule 2
+
+```{r}
+criteria_name[[i]] <- 'ACS 1 Or 2'
+table_list[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_acs_rule2,stemi$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]] , stemi_table_name)
+
+i <- i + 1
+```
+
+### ACS rule 1 OR ACS rule 3
+
+```{r}
+criteria_name[[i]] <- 'ACS 1 Or 3'
+
+table_list[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+
+i <- i + 1
+```
+
+
 # Other Criteria
 
 ## Original 3 Criteria
@@ -177,10 +248,11 @@ cohort_flags <- stemi %>%
 ```
 
 ```{r}
-criteria_table <- table(cohort_flags$CRITERIA,cohort_flags$STEMI)
-kable_confusion_matrix(criteria_table,"SELECTION CRITERIA", "ICD-10 STEMI")
+criteria_name[[i]] <- '3 Original Criteria'
+table_list[[i]] <- table(cohort_flags$CRITERIA,cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
 
-table_list[[4]] <- criteria_table
+i <- i+ 1
 ```
 
 ## Alternate Criteria
@@ -212,20 +284,80 @@ new_cohort_flags <- cohort_flags %>%
 ```
 
 ```{r}
-criteria_new_table <- table(new_cohort_flags$CRITERIA_NEW,new_cohort_flags$STEMI)
-kable_confusion_matrix(criteria_new_table,"SELECTION CRITERIA", "ICD-10 STEMI")
+criteria_name[[i]] <- 'Adjusted 3 Criteria'
+table_list[[i]] <- table(new_cohort_flags$CRITERIA_NEW,new_cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
 
-table_list[[5]] <- criteria_new_table
+i<- i + 1
 ```
 ```{r}
-new_fp <- criteria_new_table[2][1]
+new_fp <- table_list[[i-1]][2][1]
 
-old_fp <- criteria_table[2][1]
+old_fp <- table_list[[i-2]][2][1]
 
 diff <- old_fp - new_fp
 ```
 
 The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by `r diff` out of the original `r old_fp`, a decrease of `r diff/old_fp*100`%.
+
+## Analysing the Permutations of the Criteria
+
+### Criteria 1
+```{r}
+criteria_name[[i]] <- 'Only C1'
+table_list[[i]] <- table(as.logical(new_cohort_flags$CF1_derived),new_cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+
+i<- i + 1
+```
+
+### Criteria 2
+```{r}
+criteria_name[[i]] <- 'Only C2'
+table_list[[i]] <- table(as.logical(new_cohort_flags$TROPONIN_FLAG),new_cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+
+i <- i + 1
+```
+
+### Criteria 3
+```{r}
+criteria_name[[i]] <- 'Only C3'
+table_list[[i]] <- table(as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]] ,criteria_name[[i]], stemi_table_name)
+
+i <- i + 1
+```
+
+### Criteria 1 OR 2
+
+```{r}
+criteria_name[[i]] <- 'C1 Or C2'
+table_list[[i]] <- table(as.logical(new_cohort_flags$CF1_derived) | as.logical(new_cohort_flags$TROPONIN_FLAG),new_cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+
+i<- i + 1
+```
+
+### Criteria 1 OR 3
+
+```{r}
+criteria_name[[i]] <- 'C1 Or C3'
+table_list[[i]] <- table(as.logical(new_cohort_flags$CF1_derived) | as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+
+i<- i + 1
+```
+
+### Criteria 2 OR 3
+
+```{r}
+criteria_name[[i]] <- 'C2 Or C3'
+table_list[[i]] <- table(as.logical(new_cohort_flags$TROPONIN_FLAG) | as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$STEMI)
+kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+
+i<- i + 1
+```
 
 # Summary
   
@@ -264,11 +396,80 @@ for(i in 1:length(table_list)){
   )
 }
 
-rownames(df) <- c("ACS1", "ACS2", "ACS3","Criteria 1","Criteria 2")
+rownames(df) <- unlist(criteria_name, use.names=FALSE)
 
 knitr::kable(df %>% dplyr::mutate_if(is.numeric, format, digits=2), align="r") %>%
   kableExtra::kable_styling()
 ```
+
 Using Rule 2, choosing the cohort by using a threshold on the troponin score, produces the highest precision. 
 
-There little difference between including orders for procedures such as angiograms/ECGs or not as a selection criteria. Whilst these selection methods produce the highest sensitivity, at the same time, produces the highest number of false positives and thus lowest precision. 
+There little difference between including orders for procedures such as angiograms/ECGs or not as a selection criteria. Furthermore, including a cohort with a troponin order (*Only C2*) produces a relatively high sensitivity and precision when compared with the other criteria individually.
+Whilst these selection methods produce the highest sensitivity, at the same time, produces the highest number of false positives and thus lowest precision. 
+
+# SNOMED
+
+The above analysis is repeated looking at SNOMED codes as well. Only the first table is shown but all results are summarised with precision and sensitivity.
+
+```{r}
+table_list_snomed <- list()
+i <- 1
+stemi_table_name <- "SNOMED STEMI"
+
+table_list_snomed[[i]] <- table(stemi$journey_acs_rule1,stemi$SNOMED_STEMI)
+kable_confusion_matrix(table_list_snomed[[i]], criteria_name[[i]], stemi_table_name)
+
+i<- i+1
+table_list_snomed[[i]] <- table(stemi$journey_acs_rule2,stemi$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_acs_rule2,stemi$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(cohort_flags$CRITERIA,cohort_flags$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(new_cohort_flags$CRITERIA_NEW,new_cohort_flags$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(as.logical(new_cohort_flags$CF1_derived),new_cohort_flags$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(as.logical(new_cohort_flags$TROPONIN_FLAG),new_cohort_flags$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(as.logical(new_cohort_flags$CF1_derived) | as.logical(new_cohort_flags$TROPONIN_FLAG),new_cohort_flags$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(as.logical(new_cohort_flags$CF1_derived) | as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$SNOMED_STEMI)
+
+i<- i+1
+table_list_snomed[[i]] <- table(as.logical(new_cohort_flags$TROPONIN_FLAG) | as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$SNOMED_STEMI)
+```
+
+
+```{r}
+df <- data.frame(
+                 precision = double(),
+                 sensitivity = double())
+for(i in 1:length(table_list_snomed)){
+  df %<>% dplyr::add_row(
+     precision = precision(table_list_snomed[[i]]),
+      sensitivity= sensitivity(table_list_snomed[[i]])
+  )
+}
+
+rownames(df) <- unlist(criteria_name, use.names=FALSE)
+
+knitr::kable(df %>% dplyr::mutate_if(is.numeric, format, digits=2), align="r") %>%
+  kableExtra::kable_styling()
+```
