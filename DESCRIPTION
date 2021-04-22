@@ -15,11 +15,11 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests:
     knitr,
-    rmarkdown
-    dplyr
-    ggplot2
-    glue
-    kableExtra
+    rmarkdown,
+    dplyr,
+    ggplot2,
+    glue,
+    kableExtra,
     magrittr
 VignetteBuilder: knitr
 Depends:

@@ -21,7 +21,8 @@ journey_analysis_base <- journey_analysis_base_cache %>%
 usethis::use_data(journey_analysis_base, overwrite = TRUE)
 
 journey_acs <- journey_analysis_base %>%
-  dplyr::filter(journey_above_normal_trop==TRUE)
+  dplyr::filter(journey_above_normal_trop==TRUE) %>%
+  dplyr::rename_all(toupper)
 
 
 usethis::use_data(journey_acs, overwrite = TRUE)

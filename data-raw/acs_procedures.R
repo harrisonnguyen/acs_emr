@@ -13,13 +13,14 @@ procedures_grouped_cache <- pipetree::load_merged_partitions(procedures_grouped,
 data(journey_acs)
 
 acs_procedures <- procedures_grouped_cache %>%
-  dplyr::filter(encntr_key %in% journey_acs$encntr_key) %>%
+  dplyr::filter(encntr_key %in% journey_acs$ENCNTR_KEY) %>%
   dplyr::mutate(procedure_name_groups = sapply(procedure_name_groups,toString),
                 procedure_name_keywords = sapply(procedure_name_keywords,toString)) %>%
   dplyr::mutate_if(is.character, list(~dplyr::na_if(.,""))) %>%
   dplyr::mutate(
     cabg = stringr::str_detect(procedure_name,"(?i)coronary artery bypass")) %>%
-  dplyr::filter(angiogram | PCI | cabg)
+  dplyr::filter(angiogram | PCI | cabg) %>%
+  dplyr::rename_all(toupper)
 
 
 usethis::use_data(acs_procedures, overwrite = TRUE)
