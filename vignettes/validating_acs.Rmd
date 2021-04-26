@@ -106,10 +106,14 @@ n_snomed_stemi <- sum(stemi$SNOMED_STEMI)
 
 # Introduction
 
-We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results.
+## Aim    
+We aim to investigate the accuracy of identifying STEMI patients based on various ACS rules and troponin results. We seek to analyse the amount of STEMI patients and non-STEMI patients that could be included in a cohort for a future extract if these different selection criteria is applied. 
+
+
+## Cohort
 The cohort under investigation are journeys with admission dates between **`r as.Date(min(journey_analysis_base$admit_dttm))`** - **`r as.Date(max(journey_analysis_base$admit_dttm))`**. 
 
-The cohort is further filtered for those who are ED admitted in NSLHD and not an internal transfer OR was transferred to RNS as an ED admission.
+The cohort is further filtered for those who are ED admitted in NSLHD and not an internal transfer    .
 
 Across this period there are **`r n_encounters`** unique encounters and **`r n_journeys`** unique journeys (a collection of encounters that have occurred within a specified time interval).
 
@@ -123,9 +127,9 @@ All percentages have used the number of unique journeys, **`r n_journeys`**, as 
 
 # Troponin Results
 
-There are three different rules that can define a ACS patient
+There are three different rules that can define a ACS patient. The troponin selection rule based on an above normal value given by the assay is not included as it is deemed not relevant.
 
-## ACS Rule 1
+## Comparison against Benchmark (ACS Rule 1)
  **Relative to first troponin reading of journey:**
  Find the first Troponin result for the journey 
  (According to `result_start_dttm`.) 
@@ -163,7 +167,7 @@ kable_confusion_matrix(table_list[[i]], criteria_name[[i]],stemi_table_name)
 i <- i + 1
 ```
 
-## ACS Rule 2
+## High Threshold (ACS Rule 2)
  **Relative to absolute value:**
  
  This rule is simpler than **ACS Rule 1**, and simply involves comparing
@@ -177,27 +181,27 @@ kable_confusion_matrix(table_list[[i]], criteria_name[[i]], stemi_table_name)
 i <- i + 1
 ```
 
-## ACS Rule 3
-  **Compare** `result_discrete_value` **to value of** `normal_high` 
-  *(Upper threshhold for normal).*
-  
-  For each row, a column, `normal_high`, is given, specifying what the upper
-  limit for that result **SHOULD** be for it to be considered "normal". 
-  
-```{r}
+<!-- ## ACS Rule 3 -->
+<!--   **Compare** `result_discrete_value` **to value of** `normal_high`  -->
+<!--   *(Upper threshhold for normal).* -->
 
-criteria_name[[i]] <- 'High troponin'
-table_list[[i]] <- table(stemi$journey_above_normal_trop,stemi$STEMI)
-kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+<!--   For each row, a column, `normal_high`, is given, specifying what the upper -->
+<!--   limit for that result **SHOULD** be for it to be considered "normal".  -->
 
-i <- i + 1
-```
+<!-- ```{r} -->
+
+<!-- criteria_name[[i]] <- 'ACS Rule 3' -->
+<!-- table_list[[i]] <- table(stemi$journey_above_normal_trop,stemi$STEMI) -->
+<!-- kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name) -->
+
+<!-- i <- i + 1 -->
+<!-- ``` -->
 
 ## Combining ACS rules
 
 We analyse the results in a similar manner by combining the troponin rules.
 
-Note that the threshold used for Rule 2 is generally higher than the above normal range used in Rule 3, thus the cohort of patients who satisfy rule 2 is a subset of rule 3.
+<!-- Note that   the threshold used for Rule 2 is generally higher than the above normal range used in Rule 3, thus the cohort of patients who satisfy rule 2 is a subset of rule 3. -->
 
 ### ACS rule 1 OR ACS rule 2
 
@@ -209,16 +213,16 @@ kable_confusion_matrix(table_list[[i]],criteria_name[[i]] , stemi_table_name)
 i <- i + 1
 ```
 
-### ACS rule 1 OR ACS rule 3
+<!-- ### ACS rule 1 OR ACS rule 3 -->
 
-```{r}
-criteria_name[[i]] <- 'ACS 1 Or 3'
+<!-- ```{r} -->
+<!-- criteria_name[[i]] <- 'ACS 1 Or 3' -->
 
-table_list[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$STEMI)
-kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
+<!-- table_list[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$STEMI) -->
+<!-- kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name) -->
 
-i <- i + 1
-```
+<!-- i <- i + 1 -->
+<!-- ``` -->
 
 
 # Other Criteria
@@ -302,7 +306,7 @@ The change of the second criteria of only using the troponin orders has not made
 
 ## Analysing the Permutations of the Criteria
 
-### Criteria 1
+### Presentation of ACS-related symptoms (Criteria 1)
 ```{r}
 criteria_name[[i]] <- 'Only C1'
 table_list[[i]] <- table(as.logical(new_cohort_flags$CF1_derived),new_cohort_flags$STEMI)
@@ -311,16 +315,16 @@ kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
 i<- i + 1
 ```
 
-### Criteria 2
+### Order of Troponin test (Adjusted Criteria 2)
 ```{r}
-criteria_name[[i]] <- 'Only C2'
+criteria_name[[i]] <- 'Only  Adj. C2'
 table_list[[i]] <- table(as.logical(new_cohort_flags$TROPONIN_FLAG),new_cohort_flags$STEMI)
 kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
 
 i <- i + 1
 ```
 
-### Criteria 3
+### Has 12-lead ECG image (Criteria 3)
 ```{r}
 criteria_name[[i]] <- 'Only C3'
 table_list[[i]] <- table(as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$STEMI)
@@ -329,10 +333,11 @@ kable_confusion_matrix(table_list[[i]] ,criteria_name[[i]], stemi_table_name)
 i <- i + 1
 ```
 
+
 ### Criteria 1 OR 2
 
 ```{r}
-criteria_name[[i]] <- 'C1 Or C2'
+criteria_name[[i]] <- 'C1 Or Adj. C2'
 table_list[[i]] <- table(as.logical(new_cohort_flags$CF1_derived) | as.logical(new_cohort_flags$TROPONIN_FLAG),new_cohort_flags$STEMI)
 kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
 
@@ -352,7 +357,7 @@ i<- i + 1
 ### Criteria 2 OR 3
 
 ```{r}
-criteria_name[[i]] <- 'C2 Or C3'
+criteria_name[[i]] <- 'Adj. C2 Or C3'
 table_list[[i]] <- table(as.logical(new_cohort_flags$TROPONIN_FLAG) | as.logical(new_cohort_flags$CF7_derived),new_cohort_flags$STEMI)
 kable_confusion_matrix(table_list[[i]],criteria_name[[i]], stemi_table_name)
 
@@ -361,7 +366,8 @@ i<- i + 1
 
 # Summary
   
-We summarise the various cohort selection criteria using *precision* and *sensitivity*. 
+We summarise the various cohort selection criteria using *precision* and *sensitivity* and combine these metrics through the F1 score, which is the harmonic mean of precision and sensitivity. 
+
 
 ```{r}
 precision <- function(table){
@@ -396,16 +402,22 @@ for(i in 1:length(table_list)){
   )
 }
 
+df %<>% dplyr::mutate(f_score = 2*precision*sensitivity/(precision + sensitivity))
+
 rownames(df) <- unlist(criteria_name, use.names=FALSE)
 
 knitr::kable(df %>% dplyr::mutate_if(is.numeric, format, digits=2), align="r") %>%
-  kableExtra::kable_styling()
+  kableExtra::kable_styling()%>%
+  kableExtra::row_spec(.,c(2,7,6,9), bold= TRUE)
+  
 ```
 
-Using Rule 2, choosing the cohort by using a threshold on the troponin score, produces the highest precision. 
+Using Rule 2, choosing the cohort by using a threshold on the troponin score, produces the highest precision however is the lowest sensitivity out of all the options. In other words, the high troponin score selects a very small cohort where **`r table_list[[2]][2,2]/sum(table_list[[2]][2,])*100`**\% are ICD-10-STEMI but misses **`r (1-df['ACS rule2','sensitivity'])*100`**\% STEMI's.
 
-There little difference between including orders for procedures such as angiograms/ECGs or not as a selection criteria. Furthermore, including a cohort with a troponin order (*Only C2*) produces a relatively high sensitivity and precision when compared with the other criteria individually.
-Whilst these selection methods produce the highest sensitivity, at the same time, produces the highest number of false positives and thus lowest precision. 
+There little difference between including orders for procedures such as angiograms/ECGs or not as a selection criteria. These selection methods produce the highest sensitivity, at the same time, produces the highest number of false positives (large number of non-STEMI's) and thus lower precision when compared to using the troponin test results.
+
+Furthermore, including a cohort with a troponin order (*Only Adj C2*) produces a relatively high sensitivity and precision when compared with the other criteria individually. In particular, it produces a precision that is **`r df['Only  Adj. C2','precision']/df['Only C3','precision']`** times higher than using only *C3*. Combining *C1* with *Adj. C2* is beneficial, as it improves the sensitivity without sacrificing a lot of precision.
+
 
 # SNOMED
 
@@ -423,15 +435,15 @@ i<- i+1
 table_list_snomed[[i]] <- table(stemi$journey_acs_rule2,stemi$SNOMED_STEMI)
 
 i<- i+1
-table_list_snomed[[i]] <- table(stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
-
-i<- i+1
+# table_list_snomed[[i]] <- table(stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
+# 
+# i<- i+1
 table_list_snomed[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_acs_rule2,stemi$SNOMED_STEMI)
 
 i<- i+1
-table_list_snomed[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
-
-i<- i+1
+# table_list_snomed[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
+# 
+# i<- i+1
 table_list_snomed[[i]] <- table(cohort_flags$CRITERIA,cohort_flags$SNOMED_STEMI)
 
 i<- i+1
@@ -467,7 +479,7 @@ for(i in 1:length(table_list_snomed)){
       sensitivity= sensitivity(table_list_snomed[[i]])
   )
 }
-
+df %<>% dplyr::mutate(f_score = 2*precision*sensitivity/(precision + sensitivity))
 rownames(df) <- unlist(criteria_name, use.names=FALSE)
 
 knitr::kable(df %>% dplyr::mutate_if(is.numeric, format, digits=2), align="r") %>%
