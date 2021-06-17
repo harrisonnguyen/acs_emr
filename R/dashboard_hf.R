@@ -250,49 +250,6 @@ create_procedures <- function(journey, procedures_grouped,door_to_balloon){
 
 }
 
-
-create_procedures_second <- function(journeys, procedures_grouped,door_to_balloon){
-
-  acs_procedures <- procedures_grouped %>%
-    dplyr::filter(encntr_key %in% journeys$ENCNTR_KEY) %>%
-    dplyr::mutate(procedure_name_groups = sapply(procedure_name_groups,toString),
-                  procedure_name_keywords = sapply(procedure_name_keywords,toString)) %>%
-    dplyr::mutate_if(is.character, list(~dplyr::na_if(.,""))) %>%
-    dplyr::mutate(
-      cabg = stringr::str_detect(procedure_name,"(?i)coronary artery bypass")) %>%
-    dplyr::filter(angiogram | PCI | cabg) %>%
-    dplyr::rename_all(toupper) %>%
-    dplyr::left_join(
-      dplyr::select(journeys,JOURNEY_KEY,ENCNTR_KEY), by = c("ENCNTR_KEY")
-    ) %>%
-    dplyr::select(JOURNEY_KEY, PROCEDURE_DTTM, ANGIOGRAM,PCI,CABG)
-
-  stemi <- journeys %>%
-    dplyr::filter(ICD10_ACS == "STEMI")
-
-  interventions <-acs_procedures %>%
-    dplyr::full_join(dplyr::select(journeys,JOURNEY_KEY, JOURNEY_SEP_MODE)) %>%
-    dplyr::group_by(JOURNEY_KEY) %>%
-    dplyr::summarise(
-      angiogram = any(ANGIOGRAM, na.rm = TRUE),
-      pci = any(PCI, na.rm = TRUE),
-      cabbage = any(CABG, na.rm = TRUE),
-      private = any(JOURNEY_SEP_MODE == "private hospital", na.rm = TRUE)
-    ) %>%
-    dplyr::mutate(
-      INTERVENTION = dplyr::case_when(
-        pci ~ "Angio & PCI",
-        cabbage ~ "Angio & CABG",
-        !pci & !cabbage & private ~ "Private",
-        angiogram ~ "Angio only",
-        TRUE ~ "None"),
-      INTERVENTION = forcats::fct_relevel(INTERVENTION, "None", after = Inf)
-    ) %>%
-    dplyr::mutate(PCI_MCKESSON = JOURNEY_KEY %in% door_to_balloon$JOURNEY_KEY) %>%
-    dplyr::filter(JOURNEY_KEY %in% stemi$JOURNEY_KEY)
-}
-
-
 create_meds_admit_discharge <- function(journey, journey_meds_admit_discharge){
   acs_journey_meds_admit_discharge <- journey_meds_admit_discharge %>%
     dplyr::rename_all(toupper) %>%
@@ -469,8 +426,24 @@ get_first_encounter <- function(df,journey_acs,name=NULL,bins=NULL){
   return(df)
 
 }
+
+get_heartfailure_journeys <- function(journey,diagnosis){
+  hf_diag <- diagnosis %>%
+    dplyr::filter(stringr::str_detect(source_string, "(?i)heart failure") &
+                     n_source_vocabulary_disp == "ICD10-AM") %>%
+    dplyr::select(encntr_key,source_string_cap,display_identifier_cap)
+  journey_hf <- journey %>%
+    dplyr::filter(encntr_key %in% hf_diag$encntr_key) %>%
+    dplyr::left_join(hf_diag,by='encntr_key')
+}
 library(magrittr)
 
+data(journey_analysis_base)
+data(diagnosis_data)
+
+journey_hf <- get_heartfailure_journeys(journey_analysis_base,diagnosis_data)
+
+output_dir <- here::here("output_hf")
 # load the data
 data(journey_acs)
 data(triage_form_prep)
@@ -480,12 +453,14 @@ data(procedures_grouped)
 data(journey_meds_admit_discharge)
 data(troponin_encounter_order)
 data(troponin_path)
-data(diagnosis_data)
 data(triage_form)
 
-
-output_dir <- here::here("output_hf")
-
+journey_acs <- journey_hf %>%
+  dplyr::rename_all(toupper) %>%
+  dplyr::select(PERSON_KEY, JOURNEY_KEY, ENCNTR_KEY, GENDER, AGE_AT_ADMIT, FACILITY,
+                ADMIT_MODE, ADMIT_DTTM, DISCHARGE_DTTM, JOURNEY_START,JOURNEY_END, JOURNEY_FIRST_FACILITY,
+                JOURNEY_FINAL_FACILITY, JOURNEY_DAYS, JOURNEY_SEP_MODE) %>%
+  dplyr::distinct()
 acs_demographics <- create_demographics(journey_acs)
 trajectories <- create_trajectory(journey_acs)
 presentations <- create_presentations(journey_acs,triage_form)
@@ -506,9 +481,7 @@ acs_demographics %<>%
     dplyr::select(presentations,JOURNEY_KEY, PRESENTATION_MODE), by = "JOURNEY_KEY") %>%
   dplyr::left_join(
     dplyr::select(separations,JOURNEY_KEY,SEPARATION_MODE), by = "JOURNEY_KEY") %>%
-  dplyr::left_join(interventions, by = "JOURNEY_KEY") %>%
-  dplyr::left_join(
-    dplyr::select(diagnosis_acs,JOURNEY_KEY,SNOMED_ACS), by = 'JOURNEY_KEY')
+  dplyr::left_join(interventions, by = "JOURNEY_KEY")
 
 
 acs_discharge_letter_keys <- create_discharge_letter_keys(journey_acs,discharge_letter_keys)
@@ -651,43 +624,3 @@ write.csv(ldl,
           row.names=FALSE)
 
 
-## TROPONIN STUFFF
-data(troponin_encounter_order)
-data(troponin_path)
-
-troponin_encounter_acs <- troponin_encounter_order %>%
-  dplyr::filter(ENCNTR_KEY %in% journey_acs$ENCNTR_KEY) %>%
-  dplyr::filter(ORDER_STATUS == "Completed")
-
-write.csv(troponin_encounter_acs,
-          file.path(output_dir,"troponin_encounter_acs.csv"),
-          row.names=FALSE)
-
-troponin_encounter_count <- journey_acs %>%
-  dplyr::left_join(troponin_encounter_acs, by = c("ENCNTR_KEY" = "ENCNTR_KEY")) %>%
-  dplyr::group_by(JOURNEY_KEY) %>%
-  dplyr::summarise(TROPONIN_ORDER_COUNT = sum(!is.na(ORDER_MNEMONIC))) %>%
-  dplyr::ungroup()
-
-write.csv(troponin_encounter_count,
-          file.path(output_dir,"troponin_encounter_count.csv"),
-          row.names=FALSE)
-
-
-
-troponin_result <- troponin_path %>%
-  dplyr::filter(ENCNTR_KEY %in% journey_acs$ENCNTR_KEY)
-
-write.csv(troponin_result,
-          file.path(output_dir,"troponin_result.csv"),
-          row.names=FALSE)
-
-troponin_result_count <- journey_acs %>%
-  dplyr::left_join(troponin_result, by = c("ENCNTR_KEY" = "ENCNTR_KEY")) %>%
-  dplyr::group_by(JOURNEY_KEY) %>%
-  dplyr::summarise(TROPONIN_RESULT_COUNT = sum(!is.na(RESULT_DISCRETE_VALUE))) %>%
-  dplyr::ungroup()
-
-write.csv(troponin_result_count,
-          file.path(output_dir,"troponin_result_count.csv"),
-          row.names=FALSE)
