@@ -97,6 +97,13 @@ create_presentations <- function(journey, triage_form){
     dplyr::distinct()
 }
 
+#' Creates categories for the types of interventions
+#' Patients are classified based on whether they have had
+#' any of the following procedures: angiogram,pci,CABG
+#' or whether they were transferred to a private hospital
+#'
+#' It is assumed that if a patient had a PCI, or CABG
+#' they would have an angiogram
 create_interventions <- function(journeys,procedures){
 
   interventions <-procedures %>%
@@ -219,6 +226,15 @@ create_door_to_balloon <- function(journey,door_to_balloon, trajectories, presen
     dplyr::select(-c(TRAJECTORY,PRESENTATION_MODE))
 }
 
+
+#' Filters the procedures table
+#' for relevant ACS procedures: angiogram, pci and CABG
+#' Procedures are extracted based on a regex search
+#' and assigns a boolean column for each procedure for each encounter
+#'
+#' Secondly, the PCI boolean column is corrobated with PCI mckesson
+#' procedures
+#' @export
 create_procedures <- function(journey, procedures_grouped,door_to_balloon){
   acs_procedures <- procedures_grouped %>%
   dplyr::filter(encntr_key %in% journey$ENCNTR_KEY) %>%
