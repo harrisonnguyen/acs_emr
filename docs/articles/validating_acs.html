@@ -54,6 +54,12 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/acs_procedures.html">The 'Cath Lab' and ICD10 Procedures</a>
+    </li>
+    <li>
+      <a href="../articles/heartfailure_prelim.html">Heart Failure Inpatient Analysis</a>
+    </li>
+    <li>
       <a href="../articles/snomed_icd10_stemi.html">ICD10 SNOMED Concordance</a>
     </li>
     <li>
@@ -75,7 +81,7 @@
 
       
 
-      </header><script src="validating_acs_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="validating_acs_files/kePrint-0.0.1/kePrint.js"></script><link href="validating_acs_files/lightable-0.0.1/lightable.css" rel="stylesheet">
+      </header><script src="validating_acs_files/header-attrs-2.7/header-attrs.js"></script><script src="validating_acs_files/kePrint-0.0.1/kePrint.js"></script><link href="validating_acs_files/lightable-0.0.1/lightable.css" rel="stylesheet">
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -96,61 +102,43 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org">magrittr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/">knitr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span></code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span>
+
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/targets/">targets</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.sydney.edu.au/speed-extract/acs">acs</a></span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#load("../data/journey_analysis_base.rda")</span>
-<span class="va">journey_analysis_base</span> <span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html">here</a></span><span class="op">(</span><span class="st">"data-raw"</span>, <span class="st">"journey_analysis_base.csv"</span><span class="op">)</span>, stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<span class="co">#journey_analysis_base &lt;-read.csv(here::here("data-raw", "journey_analysis_base.csv"), stringsAsFactors = FALSE)</span>
 <span class="co">#data("journey_analysis_base")</span>
 
-<span class="va">STEMI_SNOMED</span> <span class="op">&lt;-</span> <span class="st">"(?i)acute( inferior | anterior |\\s)st segment elevation|(ST elevation myocardial infarction)|(Acute STEMI)"</span>
+<span class="co">#journey_analysis_base &lt;- tar_read(input_journey_analysis_base)</span>
+<span class="co">#STEMI_SNOMED &lt;- "(?i)acute( inferior | anterior |\\s)st segment elevation|(ST elevation myocardial infarction)|(Acute STEMI)"</span>
 
 
-<span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"../data/diagnosis_data.rda"</span><span class="op">)</span></code></pre></div>
+<span class="co">#load("../data/diagnosis_data.rda")</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">snomed</span> <span class="op">&lt;-</span>  <span class="va">diagnosis_data</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">confirmation_status</span> <span class="op">==</span> <span class="st">"Confirmed"</span> <span class="op">&amp;</span> <span class="op">(</span><span class="va">classification</span> <span class="op">==</span> <span class="st">"ED Medical"</span> <span class="op">|</span> <span class="va">classification</span> <span class="op">==</span> <span class="st">"Medical"</span> <span class="op">|</span> <span class="va">classification</span> <span class="op">==</span> <span class="st">"ED Nursing"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">n_source_vocabulary_disp</span> <span class="op">==</span> <span class="st">"SNOMED CT"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="co">#snomed &lt;-  diagnosis_data %&gt;%</span>
+<span class="co">#  dplyr::filter(confirmation_status == "Confirmed" &amp; (classification == "ED Medical" | classification == "Medical" | classification == "ED Nursing")) %&gt;%</span>
+<span class="co">#  dplyr::filter(n_source_vocabulary_disp == "SNOMED CT")</span>
 
-<span class="va">snomed_stemi</span> <span class="op">&lt;-</span> <span class="va">snomed</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html">str_detect</a></span><span class="op">(</span><span class="va">source_string_cap</span>, <span class="va">STEMI_SNOMED</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="co">#snomed_stemi &lt;- snomed %&gt;%</span>
+<span class="co">#  dplyr::filter(stringr::str_detect(source_string_cap, STEMI_SNOMED))</span>
+
+
+<span class="va">journey_analysis_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/targets/reference/tar_read.html">tar_read</a></span><span class="op">(</span><span class="va">val_journeys</span><span class="op">)</span>
+<span class="va">snomed_stemi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/targets/reference/tar_read.html">tar_read</a></span><span class="op">(</span><span class="va">stemi_snomed</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="co"># should be standard</span>
-<span class="va">`%notin%`</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html">Negate</a></span><span class="op">(</span><span class="va">`%in%`</span><span class="op">)</span>
-
-<span class="va">NSLHD</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Royal North Shore"</span>, <span class="st">"Hornsby"</span>, <span class="st">"Ryde"</span>, <span class="st">"Manly"</span>, <span class="st">"Mona Vale"</span><span class="op">)</span>
-<span class="va">CCLHD</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Gosford"</span>, <span class="st">"Woy Woy"</span>, <span class="st">"Wyong"</span>, <span class="st">"Long Jetty"</span><span class="op">)</span>
-
-<span class="va">is.ACS</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="va">.x</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"STEMI"</span>, <span class="st">"NSTEMI"</span>, <span class="st">"UNSTABLE_ANGINA"</span>, <span class="st">"UNSPECIFIED_ACS"</span><span class="op">)</span>, 
-      na.rm<span class="op">=</span><span class="cn">T</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="va">internal_transfers</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
-  <span class="co"># "Internal Ambulance / Transport",</span>
-  <span class="co"># "Retrieval",</span>
-  <span class="st">"Internal Bed / Wheelchair"</span>
-<span class="op">)</span>
-
-<span class="va">journey_analysis_base</span> <span class="op">%&lt;&gt;%</span>  
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">JOURNEY_KEY</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="va">enclass</span> <span class="op">==</span> <span class="st">"ED.Admitted"</span> <span class="op">&amp;</span> <span class="va">facility</span> <span class="op">%in%</span> <span class="va">NSLHD</span> <span class="op">&amp;</span> <span class="va">admit_mode</span> <span class="op">%notin%</span> <span class="va">internal_transfers</span>, na.rm<span class="op">=</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span><span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">snomed_journeys</span> <span class="op">&lt;-</span> <span class="va">snomed_stemi</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">encntr_key</span>,<span class="va">source_string_cap</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">right_join</a></span><span class="op">(</span><span class="va">journey_analysis_base</span>, by<span class="op">=</span><span class="st">"encntr_key"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">source_string_cap</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">ENCNTR_KEY</span>,<span class="va">SOURCE_STRING_CAP</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">right_join</a></span><span class="op">(</span><span class="va">journey_analysis_base</span>, by<span class="op">=</span><span class="st">"ENCNTR_KEY"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">SOURCE_STRING_CAP</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">stemi</span> <span class="op">&lt;-</span><span class="va">journey_analysis_base</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">admit_dttm</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">"2016-05-01"</span><span class="op">)</span> <span class="op">&amp;</span>
-                  <span class="va">admit_dttm</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">"2018-04-30"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>STEMI <span class="op">=</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html">str_detect</a></span><span class="op">(</span><span class="va">icd10_diagnosis_list</span>,<span class="st">"[^N]STEMI"</span><span class="op">)</span> <span class="op">|</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_starts</a></span><span class="op">(</span><span class="va">icd10_diagnosis_list</span>,<span class="st">"STEMI"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>STEMI <span class="op">=</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html">str_detect</a></span><span class="op">(</span><span class="va">ICD10_DIAGNOSIS_LIST</span>,<span class="st">"[^N]STEMI"</span><span class="op">)</span> <span class="op">|</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_starts</a></span><span class="op">(</span><span class="va">ICD10_DIAGNOSIS_LIST</span>,<span class="st">"STEMI"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">JOURNEY_KEY</span>,.keep_all<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>SNOMED_STEMI <span class="op">=</span> <span class="va">JOURNEY_KEY</span> <span class="op">%in%</span> <span class="va">snomed_journeys</span><span class="op">$</span><span class="va">JOURNEY_KEY</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">n_encounters</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html">n_distinct</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">encntr_key</span><span class="op">)</span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">n_encounters</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html">n_distinct</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">ENCNTR_KEY</span><span class="op">)</span>
 
 <span class="va">n_journeys</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html">n_distinct</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_KEY</span><span class="op">)</span>
 
@@ -168,16 +156,16 @@
 <div id="cohort" class="section level2">
 <h2 class="hasAnchor">
 <a href="#cohort" class="anchor"></a>Cohort</h2>
-<p>The cohort under investigation are journeys with admission dates between <strong>2016-05-01</strong> - <strong>2018-04-29</strong>.</p>
+<p>The cohort under investigation are journeys with admission dates between <strong>2017-03-31</strong> - <strong>2017-06-29</strong>.</p>
 <p>The cohort is further filtered for those who are ED admitted in NSLHD and not an internal transfer .</p>
-<p>Across this period there are <strong>127461</strong> unique encounters and <strong>127461</strong> unique journeys (a collection of encounters that have occurred within a specified time interval).</p>
+<p>Across this period there are <strong>14025</strong> unique encounters and <strong>14025</strong> unique journeys (a collection of encounters that have occurred within a specified time interval).</p>
 <p>The ICD-10 STEMI definitions can be found in an earlier analysis, shown <a href="https://pages.github.sydney.edu.au/speed-extract/acs/articles/snomed_icd10_stemi.html#icd-10-1">here</a> and the SNOMED-STEMI definitions can be found at this <a href="https://pages.github.sydney.edu.au/speed-extract/acs/articles/snomed_icd10_stemi.html#snomed-code-1">link</a>.</p>
-<p>All percentages have used the number of unique journeys, <strong>127461</strong>, as the denominator. In total there are</p>
+<p>All percentages have used the number of unique journeys, <strong>14025</strong>, as the denominator. In total there are</p>
 <ul>
 <li>
-<strong>633</strong> ICD-10 STEMIS and</li>
+<strong>99</strong> ICD-10 STEMIS and</li>
 <li>
-<strong>350</strong> SNOMED STEMIS.</li>
+<strong>67</strong> SNOMED STEMIS.</li>
 </ul>
 </div>
 </div>
@@ -191,7 +179,7 @@
 <p><strong>Relative to first troponin reading of journey:</strong> Find the first Troponin result for the journey (According to <code>result_start_dttm</code>.)</p>
 <p>Now, for every subsequent troponin result, if a given result’s value (<code>result_discrete_value</code>) exceeds the first by <code>&gt; %30</code>, ie:</p>
 <p><code>result[i] &gt; 1.3*result[1]</code> for <em>i</em> within <em>2</em> and <em>n</em> where <em>n</em> is the total number of results for that journey.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">kable_confusion_matrix</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">table</span>, <span class="va">row_name</span>, <span class="va">col_name</span><span class="op">)</span><span class="op">{</span>
   <span class="va">span</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>
   <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">span</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">" "</span>, <span class="va">col_name</span><span class="op">)</span>
@@ -206,11 +194,11 @@
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 <span class="va">criteria_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>The table shows a confusion matrix between those who have either been defined as a ICD10-STEMI or not and whether they have satisfied the troponin criteria.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">stemi_table_name</span> <span class="op">&lt;-</span>  <span class="st">"ICD-10 STEMI"</span>
 <span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'ACS rule1'</span>
 
-<span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule1</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
+<span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE1</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
 <table class="table table">
 <thead>
@@ -245,10 +233,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-117036
+12659
 </td>
 <td style="text-align:right;">
-133
+18
 </td>
 </tr>
 <tr>
@@ -256,15 +244,15 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-9792
+1267
 </td>
 <td style="text-align:right;">
-500
+81
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">i</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
 <div id="high-threshold-acs-rule-2" class="section level2">
@@ -272,9 +260,9 @@ TRUE
 <a href="#high-threshold-acs-rule-2" class="anchor"></a>High Threshold (ACS Rule 2)</h2>
 <p><strong>Relative to absolute value:</strong></p>
 <p>This rule is simpler than <strong>ACS Rule 1</strong>, and simply involves comparing each <code>result_discrete_value</code> with a large number, chosen to be <code>1000</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'ACS rule2'</span>
-<span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span> <span class="op">)</span>
+<span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span> <span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
 <table class="table table">
 <thead>
@@ -309,10 +297,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-125393
+13732
 </td>
 <td style="text-align:right;">
-153
+22
 </td>
 </tr>
 <tr>
@@ -320,15 +308,15 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-1435
+194
 </td>
 <td style="text-align:right;">
-480
+77
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 <!-- ## ACS Rule 3 -->
@@ -351,9 +339,9 @@ TRUE
 <div id="acs-rule-1-or-acs-rule-2" class="section level3">
 <h3 class="hasAnchor">
 <a href="#acs-rule-1-or-acs-rule-2" class="anchor"></a>ACS rule 1 OR ACS rule 2</h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'ACS 1 Or 2'</span>
-<span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule1</span> <span class="op">|</span> <span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
+<span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE1</span> <span class="op">|</span> <span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> , <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
 <table class="table table">
 <thead>
@@ -388,10 +376,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-116841
+12637
 </td>
 <td style="text-align:right;">
-86
+11
 </td>
 </tr>
 <tr>
@@ -399,15 +387,15 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-9987
+1289
 </td>
 <td style="text-align:right;">
-547
+88
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 <!-- ### ACS rule 1 OR ACS rule 3 -->
@@ -432,9 +420,8 @@ TRUE
 <li>Orders were placed in the EMR for a troponin test OR a 12 lead ECG OR for any of the following investigations: coronary angiogram, exercise stress test, stress echocardiogram, sestamibi scan, CT coronary angiogram, CT pulmonary angiogram.</li>
 <li>The encounter contained a scanned 12-lead ECG image.</li>
 </ol>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cohort_flags</span> <span class="op">&lt;-</span> <span class="va">stemi</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select_all.html">rename_all</a></span><span class="op">(</span><span class="va">toupper</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
     CF1_derived <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html">intToBits</a></span><span class="op">(</span><span class="va">COHORT_FLAG_DERIVED</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,
@@ -447,7 +434,7 @@ TRUE
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
     CRITERIA <span class="op">=</span> <span class="va">CF1_derived</span> <span class="op">|</span> <span class="va">CF3_derived</span> <span class="op">|</span> <span class="va">CF7_derived</span>
   <span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'3 Original Criteria'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">cohort_flags</span><span class="op">$</span><span class="va">CRITERIA</span>,<span class="va">cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -484,10 +471,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-30888
+1820
 </td>
 <td style="text-align:right;">
-4
+0
 </td>
 </tr>
 <tr>
@@ -495,15 +482,15 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-95940
+12106
 </td>
 <td style="text-align:right;">
-629
+99
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="va">i</span><span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
@@ -516,9 +503,11 @@ TRUE
 <li><strong>Orders were placed in the EMR for a troponin test.</strong></li>
 <li>The encounter contained a scanned 12-lead ECG image.</li>
 </ol>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#load(file.path(here::here("data"),"troponin_encounter_order.rda"))</span>
+
+<span class="va">troponin_encounter_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/targets/reference/tar_read.html">tar_read</a></span><span class="op">(</span><span class="va">troponin_encounter_order</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html">here</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span>,<span class="st">"troponin_encounter_order.rda"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">troponin_order_flag</span> <span class="op">&lt;-</span> <span class="va">troponin_encounter_order</span> <span class="op">%&gt;%</span> 
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">ENCNTR_KEY</span>,.keep_all<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>TROPONIN_FLAG<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -533,7 +522,7 @@ TRUE
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
     CRITERIA_NEW <span class="op">=</span> <span class="va">CF1_derived</span> <span class="op">|</span> <span class="va">TROPONIN_FLAG</span> <span class="op">|</span> <span class="va">CF7_derived</span>
   <span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'3 Criteria w/ Adj. C2'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CRITERIA_NEW</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -570,10 +559,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-30985
+1830
 </td>
 <td style="text-align:right;">
-4
+0
 </td>
 </tr>
 <tr>
@@ -581,24 +570,24 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-95843
+12096
 </td>
 <td style="text-align:right;">
-629
+99
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">new_fp</span> <span class="op">&lt;-</span> <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
 
 <span class="va">old_fp</span> <span class="op">&lt;-</span> <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">-</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
 
 <span class="va">diff</span> <span class="op">&lt;-</span> <span class="va">old_fp</span> <span class="op">-</span> <span class="va">new_fp</span></code></pre></div>
-<p>The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by 97 out of the original 95940, a decrease of 0.1011049%.</p>
+<p>The change of the second criteria of only using the troponin orders has not made any significant difference, the number of false positives has decreased by 10 out of the original 12106, a decrease of 0.0826037%.</p>
 </div>
 <div id="analysing-the-permutations-of-the-criteria" class="section level2">
 <h2 class="hasAnchor">
@@ -606,7 +595,7 @@ TRUE
 <div id="presentation-of-acs-related-symptoms-criteria-1" class="section level3">
 <h3 class="hasAnchor">
 <a href="#presentation-of-acs-related-symptoms-criteria-1" class="anchor"></a>Presentation of ACS-related symptoms (Criteria 1)</h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'Only C1'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CF1_derived</span><span class="op">)</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -643,10 +632,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-86594
+9078
 </td>
 <td style="text-align:right;">
-81
+15
 </td>
 </tr>
 <tr>
@@ -654,22 +643,22 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-40234
+4848
 </td>
 <td style="text-align:right;">
-552
+84
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
 <div id="order-of-troponin-test-adjusted-criteria-2" class="section level3">
 <h3 class="hasAnchor">
 <a href="#order-of-troponin-test-adjusted-criteria-2" class="anchor"></a>Order of Troponin test (Adjusted Criteria 2)</h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'Only  Adj. C2'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">TROPONIN_FLAG</span><span class="op">)</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -706,10 +695,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-85328
+8844
 </td>
 <td style="text-align:right;">
-50
+8
 </td>
 </tr>
 <tr>
@@ -717,22 +706,22 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-41500
+5082
 </td>
 <td style="text-align:right;">
-583
+91
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
 <div id="has-12-lead-ecg-image-criteria-3" class="section level3">
 <h3 class="hasAnchor">
 <a href="#has-12-lead-ecg-image-criteria-3" class="anchor"></a>Has 12-lead ECG image (Criteria 3)</h3>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'Only C3'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CF7_derived</span><span class="op">)</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> ,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -769,10 +758,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-38303
+2344
 </td>
 <td style="text-align:right;">
-60
+3
 </td>
 </tr>
 <tr>
@@ -780,22 +769,22 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-88525
+11582
 </td>
 <td style="text-align:right;">
-573
+96
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
 <div id="criteria-1-or-2" class="section level3">
 <h3 class="hasAnchor">
 <a href="#criteria-1-or-2" class="anchor"></a>Criteria 1 OR 2</h3>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'C1 Or Adj. C2'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CF1_derived</span><span class="op">)</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">TROPONIN_FLAG</span><span class="op">)</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -832,10 +821,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-70654
+7114
 </td>
 <td style="text-align:right;">
-12
+4
 </td>
 </tr>
 <tr>
@@ -843,22 +832,22 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-56174
+6812
 </td>
 <td style="text-align:right;">
-621
+95
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
 <div id="criteria-1-or-3" class="section level3">
 <h3 class="hasAnchor">
 <a href="#criteria-1-or-3" class="anchor"></a>Criteria 1 OR 3</h3>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'C1 Or C3'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CF1_derived</span><span class="op">)</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CF7_derived</span><span class="op">)</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -895,10 +884,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-32687
+1945
 </td>
 <td style="text-align:right;">
-12
+0
 </td>
 </tr>
 <tr>
@@ -906,22 +895,22 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-94141
+11981
 </td>
 <td style="text-align:right;">
-621
+99
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
 <div id="criteria-2-or-3" class="section level3">
 <h3 class="hasAnchor">
 <a href="#criteria-2-or-3" class="anchor"></a>Criteria 2 OR 3</h3>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'Adj. C2 Or C3'</span>
 <span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">TROPONIN_FLAG</span><span class="op">)</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CF7_derived</span><span class="op">)</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,<span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
@@ -958,10 +947,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-34805
+2165
 </td>
 <td style="text-align:right;">
-14
+0
 </td>
 </tr>
 <tr>
@@ -969,15 +958,15 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-92023
+11761
 </td>
 <td style="text-align:right;">
-619
+99
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span></code></pre></div>
 </div>
@@ -987,7 +976,7 @@ TRUE
 <h1 class="hasAnchor">
 <a href="#summary" class="anchor"></a>Summary</h1>
 <p>We summarise the various cohort selection criteria using <em>precision</em> and <em>sensitivity</em> and combine these metrics through the F1 score, which is the harmonic mean of precision and sensitivity. <em>Specificity</em>, which relates the criterion’s ability to correctly exclude people from the cohort who do not have STEMI is not mentioned as the purpose of the extract is to include as many STEMI’s as possible whilst minimising the number of non-STEMIs and not concerned about the negative cases.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">precision</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">table</span><span class="op">)</span><span class="op">{</span>
   <span class="va">tp</span> <span class="op">&lt;-</span> <span class="va">table</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span>
   <span class="va">fp</span> <span class="op">&lt;-</span> <span class="va">table</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>
@@ -1007,7 +996,7 @@ TRUE
   
   <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">tp</span><span class="op">/</span><span class="op">(</span><span class="va">tp</span><span class="op">+</span><span class="va">fn</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
                  precision <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">double</a></span><span class="op">(</span><span class="op">)</span>,
                  sensitivity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">double</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
@@ -1045,13 +1034,13 @@ f_score
 ACS rule1
 </td>
 <td style="text-align:right;">
-0.0486
+0.0601
 </td>
 <td style="text-align:right;">
-0.79
+0.82
 </td>
 <td style="text-align:right;">
-0.092
+0.112
 </td>
 </tr>
 <tr>
@@ -1059,13 +1048,13 @@ ACS rule1
 ACS rule2
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.2507
+0.2841
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.76
+0.78
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.377
+0.416
 </td>
 </tr>
 <tr>
@@ -1073,13 +1062,13 @@ ACS rule2
 ACS 1 Or 2
 </td>
 <td style="text-align:right;">
-0.0519
+0.0639
 </td>
 <td style="text-align:right;">
-0.86
+0.89
 </td>
 <td style="text-align:right;">
-0.098
+0.119
 </td>
 </tr>
 <tr>
@@ -1087,13 +1076,13 @@ ACS 1 Or 2
 3 Original Criteria
 </td>
 <td style="text-align:right;">
-0.0065
+0.0081
 </td>
 <td style="text-align:right;">
-0.99
+1.00
 </td>
 <td style="text-align:right;">
-0.013
+0.016
 </td>
 </tr>
 <tr>
@@ -1101,13 +1090,13 @@ ACS 1 Or 2
 3 Criteria w/ Adj. C2
 </td>
 <td style="text-align:right;">
-0.0065
+0.0081
 </td>
 <td style="text-align:right;">
-0.99
+1.00
 </td>
 <td style="text-align:right;">
-0.013
+0.016
 </td>
 </tr>
 <tr>
@@ -1115,13 +1104,13 @@ ACS 1 Or 2
 Only C1
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.0135
+0.0170
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.87
+0.85
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.027
+0.033
 </td>
 </tr>
 <tr>
@@ -1129,13 +1118,13 @@ Only C1
 Only Adj. C2
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.0139
+0.0176
 </td>
 <td style="text-align:right;font-weight: bold;">
 0.92
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.027
+0.035
 </td>
 </tr>
 <tr>
@@ -1143,13 +1132,13 @@ Only Adj. C2
 Only C3
 </td>
 <td style="text-align:right;">
-0.0064
+0.0082
 </td>
 <td style="text-align:right;">
-0.91
+0.97
 </td>
 <td style="text-align:right;">
-0.013
+0.016
 </td>
 </tr>
 <tr>
@@ -1157,13 +1146,13 @@ Only C3
 C1 Or Adj. C2
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.0109
+0.0138
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.98
+0.96
 </td>
 <td style="text-align:right;font-weight: bold;">
-0.022
+0.027
 </td>
 </tr>
 <tr>
@@ -1171,13 +1160,13 @@ C1 Or Adj. C2
 C1 Or C3
 </td>
 <td style="text-align:right;">
-0.0066
+0.0082
 </td>
 <td style="text-align:right;">
-0.98
+1.00
 </td>
 <td style="text-align:right;">
-0.013
+0.016
 </td>
 </tr>
 <tr>
@@ -1185,31 +1174,31 @@ C1 Or C3
 Adj. C2 Or C3
 </td>
 <td style="text-align:right;">
-0.0067
+0.0083
 </td>
 <td style="text-align:right;">
-0.98
+1.00
 </td>
 <td style="text-align:right;">
-0.013
+0.017
 </td>
 </tr>
 </tbody>
 </table>
-<p>Under <em>ACS Rule 2 (High Threshold Troponin)</em>, choosing the cohort by using a threshold on the troponin level, produces the highest precision however is the lowest sensitivity out of all the options. In other words, the high troponin level selects a very small cohort where <strong>25.0652742</strong>% are ICD-10-STEMI but misses <strong>24.1706161</strong>% STEMI’s.</p>
+<p>Under <em>ACS Rule 2 (High Threshold Troponin)</em>, choosing the cohort by using a threshold on the troponin level, produces the highest precision however is the lowest sensitivity out of all the options. In other words, the high troponin level selects a very small cohort where <strong>28.4</strong>% are ICD-10-STEMI but misses <strong>22.2</strong>% STEMI’s.</p>
 <p>There is little difference between including orders for procedures such as angiograms/ECGs (<em>Criteria 2</em>) or not as a selection criteria (<em>Adj. Criteria 2</em>). Using only one of the criteria or any combinations of them produce the higher sensitivity, at the same time, produces the highest number of false positives (large number of non-STEMI’s) and thus lower precision when compared to using the troponin test results.</p>
-<p>Furthermore, including a cohort with a troponin order (<em>Only Adj C2</em>) produces a relatively high sensitivity and precision when compared with the other criteria individually. In particular, it produces a precision that is <strong>2.1541463</strong> times higher than using only <em>C3</em>. Combining <em>C1</em> with <em>Adj. C2</em> is beneficial, as it improves the sensitivity without sacrificing a lot of precision.</p>
+<p>Furthermore, including a cohort with a troponin order (<em>Only Adj C2</em>) produces a relatively high sensitivity and precision when compared with the other criteria individually. In particular, it produces a precision that is <strong>2.1</strong> times higher than using only <em>C3</em>. Combining <em>C1</em> with <em>Adj. C2</em> is beneficial, as it improves the sensitivity without sacrificing a lot of precision.</p>
 </div>
 <div id="snomed" class="section level1">
 <h1 class="hasAnchor">
 <a href="#snomed" class="anchor"></a>SNOMED</h1>
 <p>The above analysis is repeated looking at SNOMED codes as well. Only the first table is shown but all results are summarised with precision and sensitivity.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">table_list_snomed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">i</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 <span class="va">stemi_table_name</span> <span class="op">&lt;-</span> <span class="st">"SNOMED STEMI"</span>
 
-<span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule1</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">SNOMED_STEMI</span><span class="op">)</span>
+<span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE1</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">SNOMED_STEMI</span><span class="op">)</span>
 <span class="fu">kable_confusion_matrix</span><span class="op">(</span><span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">criteria_name</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">stemi_table_name</span><span class="op">)</span></code></pre></div>
 <table class="table table">
 <thead>
@@ -1244,10 +1233,10 @@ TRUE
 FALSE
 </td>
 <td style="text-align:right;">
-117134
+12669
 </td>
 <td style="text-align:right;">
-35
+8
 </td>
 </tr>
 <tr>
@@ -1255,24 +1244,24 @@ FALSE
 TRUE
 </td>
 <td style="text-align:right;">
-9977
+1289
 </td>
 <td style="text-align:right;">
-315
+59
 </td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span><span class="op">+</span><span class="fl">1</span>
-<span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">SNOMED_STEMI</span><span class="op">)</span>
+<span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">SNOMED_STEMI</span><span class="op">)</span>
 
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span><span class="op">+</span><span class="fl">1</span>
 <span class="co"># table_list_snomed[[i]] &lt;- table(stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)</span>
 <span class="co"># </span>
 <span class="co"># i&lt;- i+1</span>
-<span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule1</span> <span class="op">|</span> <span class="va">stemi</span><span class="op">$</span><span class="va">journey_acs_rule2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">SNOMED_STEMI</span><span class="op">)</span>
+<span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE2</span> <span class="op">|</span> <span class="va">stemi</span><span class="op">$</span><span class="va">JOURNEY_ACS_RULE2</span>,<span class="va">stemi</span><span class="op">$</span><span class="va">SNOMED_STEMI</span><span class="op">)</span>
 
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span><span class="op">+</span><span class="fl">1</span>
 <span class="co"># table_list_snomed[[i]] &lt;- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)</span>
@@ -1300,7 +1289,7 @@ TRUE
 
 <span class="va">i</span><span class="op">&lt;-</span> <span class="va">i</span><span class="op">+</span><span class="fl">1</span>
 <span class="va">table_list_snomed</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">TROPONIN_FLAG</span><span class="op">)</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html">as.logical</a></span><span class="op">(</span><span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">CF7_derived</span><span class="op">)</span>,<span class="va">new_cohort_flags</span><span class="op">$</span><span class="va">SNOMED_STEMI</span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
                  precision <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">double</a></span><span class="op">(</span><span class="op">)</span>,
                  sensitivity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">double</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
@@ -1335,13 +1324,13 @@ f_score
 ACS rule1
 </td>
 <td style="text-align:right;">
-0.0306
+0.0438
 </td>
 <td style="text-align:right;">
-0.90
+0.88
 </td>
 <td style="text-align:right;">
-0.0592
+0.083
 </td>
 </tr>
 <tr>
@@ -1349,13 +1338,13 @@ ACS rule1
 ACS rule2
 </td>
 <td style="text-align:right;">
-0.1540
+0.2066
 </td>
 <td style="text-align:right;">
 0.84
 </td>
 <td style="text-align:right;">
-0.2605
+0.331
 </td>
 </tr>
 <tr>
@@ -1363,13 +1352,13 @@ ACS rule2
 ACS 1 Or 2
 </td>
 <td style="text-align:right;">
-0.0314
+0.2066
 </td>
 <td style="text-align:right;">
-0.95
+0.84
 </td>
 <td style="text-align:right;">
-0.0608
+0.331
 </td>
 </tr>
 <tr>
@@ -1377,13 +1366,13 @@ ACS 1 Or 2
 3 Original Criteria
 </td>
 <td style="text-align:right;">
-0.0036
+0.0055
 </td>
 <td style="text-align:right;">
 1.00
 </td>
 <td style="text-align:right;">
-0.0072
+0.011
 </td>
 </tr>
 <tr>
@@ -1391,13 +1380,13 @@ ACS 1 Or 2
 3 Criteria w/ Adj. C2
 </td>
 <td style="text-align:right;">
-0.0036
+0.0055
 </td>
 <td style="text-align:right;">
 1.00
 </td>
 <td style="text-align:right;">
-0.0072
+0.011
 </td>
 </tr>
 <tr>
@@ -1405,13 +1394,13 @@ ACS 1 Or 2
 Only C1
 </td>
 <td style="text-align:right;">
-0.0076
+0.0116
 </td>
 <td style="text-align:right;">
-0.89
+0.85
 </td>
 <td style="text-align:right;">
-0.0151
+0.023
 </td>
 </tr>
 <tr>
@@ -1419,13 +1408,13 @@ Only C1
 Only Adj. C2
 </td>
 <td style="text-align:right;">
-0.0080
+0.0124
 </td>
 <td style="text-align:right;">
 0.96
 </td>
 <td style="text-align:right;">
-0.0158
+0.024
 </td>
 </tr>
 <tr>
@@ -1433,13 +1422,13 @@ Only Adj. C2
 Only C3
 </td>
 <td style="text-align:right;">
-0.0037
+0.0057
 </td>
 <td style="text-align:right;">
-0.94
+0.99
 </td>
 <td style="text-align:right;">
-0.0073
+0.011
 </td>
 </tr>
 <tr>
@@ -1447,13 +1436,13 @@ Only C3
 C1 Or Adj. C2
 </td>
 <td style="text-align:right;">
-0.0061
+0.0096
 </td>
 <td style="text-align:right;">
 0.99
 </td>
 <td style="text-align:right;">
-0.0122
+0.019
 </td>
 </tr>
 <tr>
@@ -1461,13 +1450,13 @@ C1 Or Adj. C2
 C1 Or C3
 </td>
 <td style="text-align:right;">
-0.0037
+0.0055
 </td>
 <td style="text-align:right;">
 1.00
 </td>
 <td style="text-align:right;">
-0.0073
+0.011
 </td>
 </tr>
 <tr>
@@ -1475,13 +1464,13 @@ C1 Or C3
 Adj. C2 Or C3
 </td>
 <td style="text-align:right;">
-0.0037
+0.0056
 </td>
 <td style="text-align:right;">
-0.99
+1.00
 </td>
 <td style="text-align:right;">
-0.0074
+0.011
 </td>
 </tr>
 </tbody>

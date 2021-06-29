@@ -428,13 +428,36 @@ get_first_encounter <- function(df,journey_acs,name=NULL,bins=NULL){
 }
 
 get_heartfailure_journeys <- function(journey,diagnosis){
+  NSLHD <- NSLHD_facility()
+  internal_transfers = c(
+    # "Internal Ambulance / Transport",
+    # "Retrieval",
+    "Internal Bed / Wheelchair"
+  )
+  icd10_list <- c("I50.0","I50.1","I50.9","U82.2","I11.0","I13.0","I13.2")
+
   hf_diag <- diagnosis %>%
-    dplyr::filter(stringr::str_detect(source_string, "(?i)heart failure") &
-                     n_source_vocabulary_disp == "ICD10-AM") %>%
-    dplyr::select(encntr_key,source_string_cap,display_identifier_cap)
+    dplyr::filter(display_identifier_cap %in% icd10_list &
+                     n_source_vocabulary_disp == "ICD10-AM" & (diagnosis_importance == 'primary_diagnosis' |
+                                                                 diagnosis_importance == 'secondary_diagnosis')) %>%
+    dplyr::select(encntr_key,source_string_cap,display_identifier_cap) %>%
+    dplyr::rename_all(toupper)
+
   journey_hf <- journey %>%
-    dplyr::filter(encntr_key %in% hf_diag$encntr_key) %>%
-    dplyr::left_join(hf_diag,by='encntr_key')
+    dplyr::rename_all(toupper) %>%
+    dplyr::filter(JOURNEY_START > as.POSIXct("2017-04-01") & # filter the two years
+                    JOURNEY_START < as.POSIXct("2017-06-30")) %>%
+    dplyr::filter(
+      any(ENCLASS == "ED.Admitted" & FACILITY %in% NSLHD & !(ADMIT_MODE %in% internal_transfers), na.rm=T) |
+        (dplyr::first(ENCLASS, order_by = ADMIT_DTTM) %in% c("ED.Only", "ED.Admitted") &
+           (any(ENCLASS == "Transfer" & FACILITY == "Royal North Shore")))
+    ) %>%
+    dplyr::filter(ENCNTR_KEY %in% hf_diag$ENCNTR_KEY) %>%
+    dplyr::left_join(hf_diag,by='ENCNTR_KEY') %>%
+    dplyr::select(PERSON_KEY, JOURNEY_KEY, ENCNTR_KEY, GENDER, AGE_AT_ADMIT, FACILITY,
+                  ADMIT_MODE, ADMIT_DTTM, DISCHARGE_DTTM, JOURNEY_START,JOURNEY_END, JOURNEY_FIRST_FACILITY,
+                  JOURNEY_FINAL_FACILITY, JOURNEY_DAYS, JOURNEY_SEP_MODE,SOURCE_STRING_CAP,DISPLAY_IDENTIFIER_CAP) %>%
+    dplyr::distinct()
 }
 library(magrittr)
 
@@ -455,12 +478,8 @@ data(troponin_encounter_order)
 data(troponin_path)
 data(triage_form)
 
-journey_acs <- journey_hf %>%
-  dplyr::rename_all(toupper) %>%
-  dplyr::select(PERSON_KEY, JOURNEY_KEY, ENCNTR_KEY, GENDER, AGE_AT_ADMIT, FACILITY,
-                ADMIT_MODE, ADMIT_DTTM, DISCHARGE_DTTM, JOURNEY_START,JOURNEY_END, JOURNEY_FIRST_FACILITY,
-                JOURNEY_FINAL_FACILITY, JOURNEY_DAYS, JOURNEY_SEP_MODE) %>%
-  dplyr::distinct()
+journey_acs <- journey_hf
+
 acs_demographics <- create_demographics(journey_acs)
 trajectories <- create_trajectory(journey_acs)
 presentations <- create_presentations(journey_acs,triage_form)
@@ -473,7 +492,6 @@ acs_procedures <- create_procedures(journey_acs,procedures_grouped,acs_door_to_b
 separations <- create_separations(journey_acs)
 interventions <- create_interventions(journey_acs,acs_procedures)
 
-diagnosis_acs <- create_stemi_code(journey_acs,diagnosis_data)
 
 acs_demographics %<>%
   dplyr::left_join(trajectories, by = "JOURNEY_KEY") %>%

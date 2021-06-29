@@ -1,0 +1,173 @@
+---
+title: "The 'Cath Lab' and ICD10 Procedures"
+author: "Harrison Nguyen"
+date: "21/06/2021"
+output:  
+  bookdown::html_document2:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{The 'Cath Lab' and ICD10 Procedures}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning=FALSE, message=FALSE
+  )
+knitr::opts_knit$set(
+  root.dir = here::here()
+)
+#options(pkgdown.internet = FALSE)
+```
+
+```{r import}
+library(magrittr)
+library(targets)
+library(acs)
+source("R/dashboard.R")
+```
+
+```{r data_load}
+
+procedures_grouped <- targets::tar_read(input_procedures_grouped)
+journey_acs <- targets::tar_read(journey_acs)
+door_to_balloon <- targets::tar_read(input_door_to_balloon)
+  
+
+```
+```{r}
+acs_dtb <- door_to_balloon %>%
+  dplyr::mutate(PROCEDURE_STATUS = sapply(PROCEDURE_STATUS,toString)) %>%
+  dplyr::mutate_if(is.character, list(~dplyr::na_if(.,"")))
+```
+
+
+```{r}
+   stemi <- journey_acs %>%
+    dplyr::filter(ICD10_ACS == "STEMI")
+```
+
+# Introduction
+
+The aim of this document is to examine the concordance of data collection between two databases to define patients who are presenting to the 'cath lab'. The two databases are:
+
+1. the Cerner database which contains ICD-10 coded procedures,
+2. the McKesson databases which contains procedures performed in the cardiac catheterisation laboratory (cath lab).
+
+This analysis aims to guide a working definition of what is considered as a procedure for the cohort of interest or how a visit to the cath lab is defined.
+
+Three procedures are considered in the Cerner database: angiograms, percutaneous coronary intervention (PCI) and coronary artery bypass (CABG) whereas PCIs with a door to balloon time (defined in Section \@ref(mckesson)) are only considered in the McKesson database.
+
+# Cohort
+
+The cohort used for this analysis are patient journeys with admission dates between **`r as.Date(min(journey_acs$JOURNEY_START))`** - **`r as.Date(max(journey_acs$JOURNEY_START))`** that had at least >1 encounter with an ICD10 code of ST-segment elevation myocardial infarction (STEMI). 
+
+Furthermore, the cohort were those journeys that presented to ED and were admitted to any facility in NSLHD. This also includes patients that were transferred to RNSH.
+
+
+This results in a cohort of N = **`r dplyr::n_distinct(stemi$JOURNEY_KEY)`**.
+
+# Procedures
+
+## Cerner
+
+A text filter was used to match the procedures in the Cerner database (ICD10-coded procedures). The following filters were used:
+
+* Angiogram - coronary angiogram/angiography
+* PCI - percutaneous ... coronary artery/arteries
+* CABG - coronary artery bypass
+
+Using a string filter, the following list of ICD10 procedures was extracted :
+
+```{r}
+
+
+strings <- c(
+   "(?i)coronary angiogr(am|aphy)",
+  '(?i)percutaneous .*coronary arter(y|ies)',
+   "(?i)coronary artery bypass"
+)
+
+unique_procedure_names <- procedures_grouped %>%
+  dplyr::filter(stringr::str_detect(PROCEDURE_NAME, paste(strings, collapse = "|"))) %>%
+  dplyr::distinct(PROCEDURE_NAME) %>%
+  dplyr::mutate(MATCH = dplyr::case_when(
+    stringr::str_detect(PROCEDURE_NAME,strings[1]) ~"ANGIO",
+    stringr::str_detect(PROCEDURE_NAME,strings[2]) ~"PCI",
+    stringr::str_detect(PROCEDURE_NAME,strings[3]) ~"CABG",
+  )) %>%
+  dplyr::arrange(MATCH) %>%
+  dplyr::mutate(PROCEDURE_NAME=stringr::str_replace(PROCEDURE_NAME, stringr::fixed("$"),""))
+
+unique_procedure_names %>% knitr::kable()
+```
+
+## McKesson {#mckesson}
+
+The McKesson database contains  transactional records of procedures performed in cath lab as well as detailed transactional real time notes about processes undertaken during the procedure.
+
+A PCI intervention in the McKesson database was defined as a procedure that met the following conditions:
+
+1. the notes of the procedure contain 1 or more time stamps that mentions the term `inflation` **and**
+2. does **NOT** contain the term `Structural Heart Disease Procedure`.
+
+The door to balloon time is defined as:
+
+* the difference between the start of the patient's journey and the earliest mention of the term `inflation` in the procedure notes.
+
+## Comparison between ICD10 codes and McKesson
+
+The number of ICD10 coded procedures was compared against the PCI procedures in the McKesson Database (i.e. the "cath lab").
+
+Each row represents the number of ICD10-coded procedures. If a PCI or CABG is listed as an ICD10 code, it is assumed that an associated angiogram was performed (even if the mention of the angiogram was missing in the Cerner database).
+
+The columns represent whether or not the patient had met the aforementioned definition of a PCI procedure using the McKesson database.
+
+`Private` is defined as journeys that did not record an ICD10 PCI or CABG procedure and had a mode of separation to a private hospital.
+
+```{r}
+acs_procedure <- tar_read(acs_procedure)
+create_procedures_second <- function(journeys, acs_procedure,door_to_balloon){
+
+  stemi <- journeys %>%
+    dplyr::filter(ICD10_ACS == "STEMI")
+
+  interventions <-journeys %>%
+    create_interventions(acs_procedure) %>%
+    dplyr::mutate(PCI_MCKESSON = JOURNEY_KEY %in% door_to_balloon$JOURNEY_KEY) %>%
+    dplyr::filter(JOURNEY_KEY %in% stemi$JOURNEY_KEY)
+}
+
+```
+```{r}
+
+intervention <- create_procedures_second(journey_acs,acs_procedure,acs_dtb)
+
+
+span <- c(1,2)
+  names(span) <- c(" ", "PCI_MCKESSON")
+intervention_table<- table(intervention$INTERVENTION,intervention$PCI_MCKESSON) 
+
+intervention_table %>% knitr::kable() %>%
+  kableExtra::add_header_above(span) %>%
+  kableExtra::row_spec(2, bold=TRUE) %>%
+  kableExtra::column_spec(3,bold=c(FALSE,TRUE,TRUE,FALSE,TRUE))
+
+```
+
+
+The table shows that there **`r sum(intervention$INTERVENTION == "Angio & PCI" | intervention$PCI_MCKESSON)`** PCI procedures captured across the two databases. However, not all PCI procedures in the McKesson database have been listed as an ICD10 procedure and vice versa. For example, 
+
+1. there were **`r intervention_table[2,1]`** ICD10 PCI's that did not have an entry in the McKesson database,
+2. there was **`r intervention_table[5,2]`** instance of a a PCI procedure in McKesson that is not listed as having **ANY** ICD10 procedure,
+3. **`r intervention_table[3,2]`** instance of a McKesson PCI with only an ICD10 angiogram and not a ICD10 PCI.
+
+

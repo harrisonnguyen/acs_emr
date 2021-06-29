@@ -94,6 +94,12 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/acs_procedures.html">The 'Cath Lab' and ICD10 Procedures</a>
+    </li>
+    <li>
+      <a href="../articles/heartfailure_prelim.html">Heart Failure Inpatient Analysis</a>
+    </li>
+    <li>
       <a href="../articles/snomed_icd10_stemi.html">ICD10 SNOMED Concordance</a>
     </li>
     <li>
@@ -146,27 +152,113 @@
       <tr>
         
         <td>
-          <p><code><a href="diagnosis_data.html">diagnosis_data</a></code> </p>
+          <p><code><a href="ACS_codes.html">ACS_codes()</a></code> </p>
         </td>
-        <td><p>Diagnosis for the encounters given by <code>encounter_data</code></p></td>
+        <td><p>Definition for ACS names</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="encounter_data.html">encounter_data</a></code> </p>
+          <p><code><a href="business_hours.html">business_hours()</a></code> </p>
         </td>
-        <td><p>Encounters for the years between 2016-2018 at RNS.</p></td>
+        <td><p>Definition for an admission during business hours</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="journey_analysis_base.html">journey_analysis_base</a></code> </p>
+          <p><code><a href="CCLHD_facility.html">CCLHD_facility()</a></code> </p>
         </td>
-        <td><p>Contains journeys as defined by ACS for <code>encounter_data</code></p></td>
+        <td><p>Returns the definition of CCLHD facilities</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="troponin_encounter_order.html">troponin_encounter_order</a></code> </p>
+          <p><code><a href="create_interventions.html">create_interventions()</a></code> </p>
         </td>
-        <td><p>CContain troponin orders based on <code>encounter_order</code></p></td>
+        <td><p>Creates categories for the types of interventions
+Patients are classified based on whether they have had
+any of the following procedures: angiogram,pci,CABG
+or whether they were transferred to a private hospital</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_presentations.html">create_presentations()</a></code> </p>
+        </td>
+        <td><p>Defines the presentation mode for journeys and groups presentation modes
+that are not of interest to "Other"</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_separations.html">create_separations()</a></code> </p>
+        </td>
+        <td><p>Defines the separation mode for journeys and groups separation modes
+that are not of interest to "Other"</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_trajectory.html">create_trajectory()</a></code> </p>
+        </td>
+        <td><p>Categorises the trajectories of journeys and whether the journey was a transfer or not
+Include a separate column for the presence of a coronary artery bypass procedure</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="exclusion_criteria_meds.html">exclusion_criteria_meds()</a></code> </p>
+        </td>
+        <td><p>Definition the exclusion criteria for medication</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="extract_acs_procedures.html">extract_acs_procedures()</a></code> </p>
+        </td>
+        <td><p>Extracts procedures from the given cohort based on their encounter key
+Include a separate column for the presence of a coronary artery bypass procedure</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="extract_triage_forms.html">extract_triage_forms()</a></code> </p>
+        </td>
+        <td><p>Extracts ATAMI triage forms
+An ATAMI triage form is any form that contains
+<code>atami</code>, <code>etami</code>,<code>cath lab</code>,<code>cathlab</code></p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="hf_icd_codes.html">hf_icd_codes()</a></code> </p>
+        </td>
+        <td><p>Definition for heart failure ICD10 codes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="internal_transfers.html">internal_transfers()</a></code> </p>
+        </td>
+        <td><p>Definition of internal transfer</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="load_table.html">load_table()</a></code> </p>
+        </td>
+        <td><p>Function that loads the cache from SPEED-EXTRACT pipeline
+and the specified table</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="NSLHD_facility.html">NSLHD_facility()</a></code> </p>
+        </td>
+        <td><p>Returns the definition of NSLHD facilities</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="select_acs_cohort.html">select_acs_cohort()</a></code> </p>
+        </td>
+        <td><p>Extracts the ACS cohort
+The cohort is defined as patients with a journey start date
+between <code>journey_start_begin</code> and <code>journey_start_end</code>
+and those with ICD10 STEMI/NSTEMI code.
+It includes those who were admitted into ED OR patients who had transferred to RNSH</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="separation_modes.html">separation_modes()</a></code> </p>
+        </td>
+        <td><p>Definition for separation modes of interest</p></td>
       </tr>
     </tbody>
     </table>

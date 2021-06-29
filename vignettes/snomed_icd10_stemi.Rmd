@@ -15,9 +15,11 @@ vignette: >
 ---
 
 ```{r global-options, include=FALSE}
-knitr::opts_chunk$set(warning=FALSE, message=FALSE)
-
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, root.dir = '..')
 op = function(x, d=2) sprintf(paste0("%1.",d,"f"), x)
+knitr::opts_knit$set(
+  root.dir = here::here()
+)
 ```
 
 ```{r setup}
@@ -25,6 +27,7 @@ library(acs)
 library(magrittr)
 library(dplyr)
 library(knitr)
+library(targets)
 ```
 
 ```{r}
@@ -38,46 +41,50 @@ UNSPECIFIED_ACS <- "I21.9"
 ## SNOMED PATTIENT
 
 STEMI_SNOMED <- "(?i)acute( inferior | anterior |\\s)st segment elevation|(ST elevation myocardial infarction)|(Acute STEMI)"
-load("../data/diagnosis_data.rda")
-load("../data/encounter_data.rda")
-diagnosis_rns <- diagnosis_data
-encounter_rns <- encounter_data
+
+#load("../data/diagnosis_data.rda")
+#load("../data/encounter_data.rda")
+#diagnosis_rns <- diagnosis_data
+#encounter_rns <- encounter_data
+  
+encounter_rns <- tar_read(encounter_rns)
+diagnosis_rns <-  tar_read(diagnosis_rns)
 ```
 
 ``` {r, echo = FALSE}
 icd10 <- diagnosis_rns %>%
-   dplyr::filter(n_source_vocabulary_disp == "ICD10-AM")
+   dplyr::filter(N_SOURCE_VOCABULARY_DISP == "ICD10-AM")
 
 icd10_stemi <- diagnosis_rns %>%
-  dplyr::filter(display_identifier %in% STEMI)
+  dplyr::filter(DISPLAY_IDENTIFIER %in% STEMI)
 
 icd10_angina <- diagnosis_rns %>%
-  dplyr::filter(display_identifier %in% UNSTABLE_ANGINA)
+  dplyr::filter(DISPLAY_IDENTIFIER %in% UNSTABLE_ANGINA)
 
 icd10_nstemi <- diagnosis_rns %>%
-  dplyr::filter(display_identifier %in% NSTEMI)
+  dplyr::filter(DISPLAY_IDENTIFIER %in% NSTEMI)
 
 icd10_unspec_acs <- diagnosis_rns %>%
-  dplyr::filter(display_identifier %in% UNSPECIFIED_ACS)
+  dplyr::filter(DISPLAY_IDENTIFIER %in% UNSPECIFIED_ACS)
 
 snomed <-  diagnosis_rns %>%
-  dplyr::filter(confirmation_status == "Confirmed" & (classification == "ED Medical" | classification == "Medical" | classification == "ED Nursing")) %>%
-  dplyr::filter(n_source_vocabulary_disp == "SNOMED CT")
+  dplyr::filter(CONFIRMATION_STATUS == "Confirmed" & (CLASSIFICATION == "ED Medical" | CLASSIFICATION == "Medical" | CLASSIFICATION == "ED Nursing")) %>%
+  dplyr::filter(N_SOURCE_VOCABULARY_DISP == "SNOMED CT")
 
 snomed_nstemi <- snomed %>%
-  dplyr::filter(stringr::str_detect(source_string_cap, "(?i)Acute non-ST segment elevation myocardial infarction"))
+  dplyr::filter(stringr::str_detect(SOURCE_STRING_CAP, "(?i)Acute non-ST segment elevation myocardial infarction"))
 
 snomed_stemi <- snomed %>%
-  dplyr::filter(stringr::str_detect(source_string_cap, STEMI_SNOMED))
+  dplyr::filter(stringr::str_detect(SOURCE_STRING_CAP, STEMI_SNOMED))
 
 snomed_angina <- snomed %>%
-  dplyr::filter(stringr::str_detect(source_string_cap, "(?i)unstable angina"))
+  dplyr::filter(stringr::str_detect(SOURCE_STRING_CAP, "(?i)unstable angina"))
 
 snomed_acs <- snomed %>%
-  dplyr::filter(stringr::str_detect(source_string_cap, "(?i)acute coronary syndrome"))
+  dplyr::filter(stringr::str_detect(SOURCE_STRING_CAP, "(?i)acute coronary syndrome"))
 ```
 
-We analyse encounters that have occurred at RNS with an admission time stamp between **`r as.Date(min(encounter_rns$admit_dttm))`** - **`r as.Date(max(encounter_rns$admit_dttm))`**
+We analyse encounters that have occurred at RNS with an admission time stamp between **`r as.Date(min(encounter_rns$ADMIT_DTTM))`** - **`r as.Date(max(encounter_rns$ADMIT_DTTM))`**
 
 # STEMI
 
@@ -90,28 +97,28 @@ We filter the encounters by STEMI-defined ICD10 codes which are:
 3. I21.2 - ACUTE TRANSMURAL MYOCARDIAL INFARCTION OF OTHER SITES
 4. I21.3 - ACUTE TRANSMURAL MYOCARDIAL INFARCTION OF UNSPECIFIED SITE
 
-The number of unique STEMI ICD10 encounters is **`r length(unique(icd10_stemi$encntr_key))`**
+The number of unique STEMI ICD10 encounters is **`r length(unique(icd10_stemi$ENCNTR_KEY))`**
 
 Below are the frequencies of each code. 
 ```{r, echo = FALSE}
-icd10_stemi_encounters <- length(unique(icd10_stemi$encntr_key))
+icd10_stemi_encounters <- length(unique(icd10_stemi$ENCNTR_KEY))
 message(icd10_stemi_encounters)
 
-knitr::kable(table(icd10_stemi$source_string_cap) ,format = "html", table.attr = "style='width:50%;'") %>% 
+knitr::kable(table(icd10_stemi$SOURCE_STRING_CAP) ,format = "html", table.attr = "style='width:50%;'") %>% 
   kableExtra::kable_styling()
 ```
 
 ```{r, echo = FALSE}
 icd10_stemi_w_snomed <- snomed %>%
-  dplyr::filter(encntr_key %in% icd10_stemi$encntr_key)
-message(length(unique(icd10_stemi_w_snomed$encntr_key)))
+  dplyr::filter(ENCNTR_KEY %in% icd10_stemi$ENCNTR_KEY)
+message(length(unique(icd10_stemi_w_snomed$ENCNTR_KEY)))
 ```
-The number of unique STEMI encounters with at least ONE SNOMED code is **`r length(unique(icd10_stemi_w_snomed$encntr_key))`**
+The number of unique STEMI encounters with at least ONE SNOMED code is **`r length(unique(icd10_stemi_w_snomed$ENCNTR_KEY))`**
 
 We show the top 20 SNOMED codes for those ICD10-defined STEMI encounters
 ```{r, echo = FALSE}
 table<- icd10_stemi_w_snomed%>%
-  dplyr::group_by(source_string_cap) %>%
+  dplyr::group_by(SOURCE_STRING_CAP) %>%
   dplyr::summarise(count=dplyr::n()) %>%
   dplyr::arrange(desc(count)) 
 knitr::kable(table %>% dplyr::top_n(20) ,format = "html", table.attr = "style='width:50%;'") %>% 
@@ -126,9 +133,9 @@ The table below, shows a filtered version of the above table but only with STEMI
 
 pattern <-"(?i)acute( inferior | anterior |\\s)st segment elevation|(?i)(ST elevation myocardial infarction)|(?i)(Acute STEMI)|(?i)(Acute MYOCARDIAL INFARCTION)"
 temp <-icd10_stemi_w_snomed %>%
-    dplyr::filter(stringr::str_detect(source_string_cap, pattern)) 
+    dplyr::filter(stringr::str_detect(SOURCE_STRING_CAP, pattern)) 
 
-temp %>% dplyr::group_by(source_string_cap) %>%
+temp %>% dplyr::group_by(SOURCE_STRING_CAP) %>%
   dplyr::summarise(count=dplyr::n()) %>%
   dplyr::arrange(desc(count)) %>%
   knitr::kable(.,format = "html", table.attr = "style='width:50%;'") %>% 
@@ -136,10 +143,10 @@ temp %>% dplyr::group_by(source_string_cap) %>%
 ```  
 
 ```{r}
-counts <- c(dplyr::n_distinct(icd10_stemi$encntr_key),
-            dplyr::n_distinct(icd10_stemi_w_snomed$encntr_key),
-            dplyr::n_distinct(temp$encntr_key))
-percent <- counts/dplyr::n_distinct(icd10_stemi$encntr_key)*100            
+counts <- c(dplyr::n_distinct(icd10_stemi$ENCNTR_KEY),
+            dplyr::n_distinct(icd10_stemi_w_snomed$ENCNTR_KEY),
+            dplyr::n_distinct(temp$ENCNTR_KEY))
+percent <- counts/dplyr::n_distinct(icd10_stemi$ENCNTR_KEY)*100            
 
 values <- c("ICD10-STEMI Encounters",
             "ICD10-STEMI w/ ANY SNOMED",
@@ -149,8 +156,8 @@ knitr::kable(data.frame(values,counts,percent),format = "html", table.attr = "st
   kableExtra::kable_styling()
 ```
 
-So to summarise, there are **`r dplyr::n_distinct(icd10_stemi$encntr_key)`** with STEMI-defined ICD10 codes and only 
-**`r dplyr::n_distinct(temp$encntr_key)`** have a STEMI-related SNOMED code.
+So to summarise, there are **`r dplyr::n_distinct(icd10_stemi$ENCNTR_KEY)`** with STEMI-defined ICD10 codes and only 
+**`r dplyr::n_distinct(temp$ENCNTR_KEY)`** have a STEMI-related SNOMED code.
 
 ## SNOMED CODE
 
@@ -169,8 +176,8 @@ The SNOMED codes are discovered through a CSIRO developed tool [Shrimp](https://
 
 ```{r, echo = FALSE}
 snomed_stemi_w_icd10 <- icd10 %>%
-  dplyr::filter(encntr_key %in% snomed_stemi$encntr_key)
-message(length(unique(snomed_stemi_w_icd10$encntr_key)))
+  dplyr::filter(ENCNTR_KEY %in% snomed_stemi$ENCNTR_KEY)
+message(length(unique(snomed_stemi_w_icd10$ENCNTR_KEY)))
 ```
 
 This returned **`r length(unique(snomed_stemi$encntr_key))`** unique encounters and of those **`r length(unique(snomed_stemi_w_icd10$encntr_key))`** had an ICD10 code.
@@ -179,7 +186,7 @@ Below shows the breakdown of the SNOMED codes for the STEMI cohort as defined by
 
 ```{r}
 table<- snomed_stemi %>%
-  dplyr::group_by(source_string_cap) %>%
+  dplyr::group_by(SOURCE_STRING_CAP) %>%
   dplyr::summarise(count=dplyr::n()) %>%
   dplyr::arrange(desc(count))
 knitr::kable(table %>% dplyr::top_n(20),format = "html", table.attr = "style='width:50%;'") %>% 
@@ -193,25 +200,25 @@ The results show that quite a number of the STEMI-SNOMED cohort are associated w
 
 ```{r}
 code_names <- snomed_stemi_w_icd10 %>%
-  dplyr::distinct(display_identifier,source_string_cap)
+  dplyr::distinct(DISPLAY_IDENTIFIER,SOURCE_STRING_CAP)
 table<- snomed_stemi_w_icd10 %>%
-  dplyr::group_by(display_identifier) %>%
+  dplyr::group_by(DISPLAY_IDENTIFIER) %>%
   dplyr::summarise(count=dplyr::n()) %>%
   dplyr::ungroup() %>%
-  dplyr::left_join(code_names, by ="display_identifier") %>%
+  dplyr::left_join(code_names, by ="DISPLAY_IDENTIFIER") %>%
   dplyr::arrange(desc(count))
 knitr::kable(table%>% dplyr::top_n(20,wt=count),format = "html", table.attr = "style='width:80%;'") %>% 
   kableExtra::kable_styling()
 ```
 ``` {r}
 temp <-snomed_stemi_w_icd10 %>%
-    dplyr::filter(display_identifier %in% STEMI) 
+    dplyr::filter(DISPLAY_IDENTIFIER %in% STEMI) 
   
   
-counts <- c(dplyr::n_distinct(snomed_stemi$encntr_key),
-            dplyr::n_distinct(snomed_stemi_w_icd10$encntr_key),
-            dplyr::n_distinct(temp$encntr_key))
-percent <- counts/dplyr::n_distinct(snomed_stemi$encntr_key)*100            
+counts <- c(dplyr::n_distinct(snomed_stemi$ENCNTR_KEY),
+            dplyr::n_distinct(snomed_stemi_w_icd10$ENCNTR_KEY),
+            dplyr::n_distinct(temp$ENCNTR_KEY))
+percent <- counts/dplyr::n_distinct(snomed_stemi$ENCNTR_KEY)*100            
 
 values <- c("SNOMED-STEMI Encounters",
             "SNOMED-STEMI w/ ANY ICD-10",
@@ -225,11 +232,11 @@ Looking at all the STEMI-defined SNOMED codes, we show the breakdown of the clas
 
 ```{r}
 snomed_stemi %>%
-  dplyr::group_by(classification) %>%
+  dplyr::group_by(CLASSIFICATION) %>%
   dplyr::summarise(count = n()) %>%
   dplyr::ungroup() %>%
   dplyr::mutate(per=count/sum(count)) %>%
-ggplot2::ggplot(., ggplot2::aes(x="",y=count, fill=classification))+
+ggplot2::ggplot(., ggplot2::aes(x="",y=count, fill=CLASSIFICATION))+
 ggplot2::geom_bar(width = 1, stat = "identity") + 
   ggplot2::coord_polar("y", start=0) + ggplot2::xlab("") + ggplot2::ggtitle(paste0("N = ", nrow(snomed_stemi))) + ggplot2::ylab("") +
   ggplot2::geom_text(ggplot2::aes(label = scales::percent(per)), position = ggplot2::position_stack(vjust = 0.5))
@@ -239,11 +246,11 @@ We repeat the same for the diagnosis type
 
 ```{r}
 snomed_stemi %>%
-  dplyr::group_by(diagnosis_type) %>%
+  dplyr::group_by(DIAGNOSIS_TYPE) %>%
   dplyr::summarise(count = n()) %>%
   dplyr::ungroup() %>%
   dplyr::mutate(per=count/sum(count)) %>%
-ggplot2::ggplot(., ggplot2::aes(x="",y=count, fill=diagnosis_type))+
+ggplot2::ggplot(., ggplot2::aes(x="",y=count, fill=DIAGNOSIS_TYPE))+
 ggplot2::geom_bar(width = 1, stat = "identity") + 
   ggplot2::coord_polar("y", start=0) + ggplot2::xlab("") + ggplot2::ggtitle(paste0("N = ", nrow(snomed_stemi))) + ggplot2::ylab("") +
   ggplot2::geom_text(ggplot2::aes(label = scales::percent(per)), position = ggplot2::position_stack(vjust = 0.5))
@@ -253,7 +260,7 @@ Most *discharge* diagnoses are associated with *ED medical* and **all** *final* 
 
 ```{r}
 snomed_stemi %>%
-  dplyr::group_by(diagnosis_type,classification) %>%
+  dplyr::group_by(DIAGNOSIS_TYPE,CLASSIFICATION) %>%
   dplyr::summarise(count = n()) %>%
   dplyr::ungroup() %>%
   knitr::kable(.,format = "html", table.attr = "style='width:50%;'") %>% 
@@ -264,8 +271,8 @@ We look at the difference between the time stamps of the STEMI-defined SNOMED di
 
 ```{r}
 test <- snomed_stemi %>% 
-  dplyr::left_join(encounter_rns, by = "encntr_key") %>%
-  dplyr::mutate(difftime = difftime(diagnosis_start_dttm,admit_dttm, unit="days"))
+  dplyr::left_join(encounter_rns, by = "ENCNTR_KEY") %>%
+  dplyr::mutate(difftime = difftime(DIAGNOSIS_START_DTTM,ADMIT_DTTM, unit="days"))
 ggplot2::ggplot(test, ggplot2::aes(x=difftime))+
 ggplot2::geom_histogram(binwidth=2) 
 
@@ -278,9 +285,9 @@ knitr::kable(dplyr::summarise(test,mean=mean(difftime),
 
 ## Confusion matrix
 ```{r}
-icd10_snomed_stemi_intersect <- dplyr::intersect(icd10_stemi$encntr_key, snomed_stemi$encntr_key)
+icd10_snomed_stemi_intersect <- dplyr::intersect(icd10_stemi$ENCNTR_KEY, snomed_stemi$ENCNTR_KEY)
 
-icd10_snomed_stemi_union <- dplyr::union(icd10_stemi$encntr_key, snomed_stemi$encntr_key)
+icd10_snomed_stemi_union <- dplyr::union(icd10_stemi$ENCNTR_KEY, snomed_stemi$ENCNTR_KEY)
 message(length(unique(icd10_snomed_stemi_intersect)))
 message(length(unique(icd10_snomed_stemi_union)))
 ```
@@ -292,14 +299,14 @@ The number of unique encounters with a STEMI-defined ICD10 code AND STEMI-define
 Below we show a contingency table (confusion matrix) of the ICD10 and SNOMED codes N = **`r length(unique(icd10_snomed_stemi_union))`**.
 
 ```{r}
-cm <- data.frame(encntr_key = icd10_snomed_stemi_union) %>%
+cm <- data.frame(ENCNTR_KEY = icd10_snomed_stemi_union) %>%
   dplyr::mutate(
       ICD10 = dplyr::case_when(
-          encntr_key %in% icd10_stemi$encntr_key ~ "STEMI-ICD10",
+          ENCNTR_KEY %in% icd10_stemi$ENCNTR_KEY ~ "STEMI-ICD10",
           TRUE ~ "NOT STEMI-ICD10"
         ),
       SNOMED = dplyr::case_when(
-          encntr_key %in% snomed_stemi$encntr_key ~ "STEMI-SNOMED",
+          ENCNTR_KEY %in% snomed_stemi$ENCNTR_KEY ~ "STEMI-SNOMED",
           TRUE ~ "NOT STEMI-SNOMED"
         ))
 knitr::kable(table(cm$ICD10,cm$SNOMED),format = "html", table.attr = "style='width:70%;'") %>% 

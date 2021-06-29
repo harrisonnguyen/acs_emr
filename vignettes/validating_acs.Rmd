@@ -11,7 +11,7 @@ output:
     toc_depth: 3
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Defining ACS Cohort for Clinical Indicator Dashboard}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,11 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  warning=FALSE, message=FALSE
+  warning=FALSE, message=FALSE,
+   root.dir = '..'
+)
+knitr::opts_knit$set(
+  root.dir = here::here()
 )
 ```
 
@@ -30,72 +34,53 @@ library(magrittr)
 library(dplyr)
 library(knitr)
 library(kableExtra)
+
+library(targets)
+library(acs)
 ```
 
 ```{r}
 #load("../data/journey_analysis_base.rda")
-journey_analysis_base <-read.csv(here::here("data-raw", "journey_analysis_base.csv"), stringsAsFactors = FALSE)
+#journey_analysis_base <-read.csv(here::here("data-raw", "journey_analysis_base.csv"), stringsAsFactors = FALSE)
 #data("journey_analysis_base")
 
-STEMI_SNOMED <- "(?i)acute( inferior | anterior |\\s)st segment elevation|(ST elevation myocardial infarction)|(Acute STEMI)"
+#journey_analysis_base <- tar_read(input_journey_analysis_base)
+#STEMI_SNOMED <- "(?i)acute( inferior | anterior |\\s)st segment elevation|(ST elevation myocardial infarction)|(Acute STEMI)"
 
 
-load("../data/diagnosis_data.rda")
+#load("../data/diagnosis_data.rda")
 ```
 
 ```{r}
-snomed <-  diagnosis_data %>%
-  dplyr::filter(confirmation_status == "Confirmed" & (classification == "ED Medical" | classification == "Medical" | classification == "ED Nursing")) %>%
-  dplyr::filter(n_source_vocabulary_disp == "SNOMED CT")
+#snomed <-  diagnosis_data %>%
+#  dplyr::filter(confirmation_status == "Confirmed" & (classification == "ED Medical" | classification == "Medical" | classification == "ED Nursing")) %>%
+#  dplyr::filter(n_source_vocabulary_disp == "SNOMED CT")
 
-snomed_stemi <- snomed %>%
-  dplyr::filter(stringr::str_detect(source_string_cap, STEMI_SNOMED))
+#snomed_stemi <- snomed %>%
+#  dplyr::filter(stringr::str_detect(source_string_cap, STEMI_SNOMED))
+
+
+journey_analysis_base <- tar_read(val_journeys)
+snomed_stemi <- tar_read(stemi_snomed)
 ```
 
-```{r}
-
-# should be standard
-`%notin%` <- Negate(`%in%`)
-
-NSLHD <- c("Royal North Shore", "Hornsby", "Ryde", "Manly", "Mona Vale")
-CCLHD <- c("Gosford", "Woy Woy", "Wyong", "Long Jetty")
-
-is.ACS <- function(.x) {
-  any(.x %in% c("STEMI", "NSTEMI", "UNSTABLE_ANGINA", "UNSPECIFIED_ACS"), 
-      na.rm=T)
-}
-
-internal_transfers = c(
-  # "Internal Ambulance / Transport",
-  # "Retrieval",
-  "Internal Bed / Wheelchair"
-)
-
-journey_analysis_base %<>%  
-  dplyr::group_by(JOURNEY_KEY) %>%
-  dplyr::filter(
-    any(enclass == "ED.Admitted" & facility %in% NSLHD & admit_mode %notin% internal_transfers, na.rm=T))%>%
-  dplyr::ungroup()
-```
 
 ```{r}
 snomed_journeys <- snomed_stemi %>%
-  dplyr::select(encntr_key,source_string_cap) %>%
-  dplyr::right_join(journey_analysis_base, by="encntr_key") %>%
-  dplyr::filter(!is.na(source_string_cap))
+  dplyr::select(ENCNTR_KEY,SOURCE_STRING_CAP) %>%
+  dplyr::right_join(journey_analysis_base, by="ENCNTR_KEY") %>%
+  dplyr::filter(!is.na(SOURCE_STRING_CAP))
 ```
 
 ```{r}
 stemi <-journey_analysis_base %>%
-  dplyr::filter(admit_dttm > as.POSIXct("2016-05-01") &
-                  admit_dttm < as.POSIXct("2018-04-30")) %>%
-  dplyr::mutate(STEMI = stringr::str_detect(icd10_diagnosis_list,"[^N]STEMI") | stringr::str_starts(icd10_diagnosis_list,"STEMI")) %>%
+  dplyr::mutate(STEMI = stringr::str_detect(ICD10_DIAGNOSIS_LIST,"[^N]STEMI") | stringr::str_starts(ICD10_DIAGNOSIS_LIST,"STEMI")) %>%
   dplyr::distinct(JOURNEY_KEY,.keep_all=TRUE) %>%
   dplyr::mutate(SNOMED_STEMI = JOURNEY_KEY %in% snomed_journeys$JOURNEY_KEY)
 ```
 
 ```{r}
-n_encounters <- dplyr::n_distinct(stemi$encntr_key)
+n_encounters <- dplyr::n_distinct(stemi$ENCNTR_KEY)
 
 n_journeys <- dplyr::n_distinct(stemi$JOURNEY_KEY)
 
@@ -111,7 +96,7 @@ We aim to investigate the accuracy of identifying STEMI patients based on variou
 
 
 ## Cohort
-The cohort under investigation are journeys with admission dates between **`r as.Date(min(journey_analysis_base$admit_dttm))`** - **`r as.Date(max(journey_analysis_base$admit_dttm))`**. 
+The cohort under investigation are journeys with admission dates between **`r as.Date(min(journey_analysis_base$ADMIT_DTTM))`** - **`r as.Date(max(journey_analysis_base$ADMIT_DTTM))`**. 
 
 The cohort is further filtered for those who are ED admitted in NSLHD and not an internal transfer    .
 
@@ -162,7 +147,7 @@ The table shows a confusion matrix between those who have either been defined as
 stemi_table_name <-  "ICD-10 STEMI"
 criteria_name[[i]] <- 'ACS rule1'
 
-table_list[[i]] <- table(stemi$journey_acs_rule1,stemi$STEMI)
+table_list[[i]] <- table(stemi$JOURNEY_ACS_RULE1,stemi$STEMI)
 kable_confusion_matrix(table_list[[i]], criteria_name[[i]],stemi_table_name)
 i <- i + 1
 ```
@@ -175,7 +160,7 @@ i <- i + 1
  
 ```{r}
 criteria_name[[i]] <- 'ACS rule2'
-table_list[[i]]  <- table(stemi$journey_acs_rule2,stemi$STEMI )
+table_list[[i]]  <- table(stemi$JOURNEY_ACS_RULE2,stemi$STEMI )
 kable_confusion_matrix(table_list[[i]], criteria_name[[i]], stemi_table_name)
 
 i <- i + 1
@@ -207,7 +192,7 @@ We analyse the results in a similar manner by combining the troponin rules.
 
 ```{r}
 criteria_name[[i]] <- 'ACS 1 Or 2'
-table_list[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_acs_rule2,stemi$STEMI)
+table_list[[i]] <- table(stemi$JOURNEY_ACS_RULE1 | stemi$JOURNEY_ACS_RULE2,stemi$STEMI)
 kable_confusion_matrix(table_list[[i]],criteria_name[[i]] , stemi_table_name)
 
 i <- i + 1
@@ -236,7 +221,6 @@ We also look at 3 other inclusions criteria being:
 
 ```{r}
 cohort_flags <- stemi %>%
-  dplyr::rename_all(toupper) %>%
   dplyr::rowwise() %>%
   dplyr::mutate(
     CF1_derived = as.integer(intToBits(COHORT_FLAG_DERIVED)[1]),
@@ -267,7 +251,9 @@ Given that the above results show a lot of false positives, we strengthen the se
 3.  The encounter contained a scanned 12-lead ECG image.
 
 ```{r}
-load(file.path(here::here("data"),"troponin_encounter_order.rda"))
+#load(file.path(here::here("data"),"troponin_encounter_order.rda"))
+
+troponin_encounter_order <- tar_read(troponin_encounter_order)
 ```
 
 ```{r}
@@ -411,11 +397,11 @@ knitr::kable(df %>% dplyr::mutate_if(is.numeric, format, digits=2), align="r") %
   
 ```
 
-Under *ACS Rule 2 (High Threshold Troponin)*, choosing the cohort by using a threshold on the troponin level, produces the highest precision however is the lowest sensitivity out of all the options. In other words, the high troponin level selects a very small cohort where **`r table_list[[2]][2,2]/sum(table_list[[2]][2,])*100`**\% are ICD-10-STEMI but misses **`r (1-df['ACS rule2','sensitivity'])*100`**\% STEMI's.
+Under *ACS Rule 2 (High Threshold Troponin)*, choosing the cohort by using a threshold on the troponin level, produces the highest precision however is the lowest sensitivity out of all the options. In other words, the high troponin level selects a very small cohort where **`r round(table_list[[2]][2,2]/sum(table_list[[2]][2,])*100,1)`**\% are ICD-10-STEMI but misses **`r round((1-df['ACS rule2','sensitivity'])*100,1)`**\% STEMI's.
 
 There is little difference between including orders for procedures such as angiograms/ECGs (*Criteria 2*) or not as a selection criteria (*Adj. Criteria 2*). Using only one of the criteria or any combinations of them produce the higher sensitivity, at the same time, produces the highest number of false positives (large number of non-STEMI's) and thus lower precision when compared to using the troponin test results.
 
-Furthermore, including a cohort with a troponin order (*Only Adj C2*) produces a relatively high sensitivity and precision when compared with the other criteria individually. In particular, it produces a precision that is **`r df['Only  Adj. C2','precision']/df['Only C3','precision']`** times higher than using only *C3*. Combining *C1* with *Adj. C2* is beneficial, as it improves the sensitivity without sacrificing a lot of precision.
+Furthermore, including a cohort with a troponin order (*Only Adj C2*) produces a relatively high sensitivity and precision when compared with the other criteria individually. In particular, it produces a precision that is **`r round(df['Only  Adj. C2','precision']/df['Only C3','precision'],1)`** times higher than using only *C3*. Combining *C1* with *Adj. C2* is beneficial, as it improves the sensitivity without sacrificing a lot of precision.
 
 
 # SNOMED
@@ -427,17 +413,17 @@ table_list_snomed <- list()
 i <- 1
 stemi_table_name <- "SNOMED STEMI"
 
-table_list_snomed[[i]] <- table(stemi$journey_acs_rule1,stemi$SNOMED_STEMI)
+table_list_snomed[[i]] <- table(stemi$JOURNEY_ACS_RULE1,stemi$SNOMED_STEMI)
 kable_confusion_matrix(table_list_snomed[[i]], criteria_name[[i]], stemi_table_name)
 
 i<- i+1
-table_list_snomed[[i]] <- table(stemi$journey_acs_rule2,stemi$SNOMED_STEMI)
+table_list_snomed[[i]] <- table(stemi$JOURNEY_ACS_RULE2,stemi$SNOMED_STEMI)
 
 i<- i+1
 # table_list_snomed[[i]] <- table(stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
 # 
 # i<- i+1
-table_list_snomed[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_acs_rule2,stemi$SNOMED_STEMI)
+table_list_snomed[[i]] <- table(stemi$JOURNEY_ACS_RULE2 | stemi$JOURNEY_ACS_RULE2,stemi$SNOMED_STEMI)
 
 i<- i+1
 # table_list_snomed[[i]] <- table(stemi$journey_acs_rule1 | stemi$journey_above_normal_trop,stemi$SNOMED_STEMI)
