@@ -1,5 +1,16 @@
 
-
+#' Extracts heart failure cohort
+#'
+#' Extracts the journeys with ICD10 heart failure diagnosis
+#' with `JOURNEY_START` between `journey_start_begin` and `journey_start_end`
+#'
+#' @seealso \code{\link{create_hf_snomed_encounters}} for selection of encounter cohort
+#' based on SNOMED codes.
+#' @param journey a df containing journeys
+#' @param diagnosis a df containing diagnosis
+#' @param journey_start_begin start date for the cohort
+#' @param journey_start_end end date
+#' @family heart failure
 select_hf_cohort <- function(journey,diagnosis,
                              journey_start_begin = "2017-04-01",
                              journey_start_end = "2017-06-30"){
@@ -32,6 +43,12 @@ select_hf_cohort <- function(journey,diagnosis,
     dplyr::distinct()
 }
 
+#' Extracts echocardiogram procedures
+#'
+#' Extracts echo procedures based on a string search for the specified cohort
+#' @param journey a df containing journeys
+#' @param procedures a df containing procedures
+#' @family heart failure
 extract_echo_procedures <- function(journeys,procedures){
   echos<- dplyr::filter(procedures, stringr::str_detect(PROCEDURE_NAME,"(?i)echocardiogram")) %>%
     dplyr::filter(ENCNTR_KEY %in% journeys$ENCNTR_KEY) %>%
@@ -41,6 +58,19 @@ extract_echo_procedures <- function(journeys,procedures){
     dplyr::mutate(PROCEDURE_ADMIT_TIME_DELTA = difftime(PROCEDURE_DTTM,ADMIT_DTTM))
 }
 
+#' Extracts SNOMED heart failure encounters
+#'
+#' Extracts the encounters with SNOMED heart failure diagnosis
+#' with `JOURNEY_START` between `journey_start_begin` and `journey_start_end`
+#'
+#' @seealso \code{\link{select_hf_cohort}} for selection of journey cohort
+#' based on ICD10 codes.
+#'
+#' @param journey a df containing journeys
+#' @param diagnosis a df containing diagnosis
+#' @param journey_start_begin start date for the cohort
+#' @param journey_start_end end date
+#' @family heart failure
 create_hf_snomed_encounters <- function(encounters,
                                            diagnosis,
                                            journey_start_begin = "2017-04-01",
@@ -63,6 +93,20 @@ create_hf_snomed_encounters <- function(encounters,
 
 }
 
+#' Extracts ICD10 heart failure encounters
+#'
+#' Extracts the encounters with SNOMED heart failure diagnosis
+#' with `JOURNEY_START` between `journey_start_begin` and `journey_start_end`
+#'
+#' @seealso \code{\link{select_hf_cohort}} for selection of journey cohort
+#' based on ICD10 codes, \code{\link{create_hf_snomed_encounters}} for selection
+#' based on SNOMED codes
+#'
+#' @param journey a df containing journeys
+#' @param diagnosis a df containing diagnosis
+#' @param journey_start_begin start date for the cohort
+#' @param journey_start_end end date
+#' @family heart failure
 create_hf_icd10_encounters <- function(encounters,
                                         diagnosis,
                                         journey_start_begin = "2017-04-01",
@@ -84,7 +128,23 @@ create_hf_icd10_encounters <- function(encounters,
 
 }
 
-
+#' Creates discharge medication
+#'
+#' Summarises discharge medications for ACS cohort. In particular, summarises
+#' `Diuretic`,`A2RB`,`Beta blockers` and `Beta blocker`
+#' for each journey.
+#'
+#' It excludes journeys that meet the exclusion criteria, see \code{\link{exclusion_criteria_meds}}
+#' and includes journeys with a discharge letter key.
+#'
+#' @param meds a df containing medication
+#' @param journeys a df containing journeys
+#' @param discharge_letter_keys a df containing keys of encounters with discharge letters
+#' @return a df summarising the counts of the specified medication for each journey
+#'
+#' @seealso \code{\link{create_meds_discharge}} for acs medication
+#'
+#' @family heart failure
 create_hf_meds_discharge <- function(journeys,meds,discharge_letter_keys){
 
   antiplatelets = c("P2Y12 receptor blocker", "Other antiplatelet")

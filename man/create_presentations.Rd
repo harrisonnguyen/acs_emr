@@ -2,8 +2,7 @@
 % Please edit documentation in R/dashboard.R
 \name{create_presentations}
 \alias{create_presentations}
-\title{Defines the presentation mode for journeys and groups presentation modes
-that are not of interest to "Other"}
+\title{Defines the presentation mode for journeys}
 \usage{
 create_presentations(journeys, form_triage_classified)
 }
@@ -17,3 +16,14 @@ a df containing, \code{PRESENTATION_MODE}
 Defines the presentation mode for journeys and groups presentation modes
 that are not of interest to "Other"
 }
+\seealso{
+Other journey: 
+\code{\link{create_demographics}()},
+\code{\link{create_discharge_letter_keys}()},
+\code{\link{create_interventions}()},
+\code{\link{create_meds_admit_discharge}()},
+\code{\link{create_separations}()},
+\code{\link{create_trajectory}()},
+\code{\link{extract_triage_forms}()}
+}
+\concept{journey}

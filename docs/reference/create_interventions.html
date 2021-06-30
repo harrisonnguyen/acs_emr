@@ -6,10 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creates categories for the types of interventions
-Patients are classified based on whether they have had
-any of the following procedures: angiogram,pci,CABG
-or whether they were transferred to a private hospital — create_interventions • acs</title>
+<title>Creates categories for the types of interventions — create_interventions • acs</title>
 
 
 <!-- jquery -->
@@ -42,12 +39,10 @@ or whether they were transferred to a private hospital — create_interventions 
 
 
 
-<meta property="og:title" content="Creates categories for the types of interventions
-Patients are classified based on whether they have had
+<meta property="og:title" content="Creates categories for the types of interventions — create_interventions" />
+<meta property="og:description" content="Patients are classified based on whether they have had
 any of the following procedures: angiogram,pci,CABG
-or whether they were transferred to a private hospital — create_interventions" />
-<meta property="og:description" content="It is assumed that if a patient had a PCI, or CABG
-they would have an angiogram" />
+or whether they were transferred to a private hospital" />
 
 
 
@@ -134,17 +129,15 @@ they would have an angiogram" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creates categories for the types of interventions
-Patients are classified based on whether they have had
-any of the following procedures: angiogram,pci,CABG
-or whether they were transferred to a private hospital</h1>
+    <h1>Creates categories for the types of interventions</h1>
     
     <div class="hidden name"><code>create_interventions.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>It is assumed that if a patient had a PCI, or CABG
-they would have an angiogram</p>
+    <p>Patients are classified based on whether they have had
+any of the following procedures: angiogram,pci,CABG
+or whether they were transferred to a private hospital</p>
     </div>
 
     <pre class="usage"><span class='fu'>create_interventions</span><span class='op'>(</span><span class='va'>journeys</span>, <span class='va'>procedures</span><span class='op'>)</span></pre>
@@ -165,6 +158,20 @@ they would have an angiogram</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a df containing, <code>INTERVENTION</code></p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>It is assumed that if a patient had a PCI, or CABG
+they would have an angiogram</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Other journey: 
+<code><a href='create_demographics.html'>create_demographics</a>()</code>,
+<code><a href='create_discharge_letter_keys.html'>create_discharge_letter_keys</a>()</code>,
+<code><a href='create_meds_admit_discharge.html'>create_meds_admit_discharge</a>()</code>,
+<code><a href='create_presentations.html'>create_presentations</a>()</code>,
+<code><a href='create_separations.html'>create_separations</a>()</code>,
+<code><a href='create_trajectory.html'>create_trajectory</a>()</code>,
+<code><a href='extract_triage_forms.html'>extract_triage_forms</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

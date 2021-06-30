@@ -1,5 +1,6 @@
 source("R/definitions.R")
 #' Extracts the ACS cohort
+#'
 #' The cohort is defined as patients with a journey start date
 #' between `journey_start_begin` and `journey_start_end`
 #' and those with ICD10 STEMI/NSTEMI code.
@@ -8,6 +9,7 @@ source("R/definitions.R")
 #' @param journey_start_begin a date time string
 #' @param journey_start_end a date time string
 #' @return a dataframe containing the ACS journeys
+#' @family acs
 select_acs_cohort <- function(journey_analysis_base,
                               journey_start_begin = "2017-04-01",
                               journey_start_end = "2017-06-30"){
@@ -51,10 +53,12 @@ select_acs_cohort <- function(journey_analysis_base,
 }
 
 #' Extracts ATAMI triage forms
-#' An ATAMI triage form is any form that contains
+#'
+#' Extracts ATAMI triage forms. An ATAMI triage form is any form that contains
 #' `atami`, `etami`,`cath lab`,`cathlab`
 #' @param form_triag_classified a df containing triag forms
 #' @return a dataframe that contains only ATAMI triag forms
+#' @family journey
 extract_triage_forms <- function(form_triage_classified){
 
   triage_form_prep <- form_triage_classified %>%
@@ -64,10 +68,13 @@ extract_triage_forms <- function(form_triage_classified){
     dplyr::filter(ATAMI)
 }
 
+#' Extracts procedures from the given cohort
+#'
 #' Extracts procedures from the given cohort based on their encounter key
 #' Include a separate column for the presence of a coronary artery bypass procedure
 #' @param procedures_grouped a df containing procedures_grouped
 #' @return a dataframe that contains only ATAMI triag forms
+#' @family acs
 extract_acs_procedures <- function(procedures_grouped,journey_acs){
   procedures_grouped %>%
     dplyr::filter(ENCNTR_KEY %in% journey_acs$ENCNTR_KEY) %>%
@@ -83,6 +90,17 @@ extract_acs_procedures <- function(procedures_grouped,journey_acs){
     dplyr::select(JOURNEY_KEY, PROCEDURE_DTTM, ANGIOGRAM,PCI,CABG)
 }
 
+#' Merges procedure table with McKesson data
+#'
+#' Merges procedure table with McKesson data particularly for PCI
+#' procedures, ensuring consistency between visualation of
+#' ICD10 procedures and McKesson
+#'
+#' @param procedures a df containing ICD10 procedures.
+#' @param door_to_balloon as df containing doot to balloon times for McKesson
+#'      PCI procedures
+#' @return a df
+#' @family acs
 merge_mckesson_cerner_procedures <- function(procedures,door_to_balloon){
 
   pci_journeys <- procedures %>%
@@ -101,10 +119,14 @@ merge_mckesson_cerner_procedures <- function(procedures,door_to_balloon){
 }
 
 
+#' Categorises the trajectories of journeys
+#'
 #' Categorises the trajectories of journeys and whether the journey was a transfer or not
 #' Include a separate column for the presence of a coronary artery bypass procedure
 #' @param journeys a df containing encounters and their journey keys
 #' @return journeys dataframe with the columns, `TRANSFER_STATUS` and `TRAJECTORY`
+#'
+#' @family journey
 create_trajectory <- function(journeys){
   NSLHD <- NSLHD_facility()
 
@@ -141,10 +163,14 @@ create_trajectory <- function(journeys){
 
 }
 
+#' Defines the separation mode for journeys
+#'
 #' Defines the separation mode for journeys and groups separation modes
 #' that are not of interest to "Other"
 #' @param journeys a df containing encounters and their journey keys
 #' @return a df containing, `SEPARATION_MODE`
+#'
+#' @family journey
 create_separations <- function(journeys){
 
   separations_of_interest <- separation_modes()
@@ -159,10 +185,14 @@ create_separations <- function(journeys){
     )
 }
 
+#' Defines the presentation mode for journeys
+#'
 #' Defines the presentation mode for journeys and groups presentation modes
 #' that are not of interest to "Other"
 #' @param journeys a df containing encounters and their journey keys
 #' @return a df containing, `PRESENTATION_MODE`
+#'
+#' @family journey
 create_presentations <- function(journeys, form_triage_classified){
 
   triage_keys <- form_triage_classified %>%
@@ -194,6 +224,7 @@ create_presentations <- function(journeys, form_triage_classified){
 }
 
 #' Creates categories for the types of interventions
+#'
 #' Patients are classified based on whether they have had
 #' any of the following procedures: angiogram,pci,CABG
 #' or whether they were transferred to a private hospital
@@ -203,6 +234,8 @@ create_presentations <- function(journeys, form_triage_classified){
 #' @param journeys a df containing encounters and their journey keys
 #' @param procedures a df containing the relevant procedures for the cohort
 #' @return a df containing, `INTERVENTION`
+#'
+#' @family journey
 create_interventions <- function(journeys,procedures){
 
   interventions <-procedures %>%
@@ -227,10 +260,26 @@ create_interventions <- function(journeys,procedures){
 
 }
 
-create_meds_discharge <- function(meds,journeys,discharge_letter_keys){
+#' Creates discharge medication
+#'
+#' Summarises discharge medications for ACS cohort. In particular, summarises
+#' `aspirin`,`P2Y12`,`Anticoagulant`,`A2RB`,`Beta blockers` and `Statins`
+#' for each journey.
+#'
+#' It excludes journeys that meet the exclusion criteria, see \code{\link{exclusion_criteria_meds}}
+#' and includes journeys with a discharge letter key.
+#'
+#' @param meds a df containing medication
+#' @param journeys a df containing journeys
+#' @param discharge_letter_keys a df containing keys of encounters with discharge letters
+#' @return a df summarising the counts of the specified medication for each journey
+#'
+#' @seealso \code{\link{create_hf_meds_discharge}} for heart failure medication
+#' @family acs
+create_meds_discharge <- function(journeys,meds,discharge_letter_keys){
 
   antiplatelets = c("P2Y12 receptor blocker", "Other antiplatelet")
-  exclusions <- c("death", "dama", "private hospital")
+  exclusions <- exclusion_criteria_meds()
 
   meds_sum <- meds %>%
     dplyr::group_by(JOURNEY_KEY) %>%
@@ -259,6 +308,16 @@ create_meds_discharge <- function(meds,journeys,discharge_letter_keys){
   return(meds_discharge_sum)
 }
 
+#' Creates SNOMED code column
+#'
+#' Extracts any STEMI or NSTEMI  related SNOMED diagnosis for the cohort journey
+#'
+#' @param journeys a df containing journeys
+#' @param diagnosis a df containing diagnosis codes
+#' @return the `journeys` df with additional logical columns `STEMI_SNOMED` and `NSTEMI_SNOMED`
+#' describing whether that journeys had the relevant SNOMED code
+#'
+#' @family acs
 create_stemi_code <- function(journeys, diagnosis){
 
 
@@ -292,14 +351,29 @@ create_stemi_code <- function(journeys, diagnosis){
 
 }
 
+#' Extracts cohort discharge keys
+#'
+#' @family journey
 create_discharge_letter_keys <- function(journeys,discharge_letter_keys) {
 
   acs_discharge_letter_keys <- discharge_letter_keys %>%
-    dplyr::rename_all(toupper) %>%
     dplyr::filter(ENCNTR_KEY %in% journeys$ENCNTR_KEY) %>%
     dplyr::pull(ENCNTR_KEY)
 }
 
+#' Extracts door to balloon times
+#'
+#' Extracts door to balloon times,  bins the times
+#' and assigns a category to each door to baloon measurement
+#' @param journeys a df containing journeys
+#' @param door_to_balloon a df containing balloon times
+#' @param demographics a df containing demopgrahic information
+#' of journeys such as `TRAJECTORY` and `PRESENTATION_MODE`
+#'
+#' @return the door_to_balloon df and additional columns `DTB_PRESENTATION_MODE`
+#' and `DELTA_BINNED` for the cohort journeys
+#'
+#' @family acs
 create_door_to_balloon <- function(journeys,door_to_balloon, demographics){
 
   breaks <- c(-Inf, 0, 30, 60, 90, 120,150,180,300, Inf)
@@ -326,7 +400,15 @@ create_door_to_balloon <- function(journeys,door_to_balloon, demographics){
     dplyr::select(-c(TRAJECTORY,PRESENTATION_MODE))
 }
 
-
+#' Creates demographic information
+#'
+#' Creates columns such as `AGE`, `ADMIT_IN_BUSINESS_HOURS`, `LENGTH_OF_STAY`
+#' for each journey
+#'
+#' @param journeys a df containing journeys
+#' @param form_triage_classified df containing triage forms
+#' @return a df containing journeys and the additional columns
+#' @family journey
 create_demographics <- function(journeys,form_triage_classified){
 
   los_breaks <- c(0, 0.2083333, 0.5416667, 1, 2, 5, 10, 30, Inf)
@@ -367,9 +449,17 @@ create_demographics <- function(journeys,form_triage_classified){
 
 }
 
+
+#' Extracts medications relevant to the cohort journeys
+#'
+#' Extracts medications relevant to the cohort journeys
+#' @param journey a df containin journeys
+#' @param journey_meds_admit_discharge a df containing admission and discharge
+#' medication
+#' @return a df containing the medications for the cohort journeys
+#' @family journey
 create_meds_admit_discharge <- function(journey, journey_meds_admit_discharge){
   acs_journey_meds_admit_discharge <- journey_meds_admit_discharge %>%
-    dplyr::rename_all(toupper) %>%
     dplyr::filter(ENCNTR_KEY %in% journey$ENCNTR_KEY) %>%
     dplyr::select(JOURNEY_KEY,
                   ENCNTR_KEY,
@@ -382,34 +472,3 @@ create_meds_admit_discharge <- function(journey, journey_meds_admit_discharge){
     dplyr::distinct()
 }
 
-create_meds_discharge <- function(journeys,meds,discharge_letter_keys){
-
-  antiplatelets = c("P2Y12 receptor blocker", "Other antiplatelet")
-  exclusions <- exclusion_criteria_meds()
-
-  meds_sum <- meds %>%
-    dplyr::group_by(JOURNEY_KEY) %>%
-    dplyr::summarise(
-      letter = any(ENCNTR_KEY %in% discharge_letter_keys),
-      Aspirin = sum(MEDICATION == "aspirin" & DISCHARGE_MED, na.rm = TRUE),
-      `P2Y12 & others` = sum(MEDICATION %in% antiplatelets & DISCHARGE_MED, na.rm = TRUE),
-      Anticoagulant = sum(MEDICATION == "warfarin/other anticoagulant" & DISCHARGE_MED, na.rm = TRUE),
-      `A2RB/ACE Inhibitor` = sum(MEDICATION == "A2RB/ACE Inhibitor" & DISCHARGE_MED, na.rm = TRUE),
-      `Beta blocker` = sum(MEDICATION == "Beta blocker" & DISCHARGE_MED, na.rm = TRUE),
-      Statin = sum(MEDICATION == "Statin" & DISCHARGE_MED, na.rm = TRUE)
-    ) %>%
-    dplyr::ungroup()
-
-  meds_letter <- journeys %>%
-    dplyr::select(JOURNEY_KEY, JOURNEY_SEP_MODE) %>%
-    dplyr::distinct() %>%
-    dplyr::left_join(meds_sum, by = "JOURNEY_KEY") %>%
-    dplyr::filter(letter)
-
-  meds_discharge_sum <-  meds_letter %>%
-    dplyr::filter(letter & !JOURNEY_SEP_MODE %in% exclusions)
-
-
-
-  return(meds_discharge_sum)
-}

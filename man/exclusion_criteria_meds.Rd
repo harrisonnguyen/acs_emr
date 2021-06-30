@@ -6,6 +6,20 @@
 \usage{
 exclusion_criteria_meds()
 }
+\value{
+a vector of strings
+}
 \description{
 Definition the exclusion criteria for medication
 }
+\seealso{
+Other definitions: 
+\code{\link{ACS_codes}()},
+\code{\link{CCLHD_facility}()},
+\code{\link{NSLHD_facility}()},
+\code{\link{business_hours}()},
+\code{\link{hf_icd_codes}()},
+\code{\link{internal_transfers}()},
+\code{\link{separation_modes}()}
+}
+\concept{definitions}

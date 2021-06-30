@@ -2,12 +2,14 @@ library(portrpaths)
 library(pipetree)
 library(rlang)
 
-#' Function that loads the cache from SPEED-EXTRACT pipeline
+#' Loads the cache from SPEED-EXTRACT pipeline
 #' and the specified table
 #' @param table a string for the table to ne loaded
 #' @param config_dir directory that contains the data profiles
 #' @param profile strin that defines the data profile to be used
 #' @return a dataframe
+#'
+#' @family utils
 load_table <- function(table,
                        config_dir = "D:/projects/SPEED-EXTRACT.pipeline/local.yaml",
                        profile = "3m_hpc"){

@@ -6,6 +6,20 @@
 \usage{
 hf_icd_codes()
 }
+\value{
+a vector of strings
+}
 \description{
 Definition for heart failure ICD10 codes
 }
+\seealso{
+Other definitions: 
+\code{\link{ACS_codes}()},
+\code{\link{CCLHD_facility}()},
+\code{\link{NSLHD_facility}()},
+\code{\link{business_hours}()},
+\code{\link{exclusion_criteria_meds}()},
+\code{\link{internal_transfers}()},
+\code{\link{separation_modes}()}
+}
+\concept{definitions}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{load_table}
 \alias{load_table}
-\title{Function that loads the cache from SPEED-EXTRACT pipeline
+\title{Loads the cache from SPEED-EXTRACT pipeline
 and the specified table}
 \usage{
 load_table(
@@ -22,6 +22,7 @@ load_table(
 a dataframe
 }
 \description{
-Function that loads the cache from SPEED-EXTRACT pipeline
+Loads the cache from SPEED-EXTRACT pipeline
 and the specified table
 }
+\concept{utils}

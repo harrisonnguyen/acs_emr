@@ -2,10 +2,7 @@
 % Please edit documentation in R/dashboard.R
 \name{create_interventions}
 \alias{create_interventions}
-\title{Creates categories for the types of interventions
-Patients are classified based on whether they have had
-any of the following procedures: angiogram,pci,CABG
-or whether they were transferred to a private hospital}
+\title{Creates categories for the types of interventions}
 \usage{
 create_interventions(journeys, procedures)
 }
@@ -18,6 +15,22 @@ create_interventions(journeys, procedures)
 a df containing, \code{INTERVENTION}
 }
 \description{
+Patients are classified based on whether they have had
+any of the following procedures: angiogram,pci,CABG
+or whether they were transferred to a private hospital
+}
+\details{
 It is assumed that if a patient had a PCI, or CABG
 they would have an angiogram
 }
+\seealso{
+Other journey: 
+\code{\link{create_demographics}()},
+\code{\link{create_discharge_letter_keys}()},
+\code{\link{create_meds_admit_discharge}()},
+\code{\link{create_presentations}()},
+\code{\link{create_separations}()},
+\code{\link{create_trajectory}()},
+\code{\link{extract_triage_forms}()}
+}
+\concept{journey}

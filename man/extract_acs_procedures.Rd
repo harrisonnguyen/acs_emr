@@ -2,8 +2,7 @@
 % Please edit documentation in R/dashboard.R
 \name{extract_acs_procedures}
 \alias{extract_acs_procedures}
-\title{Extracts procedures from the given cohort based on their encounter key
-Include a separate column for the presence of a coronary artery bypass procedure}
+\title{Extracts procedures from the given cohort}
 \usage{
 extract_acs_procedures(procedures_grouped, journey_acs)
 }
@@ -17,3 +16,12 @@ a dataframe that contains only ATAMI triag forms
 Extracts procedures from the given cohort based on their encounter key
 Include a separate column for the presence of a coronary artery bypass procedure
 }
+\seealso{
+Other acs: 
+\code{\link{create_door_to_balloon}()},
+\code{\link{create_meds_discharge}()},
+\code{\link{create_stemi_code}()},
+\code{\link{merge_mckesson_cerner_procedures}()},
+\code{\link{select_acs_cohort}()}
+}
+\concept{acs}

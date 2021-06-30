@@ -2,9 +2,7 @@
 % Please edit documentation in R/dashboard.R
 \name{extract_triage_forms}
 \alias{extract_triage_forms}
-\title{Extracts ATAMI triage forms
-An ATAMI triage form is any form that contains
-\code{atami}, \code{etami},\verb{cath lab},\code{cathlab}}
+\title{Extracts ATAMI triage forms}
 \usage{
 extract_triage_forms(form_triage_classified)
 }
@@ -15,7 +13,17 @@ extract_triage_forms(form_triage_classified)
 a dataframe that contains only ATAMI triag forms
 }
 \description{
-Extracts ATAMI triage forms
-An ATAMI triage form is any form that contains
+Extracts ATAMI triage forms. An ATAMI triage form is any form that contains
 \code{atami}, \code{etami},\verb{cath lab},\code{cathlab}
 }
+\seealso{
+Other journey: 
+\code{\link{create_demographics}()},
+\code{\link{create_discharge_letter_keys}()},
+\code{\link{create_interventions}()},
+\code{\link{create_meds_admit_discharge}()},
+\code{\link{create_presentations}()},
+\code{\link{create_separations}()},
+\code{\link{create_trajectory}()}
+}
+\concept{journey}

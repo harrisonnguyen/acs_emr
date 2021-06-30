@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Definition for an admission during business hours — business_hours • acs</title>
+<title>Creates discharge medication — create_meds_discharge • acs</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,10 @@
 
 
 
-<meta property="og:title" content="Definition for an admission during business hours — business_hours" />
-<meta property="og:description" content="Definition for an admission during business hours" />
+<meta property="og:title" content="Creates discharge medication — create_meds_discharge" />
+<meta property="og:description" content="Summarises discharge medications for ACS cohort. In particular, summarises
+aspirin,P2Y12,Anticoagulant,A2RB,Beta blockers and Statins
+for each journey." />
 
 
 
@@ -127,31 +129,52 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Definition for an admission during business hours</h1>
+    <h1>Creates discharge medication</h1>
     
-    <div class="hidden name"><code>business_hours.Rd</code></div>
+    <div class="hidden name"><code>create_meds_discharge.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Definition for an admission during business hours</p>
+    <p>Summarises discharge medications for ACS cohort. In particular, summarises
+<code>aspirin</code>,<code>P2Y12</code>,<code>Anticoagulant</code>,<code>A2RB</code>,<code>Beta blockers</code> and <code>Statins</code>
+for each journey.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>business_hours</span><span class='op'>(</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_meds_discharge</span><span class='op'>(</span><span class='va'>journeys</span>, <span class='va'>meds</span>, <span class='va'>discharge_letter_keys</span><span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>journeys</th>
+      <td><p>a df containing journeys</p></td>
+    </tr>
+    <tr>
+      <th>meds</th>
+      <td><p>a df containing medication</p></td>
+    </tr>
+    <tr>
+      <th>discharge_letter_keys</th>
+      <td><p>a df containing keys of encounters with discharge letters</p></td>
+    </tr>
+    </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a vector of strings</p>
+    <p>a df summarising the counts of the specified medication for each journey</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>It excludes journeys that meet the exclusion criteria, see <code><a href='exclusion_criteria_meds.html'>exclusion_criteria_meds</a></code>
+and includes journeys with a discharge letter key.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other definitions: 
-<code><a href='ACS_codes.html'>ACS_codes</a>()</code>,
-<code><a href='CCLHD_facility.html'>CCLHD_facility</a>()</code>,
-<code><a href='NSLHD_facility.html'>NSLHD_facility</a>()</code>,
-<code><a href='exclusion_criteria_meds.html'>exclusion_criteria_meds</a>()</code>,
-<code><a href='hf_icd_codes.html'>hf_icd_codes</a>()</code>,
-<code><a href='internal_transfers.html'>internal_transfers</a>()</code>,
-<code><a href='separation_modes.html'>separation_modes</a>()</code></p></div>
+    <div class='dont-index'><p><code><a href='create_hf_meds_discharge.html'>create_hf_meds_discharge</a></code> for heart failure medication</p>
+<p>Other acs: 
+<code><a href='create_door_to_balloon.html'>create_door_to_balloon</a>()</code>,
+<code><a href='create_stemi_code.html'>create_stemi_code</a>()</code>,
+<code><a href='extract_acs_procedures.html'>extract_acs_procedures</a>()</code>,
+<code><a href='merge_mckesson_cerner_procedures.html'>merge_mckesson_cerner_procedures</a>()</code>,
+<code><a href='select_acs_cohort.html'>select_acs_cohort</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

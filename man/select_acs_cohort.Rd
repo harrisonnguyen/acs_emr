@@ -2,11 +2,7 @@
 % Please edit documentation in R/dashboard.R
 \name{select_acs_cohort}
 \alias{select_acs_cohort}
-\title{Extracts the ACS cohort
-The cohort is defined as patients with a journey start date
-between \code{journey_start_begin} and \code{journey_start_end}
-and those with ICD10 STEMI/NSTEMI code.
-It includes those who were admitted into ED OR patients who had transferred to RNSH}
+\title{Extracts the ACS cohort}
 \usage{
 select_acs_cohort(
   journey_analysis_base,
@@ -25,9 +21,17 @@ select_acs_cohort(
 a dataframe containing the ACS journeys
 }
 \description{
-Extracts the ACS cohort
 The cohort is defined as patients with a journey start date
 between \code{journey_start_begin} and \code{journey_start_end}
 and those with ICD10 STEMI/NSTEMI code.
 It includes those who were admitted into ED OR patients who had transferred to RNSH
 }
+\seealso{
+Other acs: 
+\code{\link{create_door_to_balloon}()},
+\code{\link{create_meds_discharge}()},
+\code{\link{create_stemi_code}()},
+\code{\link{extract_acs_procedures}()},
+\code{\link{merge_mckesson_cerner_procedures}()}
+}
+\concept{acs}

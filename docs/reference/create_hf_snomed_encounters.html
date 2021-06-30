@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Definition for an admission during business hours — business_hours • acs</title>
+<title>Extracts SNOMED heart failure encounters — create_hf_snomed_encounters • acs</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Definition for an admission during business hours — business_hours" />
-<meta property="og:description" content="Definition for an admission during business hours" />
+<meta property="og:title" content="Extracts SNOMED heart failure encounters — create_hf_snomed_encounters" />
+<meta property="og:description" content="Extracts the encounters with SNOMED heart failure diagnosis
+with JOURNEY_START between journey_start_begin and journey_start_end" />
 
 
 
@@ -127,31 +128,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Definition for an admission during business hours</h1>
+    <h1>Extracts SNOMED heart failure encounters</h1>
     
-    <div class="hidden name"><code>business_hours.Rd</code></div>
+    <div class="hidden name"><code>create_hf_snomed_encounters.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Definition for an admission during business hours</p>
+    <p>Extracts the encounters with SNOMED heart failure diagnosis
+with <code>JOURNEY_START</code> between <code>journey_start_begin</code> and <code>journey_start_end</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>business_hours</span><span class='op'>(</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_hf_snomed_encounters</span><span class='op'>(</span>
+  <span class='va'>encounters</span>,
+  <span class='va'>diagnosis</span>,
+  journey_start_begin <span class='op'>=</span> <span class='st'>"2017-04-01"</span>,
+  journey_start_end <span class='op'>=</span> <span class='st'>"2017-06-30"</span>
+<span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>diagnosis</th>
+      <td><p>a df containing diagnosis</p></td>
+    </tr>
+    <tr>
+      <th>journey_start_begin</th>
+      <td><p>start date for the cohort</p></td>
+    </tr>
+    <tr>
+      <th>journey_start_end</th>
+      <td><p>end date</p></td>
+    </tr>
+    <tr>
+      <th>journey</th>
+      <td><p>a df containing journeys</p></td>
+    </tr>
+    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>a vector of strings</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other definitions: 
-<code><a href='ACS_codes.html'>ACS_codes</a>()</code>,
-<code><a href='CCLHD_facility.html'>CCLHD_facility</a>()</code>,
-<code><a href='NSLHD_facility.html'>NSLHD_facility</a>()</code>,
-<code><a href='exclusion_criteria_meds.html'>exclusion_criteria_meds</a>()</code>,
-<code><a href='hf_icd_codes.html'>hf_icd_codes</a>()</code>,
-<code><a href='internal_transfers.html'>internal_transfers</a>()</code>,
-<code><a href='separation_modes.html'>separation_modes</a>()</code></p></div>
+    <div class='dont-index'><p><code><a href='select_hf_cohort.html'>select_hf_cohort</a></code> for selection of journey cohort
+based on ICD10 codes.</p>
+<p>Other heart failure: 
+<code><a href='create_hf_icd10_encounters.html'>create_hf_icd10_encounters</a>()</code>,
+<code><a href='create_hf_meds_discharge.html'>create_hf_meds_discharge</a>()</code>,
+<code><a href='extract_echo_procedures.html'>extract_echo_procedures</a>()</code>,
+<code><a href='select_hf_cohort.html'>select_hf_cohort</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

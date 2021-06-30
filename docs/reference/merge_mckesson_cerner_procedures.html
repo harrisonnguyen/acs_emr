@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Definition for an admission during business hours — business_hours • acs</title>
+<title>Merges procedure table with McKesson data — merge_mckesson_cerner_procedures • acs</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,10 @@
 
 
 
-<meta property="og:title" content="Definition for an admission during business hours — business_hours" />
-<meta property="og:description" content="Definition for an admission during business hours" />
+<meta property="og:title" content="Merges procedure table with McKesson data — merge_mckesson_cerner_procedures" />
+<meta property="og:description" content="Merges procedure table with McKesson data particularly for PCI
+procedures, ensuring consistency between visualation of
+ICD10 procedures and McKesson" />
 
 
 
@@ -127,31 +129,44 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Definition for an admission during business hours</h1>
+    <h1>Merges procedure table with McKesson data</h1>
     
-    <div class="hidden name"><code>business_hours.Rd</code></div>
+    <div class="hidden name"><code>merge_mckesson_cerner_procedures.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Definition for an admission during business hours</p>
+    <p>Merges procedure table with McKesson data particularly for PCI
+procedures, ensuring consistency between visualation of
+ICD10 procedures and McKesson</p>
     </div>
 
-    <pre class="usage"><span class='fu'>business_hours</span><span class='op'>(</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>merge_mckesson_cerner_procedures</span><span class='op'>(</span><span class='va'>procedures</span>, <span class='va'>door_to_balloon</span><span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>procedures</th>
+      <td><p>a df containing ICD10 procedures.</p></td>
+    </tr>
+    <tr>
+      <th>door_to_balloon</th>
+      <td><p>as df containing doot to balloon times for McKesson
+PCI procedures</p></td>
+    </tr>
+    </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a vector of strings</p>
+    <p>a df</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other definitions: 
-<code><a href='ACS_codes.html'>ACS_codes</a>()</code>,
-<code><a href='CCLHD_facility.html'>CCLHD_facility</a>()</code>,
-<code><a href='NSLHD_facility.html'>NSLHD_facility</a>()</code>,
-<code><a href='exclusion_criteria_meds.html'>exclusion_criteria_meds</a>()</code>,
-<code><a href='hf_icd_codes.html'>hf_icd_codes</a>()</code>,
-<code><a href='internal_transfers.html'>internal_transfers</a>()</code>,
-<code><a href='separation_modes.html'>separation_modes</a>()</code></p></div>
+    <div class='dont-index'><p>Other acs: 
+<code><a href='create_door_to_balloon.html'>create_door_to_balloon</a>()</code>,
+<code><a href='create_meds_discharge.html'>create_meds_discharge</a>()</code>,
+<code><a href='create_stemi_code.html'>create_stemi_code</a>()</code>,
+<code><a href='extract_acs_procedures.html'>extract_acs_procedures</a>()</code>,
+<code><a href='select_acs_cohort.html'>select_acs_cohort</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

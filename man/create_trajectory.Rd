@@ -2,8 +2,7 @@
 % Please edit documentation in R/dashboard.R
 \name{create_trajectory}
 \alias{create_trajectory}
-\title{Categorises the trajectories of journeys and whether the journey was a transfer or not
-Include a separate column for the presence of a coronary artery bypass procedure}
+\title{Categorises the trajectories of journeys}
 \usage{
 create_trajectory(journeys)
 }
@@ -17,3 +16,14 @@ journeys dataframe with the columns, \code{TRANSFER_STATUS} and \code{TRAJECTORY
 Categorises the trajectories of journeys and whether the journey was a transfer or not
 Include a separate column for the presence of a coronary artery bypass procedure
 }
+\seealso{
+Other journey: 
+\code{\link{create_demographics}()},
+\code{\link{create_discharge_letter_keys}()},
+\code{\link{create_interventions}()},
+\code{\link{create_meds_admit_discharge}()},
+\code{\link{create_presentations}()},
+\code{\link{create_separations}()},
+\code{\link{extract_triage_forms}()}
+}
+\concept{journey}

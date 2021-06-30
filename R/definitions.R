@@ -1,17 +1,21 @@
 #' Returns the definition of NSLHD facilities
 #' @return a vector of strings
+#'
+#' @family definitions
 NSLHD_facility<- function(){
   return(c("Royal North Shore", "Hornsby", "Ryde", "Manly", "Mona Vale"))
 }
 
 #' Returns the definition of CCLHD facilities
 #' @return a vector of strings
+#' @family definitions
 CCLHD_facility<- function(){
   return(c("Gosford", "Woy Woy", "Wyong", "Long Jetty"))
 }
 
 #' Definition of internal transfer
 #' @return a vector of strings
+#' @family definitions
 internal_transfers <- function(){
   return(c("Internal Bed / Wheelchair"
   ))
@@ -19,11 +23,13 @@ internal_transfers <- function(){
 
 #' Definition for ACS names
 #' @return a vector of strings
+#' @family definitions
 ACS_codes <- function(){
   return(c("STEMI", "NSTEMI", "UNSTABLE_ANGINA", "UNSPECIFIED_ACS"))
 }
 
 #' Definition for separation modes of interest
+#' @family definitions
 separation_modes <- function(){
   return(c("home",
            "death",
@@ -31,6 +37,8 @@ separation_modes <- function(){
 }
 
 #' Definition for an admission during business hours
+#' @return a vector of strings
+#' @family definitions
 business_hours <- function(){
   business <- list(
     weekday = c('Mon','Tue','Wed','Thu','Fri'),
@@ -42,12 +50,16 @@ business_hours <- function(){
 
 
 #' Definition the exclusion criteria for medication
+#' @return a vector of strings
+#' @family definitions
 exclusion_criteria_meds <- function(){
 
   return(c("death", "dama", "private hospital"))
 }
 
 #' Definition for heart failure ICD10 codes
+#' @return a vector of strings
+#' @family definitions
 hf_icd_codes <- function(){
 
   hf_codes <- list(

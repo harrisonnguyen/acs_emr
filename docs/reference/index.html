@@ -140,7 +140,7 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+          <h2 id="section-definitions" class="hasAnchor"><a href="#section-definitions" class="anchor"></a>Definitions</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
@@ -170,54 +170,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="create_interventions.html">create_interventions()</a></code> </p>
-        </td>
-        <td><p>Creates categories for the types of interventions
-Patients are classified based on whether they have had
-any of the following procedures: angiogram,pci,CABG
-or whether they were transferred to a private hospital</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_presentations.html">create_presentations()</a></code> </p>
-        </td>
-        <td><p>Defines the presentation mode for journeys and groups presentation modes
-that are not of interest to "Other"</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_separations.html">create_separations()</a></code> </p>
-        </td>
-        <td><p>Defines the separation mode for journeys and groups separation modes
-that are not of interest to "Other"</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_trajectory.html">create_trajectory()</a></code> </p>
-        </td>
-        <td><p>Categorises the trajectories of journeys and whether the journey was a transfer or not
-Include a separate column for the presence of a coronary artery bypass procedure</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="exclusion_criteria_meds.html">exclusion_criteria_meds()</a></code> </p>
         </td>
         <td><p>Definition the exclusion criteria for medication</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="extract_acs_procedures.html">extract_acs_procedures()</a></code> </p>
-        </td>
-        <td><p>Extracts procedures from the given cohort based on their encounter key
-Include a separate column for the presence of a coronary artery bypass procedure</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="extract_triage_forms.html">extract_triage_forms()</a></code> </p>
-        </td>
-        <td><p>Extracts ATAMI triage forms
-An ATAMI triage form is any form that contains
-<code>atami</code>, <code>etami</code>,<code>cath lab</code>,<code>cathlab</code></p></td>
       </tr><tr>
         
         <td>
@@ -233,32 +188,188 @@ An ATAMI triage form is any form that contains
       </tr><tr>
         
         <td>
-          <p><code><a href="load_table.html">load_table()</a></code> </p>
-        </td>
-        <td><p>Function that loads the cache from SPEED-EXTRACT pipeline
-and the specified table</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="NSLHD_facility.html">NSLHD_facility()</a></code> </p>
         </td>
         <td><p>Returns the definition of NSLHD facilities</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="select_acs_cohort.html">select_acs_cohort()</a></code> </p>
-        </td>
-        <td><p>Extracts the ACS cohort
-The cohort is defined as patients with a journey start date
-between <code>journey_start_begin</code> and <code>journey_start_end</code>
-and those with ICD10 STEMI/NSTEMI code.
-It includes those who were admitted into ED OR patients who had transferred to RNSH</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="separation_modes.html">separation_modes()</a></code> </p>
         </td>
         <td><p>Definition for separation modes of interest</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-journeys" class="hasAnchor"><a href="#section-journeys" class="anchor"></a>Journeys</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="create_demographics.html">create_demographics()</a></code> </p>
+        </td>
+        <td><p>Creates demographic information</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_discharge_letter_keys.html">create_discharge_letter_keys()</a></code> </p>
+        </td>
+        <td><p>Extracts cohort discharge keys</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_interventions.html">create_interventions()</a></code> </p>
+        </td>
+        <td><p>Creates categories for the types of interventions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_meds_admit_discharge.html">create_meds_admit_discharge()</a></code> </p>
+        </td>
+        <td><p>Extracts medications relevant to the cohort journeys</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_presentations.html">create_presentations()</a></code> </p>
+        </td>
+        <td><p>Defines the presentation mode for journeys</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_separations.html">create_separations()</a></code> </p>
+        </td>
+        <td><p>Defines the separation mode for journeys</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_trajectory.html">create_trajectory()</a></code> </p>
+        </td>
+        <td><p>Categorises the trajectories of journeys</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="extract_triage_forms.html">extract_triage_forms()</a></code> </p>
+        </td>
+        <td><p>Extracts ATAMI triage forms</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-acs" class="hasAnchor"><a href="#section-acs" class="anchor"></a>ACS</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="create_door_to_balloon.html">create_door_to_balloon()</a></code> </p>
+        </td>
+        <td><p>Extracts door to balloon times</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_meds_discharge.html">create_meds_discharge()</a></code> </p>
+        </td>
+        <td><p>Creates discharge medication</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_stemi_code.html">create_stemi_code()</a></code> </p>
+        </td>
+        <td><p>Creates SNOMED code column</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="extract_acs_procedures.html">extract_acs_procedures()</a></code> </p>
+        </td>
+        <td><p>Extracts procedures from the given cohort</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="merge_mckesson_cerner_procedures.html">merge_mckesson_cerner_procedures()</a></code> </p>
+        </td>
+        <td><p>Merges procedure table with McKesson data</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="select_acs_cohort.html">select_acs_cohort()</a></code> </p>
+        </td>
+        <td><p>Extracts the ACS cohort</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-heart-failure" class="hasAnchor"><a href="#section-heart-failure" class="anchor"></a>Heart Failure</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="create_hf_icd10_encounters.html">create_hf_icd10_encounters()</a></code> </p>
+        </td>
+        <td><p>Extracts ICD10 heart failure encounters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_hf_meds_discharge.html">create_hf_meds_discharge()</a></code> </p>
+        </td>
+        <td><p>Creates discharge medication</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_hf_snomed_encounters.html">create_hf_snomed_encounters()</a></code> </p>
+        </td>
+        <td><p>Extracts SNOMED heart failure encounters</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="extract_echo_procedures.html">extract_echo_procedures()</a></code> </p>
+        </td>
+        <td><p>Extracts echocardiogram procedures</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="select_hf_cohort.html">select_hf_cohort()</a></code> </p>
+        </td>
+        <td><p>Extracts heart failure cohort</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-utility" class="hasAnchor"><a href="#section-utility" class="anchor"></a>Utility</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="load_table.html">load_table()</a></code> </p>
+        </td>
+        <td><p>Loads the cache from SPEED-EXTRACT pipeline
+and the specified table</p></td>
       </tr>
     </tbody>
     </table>

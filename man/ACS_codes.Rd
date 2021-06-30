@@ -12,3 +12,14 @@ a vector of strings
 \description{
 Definition for ACS names
 }
+\seealso{
+Other definitions: 
+\code{\link{CCLHD_facility}()},
+\code{\link{NSLHD_facility}()},
+\code{\link{business_hours}()},
+\code{\link{exclusion_criteria_meds}()},
+\code{\link{hf_icd_codes}()},
+\code{\link{internal_transfers}()},
+\code{\link{separation_modes}()}
+}
+\concept{definitions}

@@ -2,8 +2,7 @@
 % Please edit documentation in R/dashboard.R
 \name{create_separations}
 \alias{create_separations}
-\title{Defines the separation mode for journeys and groups separation modes
-that are not of interest to "Other"}
+\title{Defines the separation mode for journeys}
 \usage{
 create_separations(journeys)
 }
@@ -17,3 +16,14 @@ a df containing, \code{SEPARATION_MODE}
 Defines the separation mode for journeys and groups separation modes
 that are not of interest to "Other"
 }
+\seealso{
+Other journey: 
+\code{\link{create_demographics}()},
+\code{\link{create_discharge_letter_keys}()},
+\code{\link{create_interventions}()},
+\code{\link{create_meds_admit_discharge}()},
+\code{\link{create_presentations}()},
+\code{\link{create_trajectory}()},
+\code{\link{extract_triage_forms}()}
+}
+\concept{journey}
