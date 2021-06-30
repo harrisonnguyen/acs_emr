@@ -48,6 +48,9 @@ hf_discharge_letter_keys <- targets::tar_read(hf_discharge_letter_keys)
 
 hf_journey_meds_admit_discharge <- targets::tar_read(hf_journey_meds_admit_discharge)
 hf_meds_discharge_sum <- targets::tar_read(hf_meds_discharge_sum)
+
+
+hf_echo_procedures <- targets::tar_read(hf_echo_procedures)
 ```
 
 # Introduction
@@ -70,6 +73,8 @@ cohort_journey_keys <- hf_journey %>%
   dplyr::filter(FACILITY %in%  facility_list, DIAGNOSIS_IMPORTANCE == "primary_diagnosis") %>%
   dplyr::pull(JOURNEY_KEY)
 
+
+
 primary_journey <- hf_journey %>%
   dplyr::filter(JOURNEY_KEY %in% cohort_journey_keys )
 
@@ -81,6 +86,12 @@ primary_meds <-hf_journey_meds_admit_discharge %>%
 
 primary_meds_sum <- hf_meds_discharge_sum %>%
   dplyr::filter(JOURNEY_KEY %in% cohort_journey_keys )
+
+cohort_encounter_keys <- primary_journey %>%
+  dplyr::distinct(ENCNTR_KEY)
+
+primary_echo <- hf_echo_procedures %>%
+  dplyr::filter(ENCNTR_KEY %in% cohort_encounter_keys )
 ```
 
 ```{r}
@@ -176,11 +187,11 @@ postcode_plot
 
 # Journey Characteristics
 
-Figure \@ref(fig:journey_char_plot) shows the characteristics of the journeys such as the presentation mode, whether the journey involved a transfer and the separation mode. Those presented as `Ambulance Triage` are defined as journeys that hadtheir jorueny first facility as `Royal North Shore` and whether their triage form contained the presence of `atami` or `etami` or `cath lab`.
+Figure \@ref(fig:journey-char-plot) shows the characteristics of the journeys such as the presentation mode, whether the journey involved a transfer and the separation mode. Those presented as `Ambulance Triage` are defined as journeys that hadtheir jorueny first facility as `Royal North Shore` and whether their triage form contained the presence of `atami` or `etami` or `cath lab`.
 
 Most encounters are admitted into ED and most journeys either arrived by ambulance or as a self presentation. 
 
-```{r journey_char_plot, fig.caption="Characteristics of journeys."}
+```{r journey-char-plot, fig.cap="Characteristics of journeys."}
 
 p1<-proportion_bar_plot(primary_journey, "ENCLASS", "Encounter_type")
 
@@ -254,6 +265,20 @@ primary_meds_sum %>%
        title = paste0("Medication (N = ", nrow(primary_meds_sum), ")"))
   
 ```
+
+# Investigations
+
+We examine the number of echocardiograms that were performed in the cohort. Currently, the extract only contains transoesophageal echocardiographies or echocardiograms that were performed via an endoscope. 
+
+There are **`r nrow(hf_echo_procedures)`** transoesophageal echocardiograms in the extract. However **`r nrow(primary_echo)`** of the echos were associated with the cohort of interest.
+
+Figure \@ref(fig:echo-time-delta-plot) shows the distribution of the admission time and the order of the echo procedure.
+
+```{r echo-time-delta-plot, fig.cap="Distribution of the time difference between admission time and echocardiogram."}
+ggplot(hf_echo_procedures, aes(x=PROCEDURE_ADMIT_TIME_DELTA)) + geom_histogram(bins=10) +
+  labs(x="PROCEDURE_ADMIT_TIME_DELTA (hours)")
+```
+
 
 # Discharge Diagnosis and ICD10 Diagnosis Concordance
 ```{r}

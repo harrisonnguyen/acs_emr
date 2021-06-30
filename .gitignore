@@ -9,4 +9,3 @@ doc/*.R
 renv/library
 data-raw/*.csv
 data-raw/*.rda
-doc
