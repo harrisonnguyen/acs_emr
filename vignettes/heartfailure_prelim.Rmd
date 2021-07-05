@@ -1,7 +1,7 @@
 ---
-title: "Heart Failure Inpatient Analysis"
+title: "Feasibility analysis for measuring clinical indicators in patients admitted with Heart Failure in NSLHD"
 author: "Harrison Nguyen"
-date: "25/06/2021"
+date: "05/07/2021"
 output:  
   bookdown::html_document2:
     code_folding: hide
@@ -58,16 +58,18 @@ hf_echo_procedures <- targets::tar_read(hf_echo_procedures)
 
 # Introduction
 
-This document will examine the inpatient journeys of patients who were designated a heart failure related ICD-10 code. For instance, there will be a characterisation of the cohort in terms of their demographics, as well as the proportion that were discharged with specific medications and had undergone specific investigations and/or procedures.
+This is a feasibility analysis to examine clinical indicators in patients with encounters with a heart failure-related ICD-10 code (primary or additional). This feasibility analysis uses an existing 3-month EMR extract (1/4/17-30/6/17) in patients that presented with suspected acute coronary syndrome to NSLHD. We will examine subject demographics, whether patients have undergone specific investigations and/or procedures and the proportion of patients that have been discharged on specific medications. 
 
-# RNS Journeys with ICD10 Heart Failure Primary Diagnosis
+This initial analysis will be performed in patients with encounters at RNSH with a primary or additional heart failure-related ICD10 code.
+
+# RNSH patient journeys with an ICD10 Heart Failure Primary Diagnosis
 
 ## Cohort
 
 
 ### Primary Diagnosis
 
-The cohort under analysis are patient journeys where journeys are defined by a collection of encounters where each encounter is separated by at most 24 hours from the following encounter that were designated the following ICD10 codes as a primary diagnosis:
+This analysis was performed using patient journeys. Patient 'journeys' were defined as encounters where each encounter is separated by at most 24 hours from the following encounter that were designated the following ICD10 codes as a primary diagnosis:
 
 ```{r}
 as.data.frame(hf_icd_codes()) %>% 
@@ -173,9 +175,9 @@ icd10_plot
 
 ### Comparison against CaseMix App
 
-The above numbers were compared against the `Admitted Patient CaseMix App` developed by the Performance and Analytics that shows the numbers of encounters and their characteristics of each ICD10 diagnosis. 
+The above numbers were compared against the in-house `Admitted Patient CaseMix app` developed by the NSLHD Performance and Analytics team that shows the numbers of encounters and their characteristics of each ICD10 diagnosis. 
 
-Figure \@ref(fig:clinical-app-demo) shows that there are 108 encounters with a primary heart failure ICD10 diagnosis over a similar period of time at `Royal North Shore` (as opposed to the **`r n_journeys`** journeys). Furthermore the distribution of ICD10 codes are comparable.
+Figure \@ref(fig:clinical-app-demo) shows that there are 108 encounters with a primary heart failure ICD10 diagnosis over a similar period of time at `Royal North Shore` (as opposed to the **`r n_journeys`** journeys). Furthermore the distribution of ICD10 codes are comparable between our feasibility analysis and the NSLHD Performance and Analytics team.
 
 
 ```{r clinical-app-demo, fig.cap="Distribution of ICD10 heart failure encounters using the `Admitted Patient CaseMix App."}
@@ -185,7 +187,7 @@ knitr::include_graphics(file.path(here::here(),"vignettes/img/clinical_app_hf_rn
 
 ## Demographics
 
-Table \@ref(tab:demo-tab-gender) shows the counts of males and female stratified by ICD10 diagnosis. 
+Table \@ref(tab:demo-tab-gender) shows the counts of males and females stratified by ICD10 diagnosis. 
 
 
 ```{r demo-tab-gender}
@@ -260,9 +262,9 @@ conditional_bar_plot(primary_journey_demo,"AGE_BINNED","GENDER", "Age and Sex") 
 ```
 
 
-## Journey Characteristics
+## Patient Journey Characteristics
 
-Figure \@ref(fig:journey-char-plot) shows the characteristics of the journeys such as the presentation mode, whether the journey involved a transfer and the separation mode.
+Figure \@ref(fig:journey-char-plot) shows the characteristics of patient journeys such as presentation mode, whether the journey involved a transfer and the separation mode.
 
 Most encounters are admitted into ED and most journeys either arrived by ambulance followed by self presentation and most journeys that include `Royal North Shore` begin at `Royal North Shore` rather than other hospitals in the local health district and shown by the journey trajectories in Figure \@ref(fig:journey-char-plot) c.
 
@@ -302,7 +304,7 @@ p6
 ## Discharge Medications
 
 
-Discharge medications were defined as journeys that had a discharge letter and excluded journeys that had a separation mode of either **`r paste(exclusion_criteria_meds(),sep=",")`**.
+Discharge medications were defined as journeys that had a discharge letter and excluded journeys that had a mode of separation of either **`r paste(exclusion_criteria_meds(),sep=",")`**.
 
 ```{r}
 hf_discharge_journeys <- primary_journey %>%
