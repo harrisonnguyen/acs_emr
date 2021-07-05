@@ -58,7 +58,6 @@ hf_echo_procedures <- targets::tar_read(hf_echo_procedures)
 
 # Introduction
 
-Yo YO. this is charmaine. 
 This document will examine the inpatient journeys of patients who were designated a heart failure related ICD-10 code. For instance, there will be a characterisation of the cohort in terms of their demographics, as well as the proportion that were discharged with specific medications and had undergone specific investigations and/or procedures.
 
 # RNS Journeys with ICD10 Heart Failure Primary Diagnosis
@@ -120,7 +119,7 @@ proportion_bar_plot <- function(df,column,title){
     ggplot2::ylab("Count") + 
     ggtitle(paste0(title, " (N = ",nrow(df), ")")) +
     geom_text(
-       aes(label=paste(round((..count..)/sum(..count..)*100,1),"%",sep=""),y= ..count..),
+       aes(label=paste(round((..count..)/sum(..count..)*100,0),"%",sep=""),y= ..count..),
        stat='count',
        vjust=-0.25
    ) + 
@@ -178,7 +177,11 @@ The above numbers were compared against the `Admitted Patient CaseMix App` devel
 
 Figure \@ref(fig:clinical-app-demo) shows that there are 108 encounters with a primary heart failure ICD10 diagnosis over a similar period of time at `Royal North Shore` (as opposed to the **`r n_journeys`** journeys). Furthermore the distribution of ICD10 codes are comparable.
 
-![(#fig:clinical-app-demo) Distribution of ICD10 heart failure encounters using the `Admitted Patient CaseMix App`.](img/clinical_app_hf_rns.png)
+
+```{r clinical-app-demo, fig.cap="Distribution of ICD10 heart failure encounters using the `Admitted Patient CaseMix App."}
+# All defaults
+knitr::include_graphics(file.path(here::here(),"vignettes/img/clinical_app_hf_rns.png"))
+```
 
 ## Demographics
 
@@ -238,7 +241,7 @@ conditional_bar_plot <- function(df,var1,var2,title){
   dplyr::mutate(prop = prop.table(n)*100) %>%
   ggplot2::ggplot(., aes(x=!!var1,y=n,fill=!!var2)) + 
   geom_bar(stat="identity",position=position_dodge(0.7),width=0.7,alpha=0.5) +
-  geom_text(aes(label= paste(round(prop,1),"%",sep=""),y=n),position=position_dodge(0.7),vjust=-0.5) +
+  geom_text(aes(label= paste(round(prop,0),"%",sep=""),y=n),position=position_dodge(0.7),vjust=-0.5) +
   labs(y="Count",x=var1, title = paste0(title, " (N = ",nrow(df), ")")) +
   scale_fill_discrete(name = var2) + 
   theme_minimal()
@@ -256,35 +259,6 @@ conditional_bar_plot(primary_journey_demo,"AGE_BINNED","GENDER", "Age and Sex") 
   xlab("AGE")
 ```
 
-Figure \@ref(fig:postcode-plot) shows a map of the distribution of postcodes for the cohort. There are a number of journeys where the patients had come from the Central Coast, however most have come from the Northern Sydbney Region.
-
-```{r postcode-plot, fig.cap="Map of postcodes and the number of journeys of the patient's residential postcode." }
-
-#count the number of times each postcode occurs
-postcodes <- primary_journey_demo %>%
-  select(CURRENT_POSTCODE) %>% 
-  count(CURRENT_POSTCODE, sort = T) %>%
-  rename(POA_CODE = CURRENT_POSTCODE)
-# get a map of NSW broad statistical areas (SSD)
-ssd <- get_mapaus("SSD", accuracy="full")
-nsw_map <- fortify(ssd[ssd$STATE=="NSW", ]) # create a nsw map
-nsw <- filter(nsw_map, long < 151.3 & long > 151.2 & lat > -33.9 & lat < -33.3) # exclude Lord Howe 
-# get a map of australian postcodes
-poa <- get_mapaus("POA", accuracy="full")
-# Map the postcodes and fill by survey responses
-p <-  mapfill(x = postcodes, 
-              map = poa,
-              fill = "n",
-              border = NA,
-              ticks = TRUE,
-              labels = FALSE)
-# Add the NSW outline
-p +
-  scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
-  geom_polygon(data=nsw, aes(x=long, y=lat, group=id),
-               color=NA, fill="lightskyblue", alpha = 0.25) +
-  theme(panel.background = element_blank())
-```
 
 ## Journey Characteristics
 
@@ -389,15 +363,15 @@ wang_2013_preserved <- data.frame(
 )
 
 med_table<-primary_meds_sum %>%
-  mutate(NONE = case_when(
+  mutate(`None of the above` = case_when(
     `Other diuretic` == 0 & `Beta blocker` == 0 & `A2RB/ACE Inhibitor` ==0 ~ 1,
     TRUE ~ 0
   )) %>%
-  gather(medication, val, `Other diuretic`:`NONE`) %>%
+  gather(medication, val, `Other diuretic`:`None of the above`) %>%
   mutate(val = val > 0) %>%
   group_by(medication) %>%
   summarise(percent = sum(val)/n()*100,n = sum(val), .groups = "drop") %>%
-  slice(match(c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic","NONE"), medication))
+  slice(match(c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic","None of the above"), medication))
 ```
 
 Table \@ref(tab:discharge-med-tab) shows a comparison to two different heart failure cohorts, one with reduced ejection fraction and preserved ejection fraction in Wang et al. (2018). 
@@ -413,65 +387,17 @@ med_table %>%
                     percent.reduced = "HFrEF (%)",n.reduced =  "N HFrEF",
                     percent.preserved = "HFpEF (%)",n.preserved =  "N HFpEF") %>%
   footnote(i=1,
-           j=c(4,6),
+           j=c(2,4,6),
            value= as_paragraph(
-             c("Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.",
+             c("Cohort defined using heart failure ICD10 primary diagnosis.",
+               "Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.",
                "Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015.")),
               part = "header") %>%
   set_caption(caption = "Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference. Note that Wang et al. excludes spironolactone for `Other diuretics`.")
 
 ```
 
-## Discharge Diagnosis and ICD10 Diagnosis Concordance
-```{r}
-hf_snomed_encounters <- targets::tar_read(hf_snomed_encounters)
-hf_icd10_encounters <- targets::tar_read(hf_icd10_encounters)
-fac_snomed_encounter <- hf_snomed_encounters %>%
-  dplyr::filter(FACILITY %in% facility_list)
 
-fac_icd10_encounter <- hf_icd10_encounters %>%
-  dplyr::filter(FACILITY %in% facility_list)
-
-```
-
-We examine encounters with either a ICD10 or discharge (SNOMED) diagnosis of heart failure over the same period of time and facilities. This results in **`r nrow(fac_icd10_encounter)`** ICD10 encounter and **`r nrow(fac_snomed_encounter)`** SNOMED encounters with the following list of SNOMED codes:
-
-```{r}
-as.tibble(unique(fac_snomed_encounter$SOURCE_STRING_CAP)) %>% knitr::kable()
-```
-
-```{r}
-comb_encounters<-fac_icd10_encounter %>%
-  dplyr::select(ENCNTR_KEY, SOURCE_STRING_CAP) %>%
-  dplyr::full_join(
-    dplyr::select(fac_snomed_encounter,ENCNTR_KEY,SOURCE_STRING_CAP),
-    by="ENCNTR_KEY",
-    suffix=c("_ICD10","_SNOMED")
-  ) %>%
-  dplyr::mutate(HAS_ICD10 = !is.na(SOURCE_STRING_CAP_ICD10),
-                HAS_SNOMED = !is.na(SOURCE_STRING_CAP_SNOMED))
-
-snomed_icd10<- table(comb_encounters$HAS_ICD10,comb_encounters$HAS_SNOMED) 
-
-prop_snomed_icd10<- prop.table(table(comb_encounters$HAS_ICD10,comb_encounters$HAS_SNOMED)) 
-
-```
-
-Taking the union of the two types of diagnosis codes together, there are **`r nrow(comb_encounters)`** unique encounters.
-
-Table \@ref(tab:icd10-tab) shows a contingency table between discharge diagnosis and ICD10 codes where only **`r round(prop_snomed_icd10[2,2]*100,1)`**% have both an ICD10 and SNOMED heart failure code.
-
-```{r icd10-tab}
-
-
-snomed_icd10 %>% 
-  knitr::kable(digits=2,caption = "Contigency table of discharge diagnosis and ICD10 code.") %>%
-  kableExtra::add_header_above(c("Has ICD10"=1,"Has SNOMED"=2))
-
-prop_snomed_icd10 %>% 
-  knitr::kable(digits=2, caption = "Contigency table of discharge diagnosis and ICD10 code as percentage.") %>%
-  kableExtra::add_header_above(c("Has ICD10"=1,"Has SNOMED"=2))
-```
 
 # Primary or Secondary Heart Failure Diagnosis
 
@@ -557,15 +483,15 @@ secondary_meds_sum <- hf_meds_discharge_sum %>%
   dplyr::filter(JOURNEY_KEY %in% cohort_journey_keys_secondary )
 
 secondary_med_table<-secondary_meds_sum %>%
-  mutate(NONE = case_when(
+  mutate(`None of the above` = case_when(
     `Other diuretic` == 0 & `Beta blocker` == 0 & `A2RB/ACE Inhibitor` ==0 ~ 1,
     TRUE ~ 0
   )) %>%
-  gather(medication, val, `Other diuretic`:`NONE`) %>%
+  gather(medication, val, `Other diuretic`:`None of the above`) %>%
   mutate(val = val > 0) %>%
   group_by(medication) %>%
   summarise(percent = sum(val)/n()*100,n = sum(val), .groups = "drop") %>%
-  slice(match(c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic","NONE"), medication))
+  slice(match(c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic","None of the above"), medication))
 
 
 secondary_med_table %>%
@@ -580,9 +506,11 @@ secondary_med_table %>%
                     percent.preserved = "HFpEF (%)",n.preserved =  "N HFpEF",
                     percent.primary="Only Primary ICD10",n.primary="N Only Primary ICD10") %>%
   footnote(i=1,
-           j=c(4,6),
+           j=c(2,4,6,8),
            value= as_paragraph(
-             c("Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.",
+             c("Cohort defined using heart failure ICD10 primary and secondary diagnosis.",
+               "Cohort defined using heart failure ICD10 primary diagnosis.",
+               "Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.",
                "Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015.")),
               part = "header") %>%
   set_caption(caption = "Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference.")
@@ -634,6 +562,37 @@ ggpubr::ggarrange(age_plot, sex_plot,
           ncol = 2, nrow = 1)
 ```
 
+Figure \@ref(fig:postcode-plot) shows a map of the distribution of postcodes for the cohort. There are a number of journeys where the patients had come from the Central Coast, however most have come from the Northern Sydbney Region.
+
+```{r postcode-plot, fig.cap="Map of postcodes and the number of journeys of the patient's residential postcode." }
+
+#count the number of times each postcode occurs
+postcodes <- primary_journey_demo %>%
+  select(CURRENT_POSTCODE) %>% 
+  count(CURRENT_POSTCODE, sort = T) %>%
+  rename(POA_CODE = CURRENT_POSTCODE)
+# get a map of NSW broad statistical areas (SSD)
+ssd <- get_mapaus("SSD", accuracy="full")
+nsw_map <- fortify(ssd[ssd$STATE=="NSW", ]) # create a nsw map
+nsw <- filter(nsw_map, long < 151.3 & long > 151.2 & lat > -33.9 & lat < -33.3) # exclude Lord Howe 
+# get a map of australian postcodes
+poa <- get_mapaus("POA", accuracy="full")
+# Map the postcodes and fill by survey responses
+p <-  mapfill(x = postcodes, 
+              map = poa,
+              fill = "n",
+              border = NA,
+              ticks = TRUE,
+              labels = FALSE)
+# Add the NSW outline
+p +
+  scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
+  geom_polygon(data=nsw, aes(x=long, y=lat, group=id),
+               color=NA, fill="lightskyblue", alpha = 0.25) +
+  theme(panel.background = element_blank())
+```
+
+
 ## Investigations
 
 We examine the number of echocardiograms that were performed in the cohort. Currently, the extract only contains transoesophageal echocardiographies or echocardiograms that were performed via an endoscope. 
@@ -646,4 +605,55 @@ Figure \@ref(fig:echo-time-delta-plot) shows the distribution of the admission t
 ggplot(hf_echo_procedures, aes(x=PROCEDURE_ADMIT_TIME_DELTA)) + geom_histogram(bins=10,alpha=0.5) +
   labs(x="PROCEDURE_ADMIT_TIME_DELTA (hours)",y="Count") + 
   theme_minimal()
+```
+
+## Discharge Diagnosis and ICD10 Diagnosis Concordance
+```{r}
+hf_snomed_encounters <- targets::tar_read(hf_snomed_encounters)
+hf_icd10_encounters <- targets::tar_read(hf_icd10_encounters)
+fac_snomed_encounter <- hf_snomed_encounters %>%
+  dplyr::filter(FACILITY %in% facility_list)
+
+fac_icd10_encounter <- hf_icd10_encounters %>%
+  dplyr::filter(FACILITY %in% facility_list)
+
+```
+
+We examine encounters with either a ICD10 or discharge (SNOMED) diagnosis of heart failure over the same period of time and facilities. This results in **`r nrow(fac_icd10_encounter)`** ICD10 encounter and **`r nrow(fac_snomed_encounter)`** SNOMED encounters with the following list of SNOMED codes:
+
+```{r}
+as.tibble(unique(fac_snomed_encounter$SOURCE_STRING_CAP)) %>% knitr::kable()
+```
+
+```{r}
+comb_encounters<-fac_icd10_encounter %>%
+  dplyr::select(ENCNTR_KEY, SOURCE_STRING_CAP) %>%
+  dplyr::full_join(
+    dplyr::select(fac_snomed_encounter,ENCNTR_KEY,SOURCE_STRING_CAP),
+    by="ENCNTR_KEY",
+    suffix=c("_ICD10","_SNOMED")
+  ) %>%
+  dplyr::mutate(HAS_ICD10 = !is.na(SOURCE_STRING_CAP_ICD10),
+                HAS_SNOMED = !is.na(SOURCE_STRING_CAP_SNOMED))
+
+snomed_icd10<- table(comb_encounters$HAS_ICD10,comb_encounters$HAS_SNOMED) 
+
+prop_snomed_icd10<- prop.table(table(comb_encounters$HAS_ICD10,comb_encounters$HAS_SNOMED)) 
+
+```
+
+Taking the union of the two types of diagnosis codes together, there are **`r nrow(comb_encounters)`** unique encounters.
+
+Table \@ref(tab:icd10-tab) shows a contingency table between discharge diagnosis and ICD10 codes where only **`r round(prop_snomed_icd10[2,2]*100,1)`**% have both an ICD10 and SNOMED heart failure code.
+
+```{r icd10-tab}
+
+
+snomed_icd10 %>% 
+  knitr::kable(digits=2,caption = "Contigency table of discharge diagnosis and ICD10 code.") %>%
+  kableExtra::add_header_above(c("Has ICD10"=1,"Has SNOMED"=2))
+
+prop_snomed_icd10 %>% 
+  knitr::kable(digits=2, caption = "Contigency table of discharge diagnosis and ICD10 code as percentage.") %>%
+  kableExtra::add_header_above(c("Has ICD10"=1,"Has SNOMED"=2))
 ```
