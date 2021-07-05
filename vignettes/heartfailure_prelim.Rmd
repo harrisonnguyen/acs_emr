@@ -58,6 +58,7 @@ hf_echo_procedures <- targets::tar_read(hf_echo_procedures)
 
 # Introduction
 
+Yo YO. this is charmaine. 
 This document will examine the inpatient journeys of patients who were designated a heart failure related ICD-10 code. For instance, there will be a characterisation of the cohort in terms of their demographics, as well as the proportion that were discharged with specific medications and had undergone specific investigations and/or procedures.
 
 # RNS Journeys with ICD10 Heart Failure Primary Diagnosis
