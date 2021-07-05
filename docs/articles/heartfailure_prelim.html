@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Heart Failure Inpatient Analysis • acs</title>
+<title>Feasibility analysis for measuring clinical indicators in patients admitted with Heart Failure in NSLHD • acs</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Heart Failure Inpatient Analysis">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Feasibility analysis for measuring clinical indicators in patients admitted with Heart Failure in NSLHD">
 <meta property="og:description" content="acs">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -57,7 +57,7 @@
       <a href="../articles/acs_procedures.html">The 'Cath Lab' and ICD10 Procedures</a>
     </li>
     <li>
-      <a href="../articles/heartfailure_prelim.html">Heart Failure Inpatient Analysis</a>
+      <a href="../articles/heartfailure_prelim.html">Feasibility analysis for measuring clinical indicators in patients admitted with Heart Failure in NSLHD</a>
     </li>
     <li>
       <a href="../articles/snomed_icd10_stemi.html">ICD10 SNOMED Concordance</a>
@@ -71,7 +71,14 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.sydney.edu.au/speed-extract/acs/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -86,12 +93,12 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Heart Failure Inpatient Analysis</h1>
+      <h1 data-toc-skip>Feasibility analysis for measuring clinical indicators in patients admitted with Heart Failure in NSLHD</h1>
                         <h4 class="author">Harrison Nguyen</h4>
             
-            <h4 class="date">25/06/2021</h4>
+            <h4 class="date">05/07/2021</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.sydney.edu.au/speed-extract/acs/blob/master/vignettes/heartfailure_prelim.Rmd"><code>vignettes/heartfailure_prelim.Rmd</code></a></small>
       <div class="hidden name"><code>heartfailure_prelim.Rmd</code></div>
 
     </div>
@@ -125,18 +132,19 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>This document will examine the inpatient journeys of patients who were designated a heart failure related ICD-10 code. For instance, there will be a characterisation of the cohort in terms of their demographics, as well as the proportion that were discharged with specific medications and had undergone specific investigations and/or procedures.</p>
+<p>This is a feasibility analysis to examine clinical indicators in patients with encounters with a heart failure-related ICD-10 code (primary or additional). This feasibility analysis uses an existing 3-month EMR extract (1/4/17-30/6/17) in patients that presented with suspected acute coronary syndrome to NSLHD. We will examine subject demographics, whether patients have undergone specific investigations and/or procedures and the proportion of patients that have been discharged on specific medications.</p>
+<p>This initial analysis will be performed in patients with encounters at RNSH with a primary or additional heart failure-related ICD10 code.</p>
 </div>
-<div id="rns-journeys-with-icd10-heart-failure-primary-diagnosis" class="section level1">
+<div id="rnsh-patient-journeys-with-an-icd10-heart-failure-primary-diagnosis" class="section level1">
 <h1 class="hasAnchor">
-<a href="#rns-journeys-with-icd10-heart-failure-primary-diagnosis" class="anchor"></a>RNS Journeys with ICD10 Heart Failure Primary Diagnosis</h1>
+<a href="#rnsh-patient-journeys-with-an-icd10-heart-failure-primary-diagnosis" class="anchor"></a>RNSH patient journeys with an ICD10 Heart Failure Primary Diagnosis</h1>
 <div id="cohort" class="section level2">
 <h2 class="hasAnchor">
 <a href="#cohort" class="anchor"></a>Cohort</h2>
 <div id="primary-diagnosis" class="section level3">
 <h3 class="hasAnchor">
 <a href="#primary-diagnosis" class="anchor"></a>Primary Diagnosis</h3>
-<p>The cohort under analysis are patient journeys where journeys are defined by a collection of encounters where each encounter is separated by at most 24 hours from the following encounter that were designated the following ICD10 codes as a primary diagnosis:</p>
+<p>This analysis was performed using patient journeys. Patient ‘journeys’ were defined as encounters where each encounter is separated by at most 24 hours from the following encounter that were designated the following ICD10 codes as a primary diagnosis:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="../reference/hf_icd_codes.html">hf_icd_codes</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> 
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>ICD10 <span class="op">=</span> <span class="va">codes</span>,Description<span class="op">=</span><span class="va">names</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -246,7 +254,7 @@ Hypertensive heart and chronic kidney disease with heart failure and with stage 
     <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html">geom_bar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">..count..</span><span class="op">)</span>,stat<span class="op">=</span><span class="st">"count"</span>,alpha<span class="op">=</span><span class="fl">0.5</span>,show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="va">title</span><span class="op">)</span> <span class="op">+</span> 
     <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ylab</a></span><span class="op">(</span><span class="st">"Count"</span><span class="op">)</span> <span class="op">+</span> 
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">title</span>, <span class="st">" (N = "</span>,<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">title</span>, <span class="st">" (n = "</span>,<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span>
        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>label<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="op">(</span><span class="va">..count..</span><span class="op">)</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">..count..</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span>,<span class="fl">0</span><span class="op">)</span>,<span class="st">"%"</span>,sep<span class="op">=</span><span class="st">""</span><span class="op">)</span>,y<span class="op">=</span> <span class="va">..count..</span><span class="op">)</span>,
        stat<span class="op">=</span><span class="st">'count'</span>,
@@ -257,7 +265,7 @@ Hypertensive heart and chronic kidney disease with heart failure and with stage 
   <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">plot</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p>Furthermore, the cohort selected have an admission date between <strong>2017-04-01</strong> - <strong>2017-06-29</strong> and includes any journeys that includes an encounter at <strong>Royal North Shore</strong>.</p>
-<p>The analysis therefore includes N = <strong>105</strong> unique journeys with <strong>121</strong> encounters for <strong>102</strong> unique patients.</p>
+<p>The analysis therefore includes n = <strong>105</strong> unique journeys with <strong>121</strong> encounters for <strong>102</strong> unique patients.</p>
 <p>Figure @ref(fig:code-dist) shows the distribution of ICD10 codes for the cohort.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">icd10_plot</span><span class="op">&lt;-</span> <span class="fu">proportion_bar_plot</span><span class="op">(</span><span class="va">primary_journey_demo</span>,<span class="st">"DISPLAY_IDENTIFIER_CAP"</span>,<span class="st">"ICD10 codes"</span><span class="op">)</span>
@@ -270,9 +278,9 @@ Distribution of ICD10 codes
 </p>
 </div>
 </div>
-<div id="primary-and-secondary-diagnosis" class="section level3">
+<div id="primary-and-additional-diagnosis" class="section level3">
 <h3 class="hasAnchor">
-<a href="#primary-and-secondary-diagnosis" class="anchor"></a>Primary and Secondary Diagnosis</h3>
+<a href="#primary-and-additional-diagnosis" class="anchor"></a>Primary and Additional Diagnosis</h3>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cohort_journey_keys_secondary</span> <span class="op">&lt;-</span> <span class="va">hf_journey</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">FACILITY</span> <span class="op">%in%</span>  <span class="va">facility_list</span>, <span class="va">DIAGNOSIS_IMPORTANCE</span> <span class="op">==</span> <span class="st">"secondary_diagnosis"</span> <span class="op">|</span> <span class="va">DIAGNOSIS_IMPORTANCE</span> <span class="op">==</span> <span class="st">"primary_diagnosis"</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -281,12 +289,12 @@ Distribution of ICD10 codes
 <span class="va">secondary_journey_demo</span> <span class="op">&lt;-</span> <span class="va">hf_journey_demo_prep</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">JOURNEY_KEY</span> <span class="op">%in%</span> <span class="va">cohort_journey_keys_secondary</span><span class="op">)</span>
 
-<span class="va">icd10_plot</span><span class="op">&lt;-</span> <span class="fu">proportion_bar_plot</span><span class="op">(</span><span class="va">secondary_journey_demo</span>,<span class="st">"DISPLAY_IDENTIFIER_CAP"</span>,<span class="st">"Primary and Secondary Diagnosis"</span><span class="op">)</span> <span class="op">+</span>
+<span class="va">icd10_plot</span><span class="op">&lt;-</span> <span class="fu">proportion_bar_plot</span><span class="op">(</span><span class="va">secondary_journey_demo</span>,<span class="st">"DISPLAY_IDENTIFIER_CAP"</span>,<span class="st">"Primary and Additional Diagnosis"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x<span class="op">=</span><span class="st">"ICD10 code"</span><span class="op">)</span><span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">coord_flip</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p>Another cohort is also defined by those with either a <code>primary</code> or <code>secondary</code> heart failure diagnosis.</p>
-<p>The cohort that includes a <code>secondary</code> diagnosis of heart failure is larger (N = <strong>522</strong>) than those diagnosed with a primary diagnosis (N = <strong>105</strong>) and also includes encounters coded with <code>chronic heart failure</code>.</p>
-<p>Figure @ref(fig:primary-secondary-icd10) shows the distribution of both primary and secondary ICD10 diagnosis, where there are N = <strong>522</strong> journeys with either a primary or secondary diagnosis.</p>
+<p>Another cohort is also defined by those with either a <code>primary</code> or <code>additional</code> heart failure diagnosis.</p>
+<p>The cohort that includes a <code>additional</code> diagnosis of heart failure is larger (n = <strong>522</strong>) than those diagnosed with a primary diagnosis (n = <strong>105</strong>) and also includes encounters coded with <code>chronic heart failure</code>.</p>
+<p>Figure @ref(fig:primary-secondary-icd10) shows the distribution of both primary and additional ICD10 diagnosis, where there are n = <strong>522</strong> journeys with either a primary or additional diagnosis.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">icd10_plot</span> </code></pre></div>
 <div class="figure">
@@ -298,8 +306,8 @@ Distribution of primary and secondary heart failure ICD10 diagnosis.
 <div id="comparison-against-casemix-app" class="section level3">
 <h3 class="hasAnchor">
 <a href="#comparison-against-casemix-app" class="anchor"></a>Comparison against CaseMix App</h3>
-<p>The above numbers were compared against the <code>Admitted Patient CaseMix App</code> developed by the Performance and Analytics that shows the numbers of encounters and their characteristics of each ICD10 diagnosis.</p>
-<p>Figure @ref(fig:clinical-app-demo) shows that there are 108 encounters with a primary heart failure ICD10 diagnosis over a similar period of time at <code>Royal North Shore</code> (as opposed to the <strong>105</strong> journeys). Furthermore the distribution of ICD10 codes are comparable.</p>
+<p>The above numbers were compared against the in-house <code>Admitted Patient CaseMix app</code> developed by the NSLHD Performance and Analytics team that shows the numbers of encounters and their characteristics of each ICD10 diagnosis.</p>
+<p>Figure @ref(fig:clinical-app-demo) shows that there are 108 encounters with a primary heart failure ICD10 diagnosis over a similar period of time at <code>Royal North Shore</code> (as opposed to the <strong>105</strong> journeys). Furthermore the distribution of ICD10 codes are comparable between our feasibility analysis and the NSLHD Performance and Analytics team.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># All defaults</span>
 <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/include_graphics.html">include_graphics</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html">here</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"vignettes/img/clinical_app_hf_rns.png"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -311,7 +319,7 @@ Distribution of primary and secondary heart failure ICD10 diagnosis.
 <div id="demographics" class="section level2">
 <h2 class="hasAnchor">
 <a href="#demographics" class="anchor"></a>Demographics</h2>
-<p>Table @ref(tab:demo-tab-gender) shows the counts of males and female stratified by ICD10 diagnosis.</p>
+<p>Table @ref(tab:demo-tab-gender) shows the counts of males and females stratified by ICD10 diagnosis.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">total</span><span class="op">&lt;-</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">primary_journey_demo</span>, <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span><span class="va">primary_journey_demo</span>, GENDER <span class="op">=</span> <span class="st">"Total"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">GENDER</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -348,11 +356,11 @@ Distribution of primary and secondary heart failure ICD10 diagnosis.
          <span class="va">Age_Male</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">bind_rows</span><span class="op">(</span><span class="va">total</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/flextable.html">flextable</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_header_labels.html">set_header_labels</a></span><span class="op">(</span>Group <span class="op">=</span> <span class="st">""</span>, p_Female <span class="op">=</span> <span class="st">"%"</span>, p_Male <span class="op">=</span> <span class="st">"%"</span>, N_Total <span class="op">=</span> <span class="st">"N"</span>,
+  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_header_labels.html">set_header_labels</a></span><span class="op">(</span>Group <span class="op">=</span> <span class="st">""</span>, p_Female <span class="op">=</span> <span class="st">"%"</span>, p_Male <span class="op">=</span> <span class="st">"%"</span>, N_Total <span class="op">=</span> <span class="st">"n"</span>,
                     Age_Female <span class="op">=</span> <span class="st">"Age (F)"</span>, Age_Male <span class="op">=</span> <span class="st">"Age (M)"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_caption.html">set_caption</a></span><span class="op">(</span><span class="st">"Male and Female counts and mean age stratified by ICD10 diagnosis."</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/autofit.html">autofit</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<template id="86b413f1-0fbd-4a81-b3ac-d611ea734898"><style>
+<template id="8107cd91-cd93-4963-b6b0-54a672911233"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -388,66 +396,66 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-db0b9ba2{border-collapse:collapse;}.cl-daff6634{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-daff8d44{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-daff8d45{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-daffdb64{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb65{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb66{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb67{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb68{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb69{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb6a{width:45pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb6b{width:45pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb6c{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb6d{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-daffdb6e{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db000274{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db000275{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db000276{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db000277{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db000278{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db000279{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db00027a{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db00027b{width:45pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db00027c{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-db00027d{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-db0b9ba2">
+<style>.cl-95090bb8{border-collapse:collapse;}.cl-94fbc4e4{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-94fbebea{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-94fbebeb{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-94fc6138{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc6139{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc613a{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc613b{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc613c{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc613d{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc613e{width:45pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc613f{width:45pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc6140{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc6141{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc6142{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc8834{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc8835{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc8836{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc8837{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc8838{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc8839{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc883a{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc883b{width:45pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc883c{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-94fc883d{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-95090bb8">
 <caption class="Table Caption">Male and Female counts and mean age stratified by ICD10 diagnosis.</caption>
 <thead><tr style="overflow-wrap:break-word;">
-<td class="cl-db00027b"><p class="cl-daff8d44"><span class="cl-daff6634"></span></p></td>
-<td class="cl-db00027d"><p class="cl-daff8d45"><span class="cl-daff6634">Females</span></p></td>
-<td class="cl-db000277"><p class="cl-daff8d45"><span class="cl-daff6634">%</span></p></td>
-<td class="cl-db00027a"><p class="cl-daff8d45"><span class="cl-daff6634">Males</span></p></td>
-<td class="cl-db000277"><p class="cl-daff8d45"><span class="cl-daff6634">%</span></p></td>
-<td class="cl-db00027c"><p class="cl-daff8d45"><span class="cl-daff6634">N</span></p></td>
-<td class="cl-db000278"><p class="cl-daff8d45"><span class="cl-daff6634">Age (F)</span></p></td>
-<td class="cl-db000279"><p class="cl-daff8d45"><span class="cl-daff6634">Age (M)</span></p></td>
+<td class="cl-94fc883b"><p class="cl-94fbebea"><span class="cl-94fbc4e4"></span></p></td>
+<td class="cl-94fc883d"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">Females</span></p></td>
+<td class="cl-94fc8837"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">%</span></p></td>
+<td class="cl-94fc883a"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">Males</span></p></td>
+<td class="cl-94fc8837"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">%</span></p></td>
+<td class="cl-94fc883c"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">n</span></p></td>
+<td class="cl-94fc8838"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">Age (F)</span></p></td>
+<td class="cl-94fc8839"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">Age (M)</span></p></td>
 </tr></thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-daffdb6a"><p class="cl-daff8d44"><span class="cl-daff6634">I50.0</span></p></td>
-<td class="cl-daffdb67"><p class="cl-daff8d45"><span class="cl-daff6634">41</span></p></td>
-<td class="cl-daffdb66"><p class="cl-daff8d45"><span class="cl-daff6634">46.6</span></p></td>
-<td class="cl-daffdb68"><p class="cl-daff8d45"><span class="cl-daff6634">47</span></p></td>
-<td class="cl-daffdb66"><p class="cl-daff8d45"><span class="cl-daff6634">53.4</span></p></td>
-<td class="cl-daffdb69"><p class="cl-daff8d45"><span class="cl-daff6634">88</span></p></td>
-<td class="cl-daffdb64"><p class="cl-daff8d45"><span class="cl-daff6634">85</span></p></td>
-<td class="cl-daffdb65"><p class="cl-daff8d45"><span class="cl-daff6634">84</span></p></td>
+<td class="cl-94fc613e"><p class="cl-94fbebea"><span class="cl-94fbc4e4">I50.0</span></p></td>
+<td class="cl-94fc613b"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">41</span></p></td>
+<td class="cl-94fc613a"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">46.6</span></p></td>
+<td class="cl-94fc613c"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">47</span></p></td>
+<td class="cl-94fc613a"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">53.4</span></p></td>
+<td class="cl-94fc613d"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">88</span></p></td>
+<td class="cl-94fc6138"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">85</span></p></td>
+<td class="cl-94fc6139"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">84</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-daffdb6a"><p class="cl-daff8d44"><span class="cl-daff6634">I50.1</span></p></td>
-<td class="cl-daffdb67"><p class="cl-daff8d45"><span class="cl-daff6634">5</span></p></td>
-<td class="cl-daffdb66"><p class="cl-daff8d45"><span class="cl-daff6634">38.5</span></p></td>
-<td class="cl-daffdb68"><p class="cl-daff8d45"><span class="cl-daff6634">8</span></p></td>
-<td class="cl-daffdb66"><p class="cl-daff8d45"><span class="cl-daff6634">61.5</span></p></td>
-<td class="cl-daffdb69"><p class="cl-daff8d45"><span class="cl-daff6634">13</span></p></td>
-<td class="cl-daffdb64"><p class="cl-daff8d45"><span class="cl-daff6634">82</span></p></td>
-<td class="cl-daffdb65"><p class="cl-daff8d45"><span class="cl-daff6634">74</span></p></td>
+<td class="cl-94fc613e"><p class="cl-94fbebea"><span class="cl-94fbc4e4">I50.1</span></p></td>
+<td class="cl-94fc613b"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">5</span></p></td>
+<td class="cl-94fc613a"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">38.5</span></p></td>
+<td class="cl-94fc613c"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">8</span></p></td>
+<td class="cl-94fc613a"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">61.5</span></p></td>
+<td class="cl-94fc613d"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">13</span></p></td>
+<td class="cl-94fc6138"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">82</span></p></td>
+<td class="cl-94fc6139"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">74</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-daffdb6a"><p class="cl-daff8d44"><span class="cl-daff6634">I50.9</span></p></td>
-<td class="cl-daffdb67"><p class="cl-daff8d45"><span class="cl-daff6634">1</span></p></td>
-<td class="cl-daffdb66"><p class="cl-daff8d45"><span class="cl-daff6634">25.0</span></p></td>
-<td class="cl-daffdb68"><p class="cl-daff8d45"><span class="cl-daff6634">3</span></p></td>
-<td class="cl-daffdb66"><p class="cl-daff8d45"><span class="cl-daff6634">75.0</span></p></td>
-<td class="cl-daffdb69"><p class="cl-daff8d45"><span class="cl-daff6634">4</span></p></td>
-<td class="cl-daffdb64"><p class="cl-daff8d45"><span class="cl-daff6634">79</span></p></td>
-<td class="cl-daffdb65"><p class="cl-daff8d45"><span class="cl-daff6634">88</span></p></td>
+<td class="cl-94fc613e"><p class="cl-94fbebea"><span class="cl-94fbc4e4">I50.9</span></p></td>
+<td class="cl-94fc613b"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">1</span></p></td>
+<td class="cl-94fc613a"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">25.0</span></p></td>
+<td class="cl-94fc613c"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">3</span></p></td>
+<td class="cl-94fc613a"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">75.0</span></p></td>
+<td class="cl-94fc613d"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">4</span></p></td>
+<td class="cl-94fc6138"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">79</span></p></td>
+<td class="cl-94fc6139"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">88</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-daffdb6b"><p class="cl-daff8d44"><span class="cl-daff6634">Total</span></p></td>
-<td class="cl-db000276"><p class="cl-daff8d45"><span class="cl-daff6634">47</span></p></td>
-<td class="cl-db000275"><p class="cl-daff8d45"><span class="cl-daff6634">44.8</span></p></td>
-<td class="cl-db000274"><p class="cl-daff8d45"><span class="cl-daff6634">58</span></p></td>
-<td class="cl-db000275"><p class="cl-daff8d45"><span class="cl-daff6634">55.2</span></p></td>
-<td class="cl-daffdb6c"><p class="cl-daff8d45"><span class="cl-daff6634">105</span></p></td>
-<td class="cl-daffdb6d"><p class="cl-daff8d45"><span class="cl-daff6634">84</span></p></td>
-<td class="cl-daffdb6e"><p class="cl-daff8d45"><span class="cl-daff6634">83</span></p></td>
+<td class="cl-94fc613f"><p class="cl-94fbebea"><span class="cl-94fbc4e4">Total</span></p></td>
+<td class="cl-94fc8836"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">47</span></p></td>
+<td class="cl-94fc8835"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">44.8</span></p></td>
+<td class="cl-94fc8834"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">58</span></p></td>
+<td class="cl-94fc8835"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">55.2</span></p></td>
+<td class="cl-94fc6140"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">105</span></p></td>
+<td class="cl-94fc6141"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">84</span></p></td>
+<td class="cl-94fc6142"><p class="cl-94fbebeb"><span class="cl-94fbc4e4">83</span></p></td>
 </tr>
 </tbody>
 </table>
-</div></template><div class="flextable-shadow-host" id="116f3131-f773-499e-80b1-abc296d14d9c"></div>
+</div></template><div class="flextable-shadow-host" id="b649dcdf-c123-4462-a193-1f22a45e832a"></div>
 <script>
-var dest = document.getElementById("116f3131-f773-499e-80b1-abc296d14d9c");
-var template = document.getElementById("86b413f1-0fbd-4a81-b3ac-d611ea734898");
+var dest = document.getElementById("b649dcdf-c123-4462-a193-1f22a45e832a");
+var template = document.getElementById("8107cd91-cd93-4963-b6b0-54a672911233");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -487,11 +495,11 @@ Distribution of Sex conditioned on Age.
 </p>
 </div>
 </div>
-<div id="journey-characteristics" class="section level2">
+<div id="patient-journey-characteristics" class="section level2">
 <h2 class="hasAnchor">
-<a href="#journey-characteristics" class="anchor"></a>Journey Characteristics</h2>
-<p>Figure @ref(fig:journey-char-plot) shows the characteristics of the journeys such as the presentation mode, whether the journey involved a transfer and the separation mode.</p>
-<p>Most encounters are admitted into ED and most journeys either arrived by ambulance followed by self presentation and most journeys that include <code>Royal North Shore</code> begin at <code>Royal North Shore</code> rather than other hospitals in the local health district and shown by the journey trajectories in Figure @ref(fig:journey-char-plot) c.</p>
+<a href="#patient-journey-characteristics" class="anchor"></a>Patient Journey Characteristics</h2>
+<p>Figure @ref(fig:journey-char-plot) shows the characteristics of patient journeys such as presentation mode, whether the journey involved a transfer and the separation mode.</p>
+<p>Most encounters are admitted into ED and most journeys either arrived by ambulance followed by self presentation and most journeys that include <code>Royal North Shore</code> begin at <code>Royal North Shore</code> rather than other hospitals in the local health district and shown by the journey trajectories in Figure @ref(fig:journey-char-plot)c.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">p1</span><span class="op">&lt;-</span><span class="fu">proportion_bar_plot</span><span class="op">(</span><span class="va">primary_journey</span>, <span class="st">"ENCLASS"</span>, <span class="st">"Encounter Type"</span><span class="op">)</span> <span class="op">+</span> 
@@ -531,7 +539,7 @@ Final facility of journeys.
 <div id="discharge-medications" class="section level2">
 <h2 class="hasAnchor">
 <a href="#discharge-medications" class="anchor"></a>Discharge Medications</h2>
-<p>Discharge medications were defined as journeys that had a discharge letter and excluded journeys that had a separation mode of either <strong>death, dama, private hospital</strong>.</p>
+<p>Discharge medications were defined as journeys that had a discharge letter and excluded journeys that had a mode of separation of either <strong>death, dama, private hospital</strong>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">hf_discharge_journeys</span> <span class="op">&lt;-</span> <span class="va">primary_journey</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">ENCNTR_KEY</span> <span class="op">%in%</span> <span class="va">hf_discharge_letter_keys</span><span class="op">)</span>
@@ -595,7 +603,7 @@ Distribution of discharge facility for journeys that satisfy the discharge medic
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">medication</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">summarise</span><span class="op">(</span>percent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">val</span><span class="op">)</span><span class="op">/</span><span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">*</span><span class="fl">100</span>,n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">val</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">slice</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"A2RB/ACE Inhibitor"</span>,<span class="st">"Beta blocker"</span>, <span class="st">"Other diuretic"</span>,<span class="st">"None of the above"</span><span class="op">)</span>, <span class="va">medication</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>Table @ref(tab:discharge-med-tab) shows a comparison to two different heart failure cohorts, one with reduced ejection fraction and preserved ejection fraction in Wang et al. (2018).</p>
+<p>Table @ref(tab:discharge-med-tab) shows a comparison to two different heart failure cohorts, one with reduced ejection fraction and preserved ejection fraction in <span class="citation"><a href="#ref-wang201915" role="doc-biblioref">Wang, Hales, and Tofler</a> (<a href="#ref-wang201915" role="doc-biblioref">2019</a>)</span>.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">med_table</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate_all.html">mutate_if</a></span><span class="op">(</span><span class="va">is.numeric</span>,<span class="fu">funs</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">.</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -603,18 +611,18 @@ Distribution of discharge facility for journeys that satisfy the discharge medic
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">wang_2013_preserved</span>,by<span class="op">=</span><span class="st">"medication"</span>,suffix<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">""</span>,<span class="st">".preserved"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">medication</span>,<span class="va">n</span>,<span class="va">percent</span>,<span class="va">n.reduced</span>,<span class="va">percent.reduced</span>,<span class="va">n.preserved</span>,<span class="va">percent.preserved</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/flextable.html">flextable</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_header_labels.html">set_header_labels</a></span><span class="op">(</span>medication <span class="op">=</span> <span class="st">"Medication"</span>, percent<span class="op">=</span><span class="st">"ICD10 (%)"</span>, n<span class="op">=</span><span class="st">"N ICD10"</span>,
-                    percent.reduced <span class="op">=</span> <span class="st">"HFrEF (%)"</span>,n.reduced <span class="op">=</span>  <span class="st">"N HFrEF"</span>,
-                    percent.preserved <span class="op">=</span> <span class="st">"HFpEF (%)"</span>,n.preserved <span class="op">=</span>  <span class="st">"N HFpEF"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_header_labels.html">set_header_labels</a></span><span class="op">(</span>medication <span class="op">=</span> <span class="st">"Medication"</span>, percent<span class="op">=</span><span class="st">"ICD10 (%)"</span>, n<span class="op">=</span><span class="st">"n ICD10"</span>,
+                    percent.reduced <span class="op">=</span> <span class="st">"HFrEF (%)"</span>,n.reduced <span class="op">=</span>  <span class="st">"n HFrEF"</span>,
+                    percent.preserved <span class="op">=</span> <span class="st">"HFpEF (%)"</span>,n.preserved <span class="op">=</span>  <span class="st">"n HFpEF"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/footnote.html">footnote</a></span><span class="op">(</span>i<span class="op">=</span><span class="fl">1</span>,
            j<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span><span class="op">)</span>,
            value<span class="op">=</span> <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/as_paragraph.html">as_paragraph</a></span><span class="op">(</span>
              <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Cohort defined using heart failure ICD10 primary diagnosis."</span>,
-               <span class="st">"Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015."</span>,
-               <span class="st">"Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015."</span><span class="op">)</span><span class="op">)</span>,
+               <span class="st">"Data is from reduced ejection fraction cohort between 2013-2015."</span>,
+               <span class="st">"Data is from preserved ejection fraction cohort between 2013-2015."</span><span class="op">)</span><span class="op">)</span>,
               part <span class="op">=</span> <span class="st">"header"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_caption.html">set_caption</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference. Note that Wang et al. excludes spironolactone for `Other diuretics`."</span><span class="op">)</span></code></pre></div>
-<template id="1da0e9ff-a03b-4dc4-bbbd-c936a5e83d18"><style>
+  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_caption.html">set_caption</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Proportion of patients with a relevant medication discharge. Data from @wang201915 is used as reference. Note that @wang201915 excludes spironolactone for `Other diuretics`."</span><span class="op">)</span></code></pre></div>
+<template id="36d97d8d-0dde-475e-a995-efbe809e0868"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -650,66 +658,66 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-dd172b6e{border-collapse:collapse;}.cl-dd0d8f00{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-dd0d8f01{font-family:'Arial';font-size:6.6pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;position: relative;bottom:3.3pt;}.cl-dd0db570{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-dd0db571{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-dd0e0390{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd0e0391{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd0e0392{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd0e0393{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd0e0394{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd0e0395{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd0e0396{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-dd172b6e">
-<caption class="Table Caption">Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference. Note that Wang et al. excludes spironolactone for `Other diuretics`.</caption>
+<style>.cl-97428a76{border-collapse:collapse;}.cl-97393b7e{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-97393b7f{font-family:'Arial';font-size:6.6pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;position: relative;bottom:3.3pt;}.cl-97393b80{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-97393b81{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-9739899e{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9739899f{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-973989a0{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-973989a1{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-973989a2{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-973989a3{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-973989a4{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-97428a76">
+<caption class="Table Caption">Proportion of patients with a relevant medication discharge. Data from @wang201915 is used as reference. Note that @wang201915 excludes spironolactone for `Other diuretics`.</caption>
 <thead><tr style="overflow-wrap:break-word;">
-<td class="cl-dd0e0395"><p class="cl-dd0db570"><span class="cl-dd0d8f00">Medication</span></p></td>
-<td class="cl-dd0e0396"><p class="cl-dd0db571"><span class="cl-dd0d8f00">N ICD10</span><span class="cl-dd0d8f01">1</span></p></td>
-<td class="cl-dd0e0396"><p class="cl-dd0db571"><span class="cl-dd0d8f00">ICD10 (%)</span></p></td>
-<td class="cl-dd0e0396"><p class="cl-dd0db571"><span class="cl-dd0d8f00">N HFrEF</span><span class="cl-dd0d8f01">2</span></p></td>
-<td class="cl-dd0e0396"><p class="cl-dd0db571"><span class="cl-dd0d8f00">HFrEF (%)</span></p></td>
-<td class="cl-dd0e0396"><p class="cl-dd0db571"><span class="cl-dd0d8f00">N HFpEF</span><span class="cl-dd0d8f01">3</span></p></td>
-<td class="cl-dd0e0396"><p class="cl-dd0db571"><span class="cl-dd0d8f00">HFpEF (%)</span></p></td>
+<td class="cl-973989a3"><p class="cl-97393b80"><span class="cl-97393b7e">Medication</span></p></td>
+<td class="cl-973989a4"><p class="cl-97393b81"><span class="cl-97393b7e">n ICD10</span><span class="cl-97393b7f">1</span></p></td>
+<td class="cl-973989a4"><p class="cl-97393b81"><span class="cl-97393b7e">ICD10 (%)</span></p></td>
+<td class="cl-973989a4"><p class="cl-97393b81"><span class="cl-97393b7e">n HFrEF</span><span class="cl-97393b7f">2</span></p></td>
+<td class="cl-973989a4"><p class="cl-97393b81"><span class="cl-97393b7e">HFrEF (%)</span></p></td>
+<td class="cl-973989a4"><p class="cl-97393b81"><span class="cl-97393b7e">n HFpEF</span><span class="cl-97393b7f">3</span></p></td>
+<td class="cl-973989a4"><p class="cl-97393b81"><span class="cl-97393b7e">HFpEF (%)</span></p></td>
 </tr></thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd0e0391"><p class="cl-dd0db570"><span class="cl-dd0d8f00">A2RB/ACE Inhibitor</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">41</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">50.0</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">352</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">65.9</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">162</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">56.3</span></p></td>
+<td class="cl-9739899f"><p class="cl-97393b80"><span class="cl-97393b7e">A2RB/ACE Inhibitor</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">41</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">50.0</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">352</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">65.9</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">162</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">56.3</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd0e0391"><p class="cl-dd0db570"><span class="cl-dd0d8f00">Beta blocker</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">53</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">64.6</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">294</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">55.1</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">131</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">45.4</span></p></td>
+<td class="cl-9739899f"><p class="cl-97393b80"><span class="cl-97393b7e">Beta blocker</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">53</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">64.6</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">294</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">55.1</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">131</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">45.4</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd0e0391"><p class="cl-dd0db570"><span class="cl-dd0d8f00">Other diuretic</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">21</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">25.6</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">488</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">91.4</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">266</span></p></td>
-<td class="cl-dd0e0390"><p class="cl-dd0db571"><span class="cl-dd0d8f00">92.4</span></p></td>
+<td class="cl-9739899f"><p class="cl-97393b80"><span class="cl-97393b7e">Other diuretic</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">21</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">25.6</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">488</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">91.4</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">266</span></p></td>
+<td class="cl-9739899e"><p class="cl-97393b81"><span class="cl-97393b7e">92.4</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd0e0393"><p class="cl-dd0db570"><span class="cl-dd0d8f00">None of the above</span></p></td>
-<td class="cl-dd0e0392"><p class="cl-dd0db571"><span class="cl-dd0d8f00">17</span></p></td>
-<td class="cl-dd0e0392"><p class="cl-dd0db571"><span class="cl-dd0d8f00">20.7</span></p></td>
-<td class="cl-dd0e0392"><p class="cl-dd0db571"><span class="cl-dd0d8f00"></span></p></td>
-<td class="cl-dd0e0392"><p class="cl-dd0db571"><span class="cl-dd0d8f00"></span></p></td>
-<td class="cl-dd0e0392"><p class="cl-dd0db571"><span class="cl-dd0d8f00"></span></p></td>
-<td class="cl-dd0e0392"><p class="cl-dd0db571"><span class="cl-dd0d8f00"></span></p></td>
+<td class="cl-973989a1"><p class="cl-97393b80"><span class="cl-97393b7e">None of the above</span></p></td>
+<td class="cl-973989a0"><p class="cl-97393b81"><span class="cl-97393b7e">17</span></p></td>
+<td class="cl-973989a0"><p class="cl-97393b81"><span class="cl-97393b7e">20.7</span></p></td>
+<td class="cl-973989a0"><p class="cl-97393b81"><span class="cl-97393b7e"></span></p></td>
+<td class="cl-973989a0"><p class="cl-97393b81"><span class="cl-97393b7e"></span></p></td>
+<td class="cl-973989a0"><p class="cl-97393b81"><span class="cl-97393b7e"></span></p></td>
+<td class="cl-973989a0"><p class="cl-97393b81"><span class="cl-97393b7e"></span></p></td>
 </tr>
 </tbody>
 <tfoot>
-<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-dd0e0394"><p class="cl-dd0db570"><span class="cl-dd0d8f01">1</span><span class="cl-dd0d8f00">Cohort defined using heart failure ICD10 primary diagnosis.</span></p></td></tr>
-<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-dd0e0394"><p class="cl-dd0db570"><span class="cl-dd0d8f01">2</span><span class="cl-dd0d8f00">Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.</span></p></td></tr>
-<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-dd0e0394"><p class="cl-dd0db570"><span class="cl-dd0d8f01">3</span><span class="cl-dd0d8f00">Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-973989a2"><p class="cl-97393b80"><span class="cl-97393b7f">1</span><span class="cl-97393b7e">Cohort defined using heart failure ICD10 primary diagnosis.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-973989a2"><p class="cl-97393b80"><span class="cl-97393b7f">2</span><span class="cl-97393b7e">Data is from reduced ejection fraction cohort between 2013-2015.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-973989a2"><p class="cl-97393b80"><span class="cl-97393b7f">3</span><span class="cl-97393b7e">Data is from preserved ejection fraction cohort between 2013-2015.</span></p></td></tr>
 </tfoot>
 </table>
-</div></template><div class="flextable-shadow-host" id="14f3b37c-3d95-4d58-ab40-6b92089ae032"></div>
+</div></template><div class="flextable-shadow-host" id="ff041ac1-b382-457d-a43d-ed01b6a8a9c2"></div>
 <script>
-var dest = document.getElementById("14f3b37c-3d95-4d58-ab40-6b92089ae032");
-var template = document.getElementById("1da0e9ff-a03b-4dc4-bbbd-c936a5e83d18");
+var dest = document.getElementById("ff041ac1-b382-457d-a43d-ed01b6a8a9c2");
+var template = document.getElementById("36d97d8d-0dde-475e-a995-efbe809e0868");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -723,10 +731,10 @@ fantome.appendChild(templateContent);
 </script>
 </div>
 </div>
-<div id="primary-or-secondary-heart-failure-diagnosis" class="section level1">
+<div id="primary-or-additional-heart-failure-diagnosis" class="section level1">
 <h1 class="hasAnchor">
-<a href="#primary-or-secondary-heart-failure-diagnosis" class="anchor"></a>Primary or Secondary Heart Failure Diagnosis</h1>
-<p>The above results focused on those with a primary ICD10 heart failure diagnosis. The next section examines those with a <code>primary</code> or <code>secondary</code> ICD10 diagnosis.</p>
+<a href="#primary-or-additional-heart-failure-diagnosis" class="anchor"></a>Primary or Additional Heart Failure Diagnosis</h1>
+<p>The above results focused on those with a primary ICD10 heart failure diagnosis. The next section examines those with a <code>primary</code> or <code>additional</code> ICD10 diagnosis.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">total</span><span class="op">&lt;-</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">secondary_journey_demo</span>, <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span><span class="va">secondary_journey_demo</span>, GENDER <span class="op">=</span> <span class="st">"Total"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">GENDER</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -763,11 +771,11 @@ fantome.appendChild(templateContent);
          <span class="va">Age_Male</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">bind_rows</span><span class="op">(</span><span class="va">total</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/flextable.html">flextable</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_header_labels.html">set_header_labels</a></span><span class="op">(</span>Group <span class="op">=</span> <span class="st">""</span>, p_Female <span class="op">=</span> <span class="st">"%"</span>, p_Male <span class="op">=</span> <span class="st">"%"</span>, N_Total <span class="op">=</span> <span class="st">"N"</span>,
+  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_header_labels.html">set_header_labels</a></span><span class="op">(</span>Group <span class="op">=</span> <span class="st">""</span>, p_Female <span class="op">=</span> <span class="st">"%"</span>, p_Male <span class="op">=</span> <span class="st">"%"</span>, N_Total <span class="op">=</span> <span class="st">"n"</span>,
                     Age_Female <span class="op">=</span> <span class="st">"Age (F)"</span>, Age_Male <span class="op">=</span> <span class="st">"Age (M)"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_caption.html">set_caption</a></span><span class="op">(</span><span class="st">"Male and Female counts and mean age stratified by ICD10 diagnosis."</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/autofit.html">autofit</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<template id="0b99abae-a4f1-4a93-9f6d-ca63e6d10168"><style>
+<template id="a94ec4bc-b26e-4ca4-8cb9-39b58ea15108"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -803,76 +811,76 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-dd582da8{border-collapse:collapse;}.cl-dd4d0964{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-dd4d3074{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-dd4d3075{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-dd4d578e{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d578f{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5790{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5791{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5792{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5793{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5794{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5795{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5796{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5797{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d5798{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed0{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed1{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed2{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed3{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed4{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed5{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed6{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed7{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed8{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-dd4d7ed9{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-dd582da8">
+<style>.cl-97833dd2{border-collapse:collapse;}.cl-977979be{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-9779a0c4{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-9779a0c5{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-9779eeee{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eeef{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef0{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef1{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef2{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef3{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef4{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef5{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef6{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef7{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-9779eef8{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a15fe{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a15ff{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1600{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1601{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1602{width:49.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1603{width:62.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1604{width:59.7pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1605{width:38.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1606{width:41.9pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-977a1607{width:57.2pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-97833dd2">
 <caption class="Table Caption">Male and Female counts and mean age stratified by ICD10 diagnosis.</caption>
 <thead><tr style="overflow-wrap:break-word;">
-<td class="cl-dd4d7ed3"><p class="cl-dd4d3074"><span class="cl-dd4d0964"></span></p></td>
-<td class="cl-dd4d7ed5"><p class="cl-dd4d3075"><span class="cl-dd4d0964">Females</span></p></td>
-<td class="cl-dd4d7ed8"><p class="cl-dd4d3075"><span class="cl-dd4d0964">%</span></p></td>
-<td class="cl-dd4d7ed4"><p class="cl-dd4d3075"><span class="cl-dd4d0964">Males</span></p></td>
-<td class="cl-dd4d7ed8"><p class="cl-dd4d3075"><span class="cl-dd4d0964">%</span></p></td>
-<td class="cl-dd4d7ed7"><p class="cl-dd4d3075"><span class="cl-dd4d0964">N</span></p></td>
-<td class="cl-dd4d7ed9"><p class="cl-dd4d3075"><span class="cl-dd4d0964">Age (F)</span></p></td>
-<td class="cl-dd4d7ed6"><p class="cl-dd4d3075"><span class="cl-dd4d0964">Age (M)</span></p></td>
+<td class="cl-977a1601"><p class="cl-9779a0c4"><span class="cl-977979be"></span></p></td>
+<td class="cl-977a1603"><p class="cl-9779a0c5"><span class="cl-977979be">Females</span></p></td>
+<td class="cl-977a1606"><p class="cl-9779a0c5"><span class="cl-977979be">%</span></p></td>
+<td class="cl-977a1602"><p class="cl-9779a0c5"><span class="cl-977979be">Males</span></p></td>
+<td class="cl-977a1606"><p class="cl-9779a0c5"><span class="cl-977979be">%</span></p></td>
+<td class="cl-977a1605"><p class="cl-9779a0c5"><span class="cl-977979be">n</span></p></td>
+<td class="cl-977a1607"><p class="cl-9779a0c5"><span class="cl-977979be">Age (F)</span></p></td>
+<td class="cl-977a1604"><p class="cl-9779a0c5"><span class="cl-977979be">Age (M)</span></p></td>
 </tr></thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd4d5791"><p class="cl-dd4d3074"><span class="cl-dd4d0964">I50.0</span></p></td>
-<td class="cl-dd4d5794"><p class="cl-dd4d3075"><span class="cl-dd4d0964">102</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">45.1</span></p></td>
-<td class="cl-dd4d5790"><p class="cl-dd4d3075"><span class="cl-dd4d0964">124</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">54.9</span></p></td>
-<td class="cl-dd4d5792"><p class="cl-dd4d3075"><span class="cl-dd4d0964">226</span></p></td>
-<td class="cl-dd4d578f"><p class="cl-dd4d3075"><span class="cl-dd4d0964">84</span></p></td>
-<td class="cl-dd4d578e"><p class="cl-dd4d3075"><span class="cl-dd4d0964">82</span></p></td>
+<td class="cl-9779eef1"><p class="cl-9779a0c4"><span class="cl-977979be">I50.0</span></p></td>
+<td class="cl-9779eef4"><p class="cl-9779a0c5"><span class="cl-977979be">102</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">45.1</span></p></td>
+<td class="cl-9779eef0"><p class="cl-9779a0c5"><span class="cl-977979be">124</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">54.9</span></p></td>
+<td class="cl-9779eef2"><p class="cl-9779a0c5"><span class="cl-977979be">226</span></p></td>
+<td class="cl-9779eeef"><p class="cl-9779a0c5"><span class="cl-977979be">84</span></p></td>
+<td class="cl-9779eeee"><p class="cl-9779a0c5"><span class="cl-977979be">82</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd4d5791"><p class="cl-dd4d3074"><span class="cl-dd4d0964">I50.1</span></p></td>
-<td class="cl-dd4d5794"><p class="cl-dd4d3075"><span class="cl-dd4d0964">41</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">50.6</span></p></td>
-<td class="cl-dd4d5790"><p class="cl-dd4d3075"><span class="cl-dd4d0964">40</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">49.4</span></p></td>
-<td class="cl-dd4d5792"><p class="cl-dd4d3075"><span class="cl-dd4d0964">81</span></p></td>
-<td class="cl-dd4d578f"><p class="cl-dd4d3075"><span class="cl-dd4d0964">78</span></p></td>
-<td class="cl-dd4d578e"><p class="cl-dd4d3075"><span class="cl-dd4d0964">74</span></p></td>
+<td class="cl-9779eef1"><p class="cl-9779a0c4"><span class="cl-977979be">I50.1</span></p></td>
+<td class="cl-9779eef4"><p class="cl-9779a0c5"><span class="cl-977979be">41</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">50.6</span></p></td>
+<td class="cl-9779eef0"><p class="cl-9779a0c5"><span class="cl-977979be">40</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">49.4</span></p></td>
+<td class="cl-9779eef2"><p class="cl-9779a0c5"><span class="cl-977979be">81</span></p></td>
+<td class="cl-9779eeef"><p class="cl-9779a0c5"><span class="cl-977979be">78</span></p></td>
+<td class="cl-9779eeee"><p class="cl-9779a0c5"><span class="cl-977979be">74</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd4d5791"><p class="cl-dd4d3074"><span class="cl-dd4d0964">I50.9</span></p></td>
-<td class="cl-dd4d5794"><p class="cl-dd4d3075"><span class="cl-dd4d0964">11</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">57.9</span></p></td>
-<td class="cl-dd4d5790"><p class="cl-dd4d3075"><span class="cl-dd4d0964">8</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">42.1</span></p></td>
-<td class="cl-dd4d5792"><p class="cl-dd4d3075"><span class="cl-dd4d0964">19</span></p></td>
-<td class="cl-dd4d578f"><p class="cl-dd4d3075"><span class="cl-dd4d0964">74</span></p></td>
-<td class="cl-dd4d578e"><p class="cl-dd4d3075"><span class="cl-dd4d0964">78</span></p></td>
+<td class="cl-9779eef1"><p class="cl-9779a0c4"><span class="cl-977979be">I50.9</span></p></td>
+<td class="cl-9779eef4"><p class="cl-9779a0c5"><span class="cl-977979be">11</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">57.9</span></p></td>
+<td class="cl-9779eef0"><p class="cl-9779a0c5"><span class="cl-977979be">8</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">42.1</span></p></td>
+<td class="cl-9779eef2"><p class="cl-9779a0c5"><span class="cl-977979be">19</span></p></td>
+<td class="cl-9779eeef"><p class="cl-9779a0c5"><span class="cl-977979be">74</span></p></td>
+<td class="cl-9779eeee"><p class="cl-9779a0c5"><span class="cl-977979be">78</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd4d5791"><p class="cl-dd4d3074"><span class="cl-dd4d0964">U82.2</span></p></td>
-<td class="cl-dd4d5794"><p class="cl-dd4d3075"><span class="cl-dd4d0964">96</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">49.0</span></p></td>
-<td class="cl-dd4d5790"><p class="cl-dd4d3075"><span class="cl-dd4d0964">100</span></p></td>
-<td class="cl-dd4d5793"><p class="cl-dd4d3075"><span class="cl-dd4d0964">51.0</span></p></td>
-<td class="cl-dd4d5792"><p class="cl-dd4d3075"><span class="cl-dd4d0964">196</span></p></td>
-<td class="cl-dd4d578f"><p class="cl-dd4d3075"><span class="cl-dd4d0964">84</span></p></td>
-<td class="cl-dd4d578e"><p class="cl-dd4d3075"><span class="cl-dd4d0964">82</span></p></td>
+<td class="cl-9779eef1"><p class="cl-9779a0c4"><span class="cl-977979be">U82.2</span></p></td>
+<td class="cl-9779eef4"><p class="cl-9779a0c5"><span class="cl-977979be">96</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">49.0</span></p></td>
+<td class="cl-9779eef0"><p class="cl-9779a0c5"><span class="cl-977979be">100</span></p></td>
+<td class="cl-9779eef3"><p class="cl-9779a0c5"><span class="cl-977979be">51.0</span></p></td>
+<td class="cl-9779eef2"><p class="cl-9779a0c5"><span class="cl-977979be">196</span></p></td>
+<td class="cl-9779eeef"><p class="cl-9779a0c5"><span class="cl-977979be">84</span></p></td>
+<td class="cl-9779eeee"><p class="cl-9779a0c5"><span class="cl-977979be">82</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-dd4d5797"><p class="cl-dd4d3074"><span class="cl-dd4d0964">Total</span></p></td>
-<td class="cl-dd4d7ed2"><p class="cl-dd4d3075"><span class="cl-dd4d0964">250</span></p></td>
-<td class="cl-dd4d5795"><p class="cl-dd4d3075"><span class="cl-dd4d0964">47.9</span></p></td>
-<td class="cl-dd4d5798"><p class="cl-dd4d3075"><span class="cl-dd4d0964">272</span></p></td>
-<td class="cl-dd4d5795"><p class="cl-dd4d3075"><span class="cl-dd4d0964">52.1</span></p></td>
-<td class="cl-dd4d7ed0"><p class="cl-dd4d3075"><span class="cl-dd4d0964">522</span></p></td>
-<td class="cl-dd4d7ed1"><p class="cl-dd4d3075"><span class="cl-dd4d0964">83</span></p></td>
-<td class="cl-dd4d5796"><p class="cl-dd4d3075"><span class="cl-dd4d0964">80</span></p></td>
+<td class="cl-9779eef7"><p class="cl-9779a0c4"><span class="cl-977979be">Total</span></p></td>
+<td class="cl-977a1600"><p class="cl-9779a0c5"><span class="cl-977979be">250</span></p></td>
+<td class="cl-9779eef5"><p class="cl-9779a0c5"><span class="cl-977979be">47.9</span></p></td>
+<td class="cl-9779eef8"><p class="cl-9779a0c5"><span class="cl-977979be">272</span></p></td>
+<td class="cl-9779eef5"><p class="cl-9779a0c5"><span class="cl-977979be">52.1</span></p></td>
+<td class="cl-977a15fe"><p class="cl-9779a0c5"><span class="cl-977979be">522</span></p></td>
+<td class="cl-977a15ff"><p class="cl-9779a0c5"><span class="cl-977979be">83</span></p></td>
+<td class="cl-9779eef6"><p class="cl-9779a0c5"><span class="cl-977979be">80</span></p></td>
 </tr>
 </tbody>
 </table>
-</div></template><div class="flextable-shadow-host" id="dcce060b-da5f-4329-b136-9fa45d6d03b7"></div>
+</div></template><div class="flextable-shadow-host" id="9a545af4-04ed-4fa9-9dce-70b04c0a8c1a"></div>
 <script>
-var dest = document.getElementById("dcce060b-da5f-4329-b136-9fa45d6d03b7");
-var template = document.getElementById("0b99abae-a4f1-4a93-9f6d-ca63e6d10168");
+var dest = document.getElementById("9a545af4-04ed-4fa9-9dce-70b04c0a8c1a");
+var template = document.getElementById("a94ec4bc-b26e-4ca4-8cb9-39b58ea15108");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -942,13 +950,13 @@ fantome.appendChild(templateContent);
   <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/footnote.html">footnote</a></span><span class="op">(</span>i<span class="op">=</span><span class="fl">1</span>,
            j<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>,<span class="fl">8</span><span class="op">)</span>,
            value<span class="op">=</span> <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/as_paragraph.html">as_paragraph</a></span><span class="op">(</span>
-             <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Cohort defined using heart failure ICD10 primary and secondary diagnosis."</span>,
+             <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Cohort defined using heart failure ICD10 primary and additional diagnosis."</span>,
                <span class="st">"Cohort defined using heart failure ICD10 primary diagnosis."</span>,
-               <span class="st">"Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015."</span>,
-               <span class="st">"Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015."</span><span class="op">)</span><span class="op">)</span>,
+               <span class="st">"Data is from reduced ejection fraction cohort between 2013-2015."</span>,
+               <span class="st">"Data is from preserved ejection fraction cohort between 2013-2015."</span><span class="op">)</span><span class="op">)</span>,
               part <span class="op">=</span> <span class="st">"header"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_caption.html">set_caption</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference."</span><span class="op">)</span></code></pre></div>
-<template id="4a08950c-e959-45f6-9fbd-67fbcfda638f"><style>
+  <span class="fu"><a href="https://davidgohel.github.io/flextable/reference/set_caption.html">set_caption</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Proportion of patients with a relevant medication discharge. Data from @wang201915 is used as reference."</span><span class="op">)</span></code></pre></div>
+<template id="65b11eb4-b2fa-47ce-aefa-31525594eebb"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -984,77 +992,77 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-dec22356{border-collapse:collapse;}.cl-deb88670{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-deb88671{font-family:'Arial';font-size:6.6pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;position: relative;bottom:3.3pt;}.cl-deb8ad4e{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-deb8ad4f{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-deb8fb64{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-deb8fb65{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-deb8fb66{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-deb8fb67{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-deb8fb68{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-deb8fb69{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-deb8fb6a{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-dec22356">
-<caption class="Table Caption">Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference.</caption>
+<style>.cl-990661ca{border-collapse:collapse;}.cl-98fa539e{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-98fa539f{font-family:'Arial';font-size:6.6pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;position: relative;bottom:3.3pt;}.cl-98fa7aae{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-98fa7aaf{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-98faefd4{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-98faefd5{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-98faefd6{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-98faefd7{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-98faefd8{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-98faefd9{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-98faefda{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 2pt solid rgba(102, 102, 102, 1.00);border-top: 2pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-990661ca">
+<caption class="Table Caption">Proportion of patients with a relevant medication discharge. Data from @wang201915 is used as reference.</caption>
 <thead><tr style="overflow-wrap:break-word;">
-<td class="cl-deb8fb69"><p class="cl-deb8ad4e"><span class="cl-deb88670">Medication</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">N ICD10</span><span class="cl-deb88671">1</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">ICD10 (%)</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">N Only Primary ICD10</span><span class="cl-deb88671">2</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">Only Primary ICD10</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">N HFrEF</span><span class="cl-deb88671">3</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">HFrEF (%)</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">N HFpEF</span><span class="cl-deb88671">4</span></p></td>
-<td class="cl-deb8fb6a"><p class="cl-deb8ad4f"><span class="cl-deb88670">HFpEF (%)</span></p></td>
+<td class="cl-98faefd9"><p class="cl-98fa7aae"><span class="cl-98fa539e">Medication</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">N ICD10</span><span class="cl-98fa539f">1</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">ICD10 (%)</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">N Only Primary ICD10</span><span class="cl-98fa539f">2</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">Only Primary ICD10</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">N HFrEF</span><span class="cl-98fa539f">3</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">HFrEF (%)</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">N HFpEF</span><span class="cl-98fa539f">4</span></p></td>
+<td class="cl-98faefda"><p class="cl-98fa7aaf"><span class="cl-98fa539e">HFpEF (%)</span></p></td>
 </tr></thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-deb8fb65"><p class="cl-deb8ad4e"><span class="cl-deb88670">A2RB/ACE Inhibitor</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">142</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">35.6</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">41</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">50.0</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">352</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">65.9</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">162</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">56.3</span></p></td>
+<td class="cl-98faefd5"><p class="cl-98fa7aae"><span class="cl-98fa539e">A2RB/ACE Inhibitor</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">142</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">35.6</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">41</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">50.0</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">352</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">65.9</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">162</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">56.3</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-deb8fb65"><p class="cl-deb8ad4e"><span class="cl-deb88670">Beta blocker</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">193</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">48.4</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">53</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">64.6</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">294</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">55.1</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">131</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">45.4</span></p></td>
+<td class="cl-98faefd5"><p class="cl-98fa7aae"><span class="cl-98fa539e">Beta blocker</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">193</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">48.4</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">53</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">64.6</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">294</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">55.1</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">131</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">45.4</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-deb8fb65"><p class="cl-deb8ad4e"><span class="cl-deb88670">Other diuretic</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">86</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">21.6</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">21</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">25.6</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">488</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">91.4</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">266</span></p></td>
-<td class="cl-deb8fb64"><p class="cl-deb8ad4f"><span class="cl-deb88670">92.4</span></p></td>
+<td class="cl-98faefd5"><p class="cl-98fa7aae"><span class="cl-98fa539e">Other diuretic</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">86</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">21.6</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">21</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">25.6</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">488</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">91.4</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">266</span></p></td>
+<td class="cl-98faefd4"><p class="cl-98fa7aaf"><span class="cl-98fa539e">92.4</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-deb8fb67"><p class="cl-deb8ad4e"><span class="cl-deb88670">None of the above</span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670">138</span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670">34.6</span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670">17</span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670">20.7</span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670"></span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670"></span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670"></span></p></td>
-<td class="cl-deb8fb66"><p class="cl-deb8ad4f"><span class="cl-deb88670"></span></p></td>
+<td class="cl-98faefd7"><p class="cl-98fa7aae"><span class="cl-98fa539e">None of the above</span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e">138</span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e">34.6</span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e">17</span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e">20.7</span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e"></span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e"></span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e"></span></p></td>
+<td class="cl-98faefd6"><p class="cl-98fa7aaf"><span class="cl-98fa539e"></span></p></td>
 </tr>
 </tbody>
 <tfoot>
-<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-deb8fb68"><p class="cl-deb8ad4e"><span class="cl-deb88671">1</span><span class="cl-deb88670">Cohort defined using heart failure ICD10 primary and secondary diagnosis.</span></p></td></tr>
-<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-deb8fb68"><p class="cl-deb8ad4e"><span class="cl-deb88671">2</span><span class="cl-deb88670">Cohort defined using heart failure ICD10 primary diagnosis.</span></p></td></tr>
-<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-deb8fb68"><p class="cl-deb8ad4e"><span class="cl-deb88671">3</span><span class="cl-deb88670">Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.</span></p></td></tr>
-<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-deb8fb68"><p class="cl-deb8ad4e"><span class="cl-deb88671">4</span><span class="cl-deb88670">Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-98faefd8"><p class="cl-98fa7aae"><span class="cl-98fa539f">1</span><span class="cl-98fa539e">Cohort defined using heart failure ICD10 primary and additional diagnosis.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-98faefd8"><p class="cl-98fa7aae"><span class="cl-98fa539f">2</span><span class="cl-98fa539e">Cohort defined using heart failure ICD10 primary diagnosis.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-98faefd8"><p class="cl-98fa7aae"><span class="cl-98fa539f">3</span><span class="cl-98fa539e">Data is from reduced ejection fraction cohort between 2013-2015.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-98faefd8"><p class="cl-98fa7aae"><span class="cl-98fa539f">4</span><span class="cl-98fa539e">Data is from preserved ejection fraction cohort between 2013-2015.</span></p></td></tr>
 </tfoot>
 </table>
-</div></template><div class="flextable-shadow-host" id="d75ef771-cad2-439c-9481-cc5543f8c9f7"></div>
+</div></template><div class="flextable-shadow-host" id="67ba4bec-02a9-40cb-8eaf-163916df363c"></div>
 <script>
-var dest = document.getElementById("d75ef771-cad2-439c-9481-cc5543f8c9f7");
-var template = document.getElementById("4a08950c-e959-45f6-9fbd-67fbcfda638f");
+var dest = document.getElementById("67ba4bec-02a9-40cb-8eaf-163916df363c");
+var template = document.getElementById("65b11eb4-b2fa-47ce-aefa-31525594eebb");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -1065,8 +1073,8 @@ if(caption) {
 var fantome = dest.attachShadow({mode: 'open'});
 var templateContent = template.content;
 fantome.appendChild(templateContent);
-</script><p>There is a greater proportion of journeys with either a primary or secondary diagnosis that have not been discharged with the relevant medication when compared to those only with a primary diagnosis.</p>
-<p>Figure @ref(fig:no-meds-icd-plot) shows the distribution of ICD codes with no discharge medication along with the type of diagnosis, whether <code>primary</code> or <code>secondary</code> diagnosis. The groups that are typically not given medication on discharge are those with a <code>secondary</code> heart failure diagnosis and those with <code>Chronic heart failure</code> makes the largest proportion of the group.</p>
+</script><p>There is a greater proportion of journeys with either a primary or additional diagnosis that have not been discharged with the relevant medication when compared to those only with a primary diagnosis.</p>
+<p>Figure @ref(fig:no-meds-icd-plot) shows the distribution of ICD codes with no discharge medication along with the type of diagnosis, whether <code>primary</code> or <code>additional</code> diagnosis. The groups that are typically not given medication on discharge are those with a <code>additional</code> heart failure diagnosis and those with <code>Chronic heart failure</code> makes the largest proportion of the group.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">no_meds_journey_keys</span><span class="op">&lt;-</span> <span class="va">secondary_meds_sum</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>NONE <span class="op">=</span> <span class="fu">case_when</span><span class="op">(</span>
@@ -1077,16 +1085,27 @@ fantome.appendChild(templateContent);
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span><span class="op">(</span><span class="va">JOURNEY_KEY</span><span class="op">)</span>
 
 <span class="va">no_meds_journeys</span> <span class="op">&lt;-</span> <span class="va">secondary_journey_demo</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">JOURNEY_KEY</span> <span class="op">%in%</span> <span class="va">no_meds_journey_keys</span><span class="op">)</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">JOURNEY_KEY</span> <span class="op">%in%</span> <span class="va">no_meds_journey_keys</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>
+    DIAGNOSIS_IMPORTANCE<span class="op">=</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html">recode</a></span><span class="op">(</span><span class="va">DIAGNOSIS_IMPORTANCE</span>, primary_diagnosis <span class="op">=</span> <span class="st">"Primary"</span>, secondary_diagnosis <span class="op">=</span> <span class="st">"Additional"</span><span class="op">)</span><span class="op">)</span>
 
 
-<span class="fu">conditional_bar_plot</span><span class="op">(</span><span class="va">no_meds_journeys</span>,<span class="st">"DIAGNOSIS_IMPORTANCE"</span>,<span class="st">"DISPLAY_IDENTIFIER_CAP"</span>, <span class="st">"ICD10 codes with No Discharge Medication"</span><span class="op">)</span> <span class="op">+</span>
+<span class="fu">conditional_bar_plot</span><span class="op">(</span><span class="va">no_meds_journeys</span>,<span class="st">"DIAGNOSIS_IMPORTANCE"</span>,<span class="st">"DISPLAY_IDENTIFIER_CAP"</span>, <span class="st">"ICD10 codes with No Specified Discharge Medication"</span><span class="op">)</span> <span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_colour_discrete.html">scale_fill_discrete</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"ICD10 Code"</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">xlab</a></span><span class="op">(</span><span class="st">"Diagnosis Type"</span><span class="op">)</span></code></pre></div>
 <div class="figure">
-<img src="heartfailure_prelim_files/figure-html/no-meds-icd-plot-1.png" alt="Distribution of ICD10 codes with no discharge medication." width="700"><p class="caption">
-Distribution of ICD10 codes with no discharge medication.
+<img src="heartfailure_prelim_files/figure-html/no-meds-icd-plot-1.png" alt="Distribution of ICD10 codes with no specified discharge medication." width="700"><p class="caption">
+Distribution of ICD10 codes with no specified discharge medication.
 </p>
+</div>
+</div>
+<div id="reference" class="section level1">
+<h1 class="hasAnchor">
+<a href="#reference" class="anchor"></a>Reference</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-wang201915" class="csl-entry">
+Wang, Nelson, Susan Hales, and Geoffrey Tofler. 2019. <span>“15-Year Trends in Patients Hospitalised with Heart Failure and Enrolled in an Australian Heart Failure Management Program.”</span> <em>Heart, Lung and Circulation</em> 28 (11): 1646–54.
+</div>
 </div>
 </div>
 <div id="appendix" class="section level1">
@@ -1116,7 +1135,7 @@ Distribution of ICD10 codes with no discharge medication.
 Distribution of ICD10 codes conditioned on sex and age.
 </p>
 </div>
-<p>Figure @ref(fig:postcode-plot) shows a map of the distribution of postcodes for the cohort. There are a number of journeys where the patients had come from the Central Coast, however most have come from the Northern Sydbney Region.</p>
+<p>Figure @ref(fig:postcode-plot) shows a map of the distribution of postcodes for the cohort. There are a number of journeys where the patients had come from the Central Coast, however most have come from the Northern Sydney Region.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="co">#count the number of times each postcode occurs</span>
@@ -1176,7 +1195,7 @@ Distribution of the time difference between admission time and echocardiogram.
 
 <span class="va">fac_icd10_encounter</span> <span class="op">&lt;-</span> <span class="va">hf_icd10_encounters</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">FACILITY</span> <span class="op">%in%</span> <span class="va">facility_list</span><span class="op">)</span></code></pre></div>
-<p>We examine encounters with either a ICD10 or discharge (SNOMED) diagnosis of heart failure over the same period of time and facilities. This results in <strong>103</strong> ICD10 encounter and <strong>38</strong> SNOMED encounters with the following list of SNOMED codes:</p>
+<p>We examine encounters with either a ICD10 or discharge (SNOMED) diagnosis of heart failure over the same period of time and facilities. This results in <strong>103</strong> ICD10 encounters and <strong>38</strong> SNOMED encounters with the following list of SNOMED codes:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">as.tibble</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">fac_snomed_encounter</span><span class="op">$</span><span class="va">SOURCE_STRING_CAP</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <table class="table">
