@@ -35,7 +35,10 @@ library(kableExtra)
 library(ggplot2)
 library(ggpubr)
 library(acs)
+library(flextable)
+library(rmapaus)
 source("R/definitions.R")
+
 ```
 
 ```{r data_load}
@@ -57,12 +60,18 @@ hf_echo_procedures <- targets::tar_read(hf_echo_procedures)
 
 This document will examine the inpatient journeys of patients who were designated a heart failure related ICD-10 code. For instance, there will be a characterisation of the cohort in terms of their demographics, as well as the proportion that were discharged with specific medications and had undergone specific investigations and/or procedures.
 
-# Cohort
+# RNS Journeys with ICD10 Heart Failure Primary Diagnosis
 
-The cohort under analysis are patient journeys that were designated the following ICD10 codes as a primary diagnosis:
+## Cohort
+
+
+### Primary Diagnosis
+
+The cohort under analysis are patient journeys where journeys are defined by a collection of encounters where each encounter is separated by at most 24 hours from the following encounter that were designated the following ICD10 codes as a primary diagnosis:
 
 ```{r}
 as.data.frame(hf_icd_codes()) %>% 
+  dplyr::rename(ICD10 = codes,Description=names) %>%
   knitr::kable()
 
 ```
@@ -99,113 +108,223 @@ n_journeys <- dplyr::n_distinct(primary_journey$JOURNEY_KEY)
 n_encounters <- dplyr::n_distinct(primary_journey$ENCNTR_KEY)
 n_patients <- dplyr::n_distinct(primary_journey$PERSON_KEY)
 ```
-Furthermore, the cohort selected have an admission date between **`r as.Date(min(primary_journey_demo$JOURNEY_START))`** - **`r as.Date(max(primary_journey_demo$JOURNEY_START))`** and includes any journeys that includes an encounter at **`r paste(facility_list,sep=", ")`**.
-
-The analysis therefore includes N = **`r n_journeys`** unique journeys with **`r n_encounters`** encounters for **`r n_patients`** unique patients.
 
 ```{r}
 
 proportion_bar_plot <- function(df,column,title){
-  df %>%
-     ggplot2::ggplot(., aes(x=!!rlang::sym(column))) +
-    ggplot2::geom_bar(aes(y = (..count..)/sum(..count..)*100),stat="count") +
-    ggplot2::xlab(column) + 
-    ggplot2::ylab("Percent (%)") + 
+  plot<- df %>%
+     ggplot2::ggplot(., aes(x=!!rlang::sym(column),fill=!!rlang::sym(column))) +
+    ggplot2::geom_bar(aes(y = ..count..),stat="count",alpha=0.5,show.legend = FALSE) +
+    ggplot2::xlab(title) + 
+    ggplot2::ylab("Count") + 
     ggtitle(paste0(title, " (N = ",nrow(df), ")")) +
     geom_text(
-       aes(label=..count..,y= (..count..)/sum(..count..)*100),
+       aes(label=paste(round((..count..)/sum(..count..)*100,1),"%",sep=""),y= ..count..),
        stat='count',
        vjust=-0.25
-   )
+   ) + 
+  theme_minimal()
+  
+  return(plot)
 }
 ```
 
+Furthermore, the cohort selected have an admission date between **`r as.Date(min(primary_journey_demo$JOURNEY_START))`** - **`r as.Date(max(primary_journey_demo$JOURNEY_START))`** and includes any journeys that includes an encounter at **`r paste(facility_list,sep=", ")`**.
 
-# Demographics
+The analysis therefore includes N = **`r n_journeys`** unique journeys with **`r n_encounters`** encounters for **`r n_patients`** unique patients.
 
-Figure \@ref(fig:demo-plot) shows the distribution of ICD10 codes, age and sex.
+Figure \@ref(fig:code-dist) shows the distribution of ICD10 codes for the cohort.
 
-```{r demo-plot, fig.cap="Demographics of journeys."}
+
+```{r code-dist, fig.cap="Distribution of ICD10 codes"}
 icd10_plot<- proportion_bar_plot(primary_journey_demo,"DISPLAY_IDENTIFIER_CAP","ICD10 codes")
 
-age_plot<- proportion_bar_plot(primary_journey_demo,"AGE_BINNED","AGE")
-
-sex_plot<- proportion_bar_plot(primary_journey_demo,"GENDER","SEX")
-
-ggpubr::ggarrange(icd10_plot, age_plot, sex_plot,
-          labels = c("A", "B", "C"),
-          ncol = 3, nrow = 1)
+icd10_plot  +
+  coord_flip()
 ```
-Figure \@ref(fig:code-cat-plot) shows the distribution of ICD10 codes conditioned on age and sex. The plots suggests that older age groups are more likely to be coded as having an ICD10 code of `I50.0 Heart failure` and are less likely to be coded as `I50.1 Left ventricular failure`. There seems to be no significant differences in diagnosis between sex.
+### Primary and Secondary Diagnosis
 
-```{r code-cat-plot, fig.cap="Distribution of ICD10 codes conditioned on sex and age."}
+```{r }
+cohort_journey_keys_secondary <- hf_journey %>%
+  dplyr::filter(FACILITY %in%  facility_list, DIAGNOSIS_IMPORTANCE == "secondary_diagnosis" | DIAGNOSIS_IMPORTANCE == "primary_diagnosis") %>%
+  dplyr::pull(JOURNEY_KEY)
+
+secondary_journey_demo <- hf_journey_demo_prep %>%
+  dplyr::filter(JOURNEY_KEY %in% cohort_journey_keys_secondary)
+
+icd10_plot<- proportion_bar_plot(secondary_journey_demo,"DISPLAY_IDENTIFIER_CAP","Primary and Secondary Diagnosis") +
+  labs(x="ICD10 code")+
+  coord_flip()
+
+```
+
+Another cohort is also defined by those with either a `primary` or `secondary` heart failure diagnosis. 
+
+The cohort that includes a `secondary` diagnosis of heart failure is larger (N = **`r nrow(secondary_journey_demo)`**) than those diagnosed with a primary diagnosis (N = **`r nrow(primary_journey_demo)`**) and also includes encounters coded with `chronic heart failure`.
 
 
- age_plot<- primary_journey_demo %>%
-  dplyr::count(AGE_BINNED,DISPLAY_IDENTIFIER_CAP) %>%
-  dplyr::group_by(AGE_BINNED) %>%
-  dplyr::mutate(prop = prop.table(n)) %>%
-  ggplot2::ggplot(., aes(x=AGE_BINNED,y=prop,fill=DISPLAY_IDENTIFIER_CAP)) + 
-  geom_bar(stat="identity",position=position_dodge(0.8),width=0.7) +
-  scale_y_continuous(labels = scales::percent_format()) + 
-  geom_text(aes(label= n,y=prop),position=position_dodge(0.8),vjust=-0.5) +
-  labs(y="Percent (%)") +
-  scale_fill_discrete(name = "ICD10 code")
+Figure \@ref(fig:primary-secondary-icd10) shows the distribution of both primary and secondary ICD10 diagnosis, where there are N = **`r nrow(secondary_journey_demo)`** journeys with either a primary or secondary diagnosis.
 
- sex_plot<- primary_journey_demo %>%
-  dplyr::count(GENDER,DISPLAY_IDENTIFIER_CAP) %>%
-  dplyr::group_by(GENDER) %>%
-  dplyr::mutate(prop = prop.table(n)) %>%
-  ggplot2::ggplot(., aes(x=GENDER,y=prop,fill=DISPLAY_IDENTIFIER_CAP)) + 
-  geom_bar(stat="identity",position=position_dodge(0.8),width=0.7) +
-  scale_y_continuous(labels = scales::percent_format()) + 
-  geom_text(aes(label= n,y=prop),position=position_dodge(0.8),vjust=-0.5) +
-  labs(y="Percent (%)") +
-  scale_fill_discrete(name = "ICD10 code")
- 
+```{r primary-secondary-icd10, fig.cap="Distribution of primary and secondary heart failure ICD10 diagnosis.", message=FALSE,error=FALSE,warning=FALSE}
+icd10_plot 
+
+```
+
+
+### Comparison against CaseMix App
+
+The above numbers were compared against the `Admitted Patient CaseMix App` developed by the Performance and Analytics that shows the numbers of encounters and their characteristics of each ICD10 diagnosis. 
+
+Figure \@ref(fig:clinical-app-demo) shows that there are 108 encounters with a primary heart failure ICD10 diagnosis over a similar period of time at `Royal North Shore` (as opposed to the **`r n_journeys`** journeys). Furthermore the distribution of ICD10 codes are comparable.
+
+![(#fig:clinical-app-demo) Distribution of ICD10 heart failure encounters using the `Admitted Patient CaseMix App`.](img/clinical_app_hf_rns.png)
+
+## Demographics
+
+Table \@ref(tab:demo-tab-gender) shows the counts of males and female stratified by ICD10 diagnosis. 
+
+
+```{r demo-tab-gender}
+total<- bind_rows(primary_journey_demo, mutate(primary_journey_demo, GENDER = "Total")) %>%
+  group_by(GENDER) %>%
+  summarise(
+    N = n(),
+    Age = round(mean(AGE_AT_ADMIT)),
+  ) %>%
+  pivot_wider(names_from = "GENDER", values_from = c("N", "Age")) %>%
+  mutate(p_Female = round(N_Female/N_Total*100, 1),
+         p_Male = round(N_Male/N_Total*100, 1)) %>%
+  select(
+         Females = N_Female, p_Female,
+         Males = N_Male, p_Male,
+         N_Total,
+         Age_Female,
+         Age_Male) %>%
+  mutate(Group = "Total")
   
 
-ggpubr::ggarrange(age_plot, sex_plot,
-          labels = c("A", "B"),
-          ncol = 2, nrow = 1)
+bind_rows(primary_journey_demo, mutate(primary_journey_demo, GENDER = "Total")) %>%
+  group_by(DISPLAY_IDENTIFIER_CAP,GENDER) %>%
+  summarise(
+    N = n(),
+    Age = round(mean(AGE_AT_ADMIT)),
+  ) %>%
+  pivot_wider(names_from = "GENDER", values_from = c("N", "Age")) %>%
+  mutate(p_Female = round(N_Female/N_Total*100, 1),
+         p_Male = round(N_Male/N_Total*100, 1)) %>%
+  select(Group = DISPLAY_IDENTIFIER_CAP,
+         Females = N_Female, p_Female,
+         Males = N_Male, p_Male,
+         N_Total,
+         Age_Female,
+         Age_Male) %>%
+  bind_rows(total) %>%
+  flextable() %>%
+  set_header_labels(Group = "", p_Female = "%", p_Male = "%", N_Total = "N",
+                    Age_Female = "Age (F)", Age_Male = "Age (M)") %>%
+  set_caption("Male and Female counts and mean age stratified by ICD10 diagnosis.") %>%
+  autofit()
+
 ```
-
-
 ```{r}
-postcode_plot<- primary_journey_demo %>%
-   ggplot2::ggplot(., aes(x=CURRENT_POSTCODE)) +
-  ggplot2::geom_bar() +
-  ggplot2::xlab("POSTCODE") + ggplot2::ylab("COUNT") + ggtitle(paste0("POSTCODE (N = ",n_journeys, ")")) +
-  geom_text(
-     aes(label=..count..),
-     stat='count',
-     nudge_y=0.5,
-     va='bottom'
- )
-postcode_plot
+conditional_bar_plot <- function(df,var1,var2,title){
+  
+  var1<- rlang::sym(var1)
+  var2<- rlang::sym(var2)
+  plot <- df%>%
+  dplyr::count(!!var1,!!var2) %>%
+  dplyr::group_by(!!var1) %>%
+  dplyr::mutate(prop = prop.table(n)*100) %>%
+  ggplot2::ggplot(., aes(x=!!var1,y=n,fill=!!var2)) + 
+  geom_bar(stat="identity",position=position_dodge(0.7),width=0.7,alpha=0.5) +
+  geom_text(aes(label= paste(round(prop,1),"%",sep=""),y=n),position=position_dodge(0.7),vjust=-0.5) +
+  labs(y="Count",x=var1, title = paste0(title, " (N = ",nrow(df), ")")) +
+  scale_fill_discrete(name = var2) + 
+  theme_minimal()
+  
+  return(plot)
+}
+
 ```
 
-# Journey Characteristics
+Figure \@ref(fig:age-sex-plot) shows the distribution of sex according to age groups.
 
-Figure \@ref(fig:journey-char-plot) shows the characteristics of the journeys such as the presentation mode, whether the journey involved a transfer and the separation mode. Those presented as `Ambulance Triage` are defined as journeys that hadtheir jorueny first facility as `Royal North Shore` and whether their triage form contained the presence of `atami` or `etami` or `cath lab`.
+```{r age-sex-plot, fig.cap="Distribution of Sex conditioned on Age."}
+conditional_bar_plot(primary_journey_demo,"AGE_BINNED","GENDER", "Age and Sex") +
+  scale_fill_discrete(name = "SEX") + 
+  xlab("AGE")
+```
 
-Most encounters are admitted into ED and most journeys either arrived by ambulance or as a self presentation. 
+Figure \@ref(fig:postcode-plot) shows a map of the distribution of postcodes for the cohort. There are a number of journeys where the patients had come from the Central Coast, however most have come from the Northern Sydbney Region.
+
+```{r postcode-plot, fig.cap="Map of postcodes and the number of journeys of the patient's residential postcode." }
+
+#count the number of times each postcode occurs
+postcodes <- primary_journey_demo %>%
+  select(CURRENT_POSTCODE) %>% 
+  count(CURRENT_POSTCODE, sort = T) %>%
+  rename(POA_CODE = CURRENT_POSTCODE)
+# get a map of NSW broad statistical areas (SSD)
+ssd <- get_mapaus("SSD", accuracy="full")
+nsw_map <- fortify(ssd[ssd$STATE=="NSW", ]) # create a nsw map
+nsw <- filter(nsw_map, long < 151.3 & long > 151.2 & lat > -33.9 & lat < -33.3) # exclude Lord Howe 
+# get a map of australian postcodes
+poa <- get_mapaus("POA", accuracy="full")
+# Map the postcodes and fill by survey responses
+p <-  mapfill(x = postcodes, 
+              map = poa,
+              fill = "n",
+              border = NA,
+              ticks = TRUE,
+              labels = FALSE)
+# Add the NSW outline
+p +
+  scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
+  geom_polygon(data=nsw, aes(x=long, y=lat, group=id),
+               color=NA, fill="lightskyblue", alpha = 0.25) +
+  theme(panel.background = element_blank())
+```
+
+## Journey Characteristics
+
+Figure \@ref(fig:journey-char-plot) shows the characteristics of the journeys such as the presentation mode, whether the journey involved a transfer and the separation mode.
+
+Most encounters are admitted into ED and most journeys either arrived by ambulance followed by self presentation and most journeys that include `Royal North Shore` begin at `Royal North Shore` rather than other hospitals in the local health district and shown by the journey trajectories in Figure \@ref(fig:journey-char-plot) c.
 
 ```{r journey-char-plot, fig.cap="Characteristics of journeys."}
 
-p1<-proportion_bar_plot(primary_journey, "ENCLASS", "Encounter_type")
+p1<-proportion_bar_plot(primary_journey, "ENCLASS", "Encounter Type") + 
+  xlab("") + ylim(0,120)
 
-p2<- proportion_bar_plot(primary_journey_demo, "PRESENTATION_MODE", "PRESENTATION_MODE")
-p3<-proportion_bar_plot(primary_journey_demo, "TRANSFER_STATUS", "TRANSFER_STATUS")
-p4<-proportion_bar_plot(primary_journey_demo, "SEPARATION_MODE", "SEPARATION_MODE")
+p2<- proportion_bar_plot(
+  primary_journey_demo %>%
+    dplyr::mutate(PRESENTATION_MODE = dplyr::case_when(
+      stringr::str_detect(PRESENTATION_MODE,"triage")~ "Ambulance",
+      TRUE ~ PRESENTATION_MODE)
+    ), "PRESENTATION_MODE", "Mode of Presentation") + xlab("") + ylim(0,120)
+p3 <- proportion_bar_plot(primary_journey_demo, "TRAJECTORY", "Journey Trajectory") +
+  xlab("") + ylim(0,121) +
+    scale_x_discrete(guide = guide_axis(n.dodge=2))
+p4<-proportion_bar_plot(primary_journey_demo, "SEPARATION_MODE", "Mode of Separation") + xlab("")+ylim(0,100)
+
+
 
 ggpubr::ggarrange(p1, p2, p3,p4,
           labels = c("A", "B", "C","D"),
           ncol = 2, nrow = 2)
 
+
+
 ```
 
-# Discharge Medications
+Figure \@ref(fig:journey-final-plot) shows that most journeys end at `Royal North Shore`.
+
+```{r journey-final-plot, fig.cap="Final facility of journeys."}
+p6<-proportion_bar_plot(primary_journey_demo, "JOURNEY_FINAL_FACILITY", "Journey Final Facility") + xlab("")+ylim(0,120) + coord_flip()
+p6
+```
+
+## Discharge Medications
 
 
 Discharge medications were defined as journeys that had a discharge letter and excluded journeys that had a separation mode of either **`r paste(exclusion_criteria_meds(),sep=",")`**.
@@ -220,8 +339,19 @@ n_journeys_w_discharge <- dplyr::n_distinct(hf_discharge_journeys$JOURNEY_KEY)
 ## https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4814010/
 ```
 
-**`r round(n_journeys_w_discharge/n_journeys*100,1)`**% (**`r n_journeys_w_discharge`**/**`r n_journeys`**) had a discharge letter and of those,**`r round(nrow(primary_meds_sum)/n_journeys_w_discharge*100,1)`**% (**`r  nrow(primary_meds_sum)`**/**`r n_journeys_w_discharge`**) remained after the exclusion criteria.
+**`r round(n_journeys_w_discharge/n_journeys*100,1)`**% (**`r n_journeys_w_discharge`**/**`r n_journeys`**) had a discharge letter and of those, **`r round(nrow(primary_meds_sum)/n_journeys_w_discharge*100,1)`**% (**`r  nrow(primary_meds_sum)`**/**`r n_journeys_w_discharge`**) remained after the exclusion criteria.
 
+Figure \@ref(fig:med-discharge-facility) shows the final facility of the those journeys that satisfy the criteria for a discharge medication and demonstrates that almost all discharges occur at `Royal North Shore`.
+
+```{r med-discharge-facility,fig.cap="Distribution of discharge facility for journeys that satisfy the discharge medication criteria."}
+
+
+proportion_bar_plot(primary_journey_demo %>%
+  dplyr::filter(JOURNEY_KEY %in% primary_meds_sum$JOURNEY_KEY), 
+  "JOURNEY_FINAL_FACILITY", 
+  "Discharge Facility") + xlab("")+ylim(0,100) +coord_flip()
+
+```
 
 
 ```{r}
@@ -244,43 +374,54 @@ The medications examined include:
 * beta blockers such as **`r paste0(beta$MEDICATION_NAME[1:3],collapse=", ")`** and
 * diuretics such as **`r paste0(diuretic$MEDICATION_NAME[1:3],collapse=", ")`**.
 
-Figure \@ref(fig:meds-plot) shows the proportion of journeys that were discharged with the relevant medication.
+```{r}
+wang_2013_reduced <- data.frame(
+  list(medication=c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic"),
+  percent=c(65.9,55.1,91.4),
+  n=c(352,294,488))
+)
 
+wang_2013_preserved <- data.frame(
+  list(medication=c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic"),
+  percent=c(56.3,45.4,92.4),
+  n=c(162,131,266))
+)
 
-```{r meds-plot, fig.cap="Proportion of journeys with discharge medication."}
-primary_meds_sum %>%
-  gather(medication, val, `Other diuretic`:`Beta blocker`) %>%
+med_table<-primary_meds_sum %>%
+  mutate(NONE = case_when(
+    `Other diuretic` == 0 & `Beta blocker` == 0 & `A2RB/ACE Inhibitor` ==0 ~ 1,
+    TRUE ~ 0
+  )) %>%
+  gather(medication, val, `Other diuretic`:`NONE`) %>%
   mutate(val = val > 0) %>%
   group_by(medication) %>%
   summarise(percent = sum(val)/n()*100,n = sum(val), .groups = "drop") %>%
-  mutate(medication = fct_reorder(medication, percent)) %>%
-  ggplot2::ggplot(., aes(x=medication,y=percent))+
-  ggplot2::geom_bar(stat="identity") +
-  geom_text(
-     aes(label=n),
-     nudge_y=1.5,
-     va='bottom'
- ) +
-  labs(x="Medication",y="Percent (%)",
-       title = paste0("Medication (N = ", nrow(primary_meds_sum), ")"))
-  
+  slice(match(c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic","NONE"), medication))
 ```
 
-# Investigations
+Table \@ref(tab:discharge-med-tab) shows a comparison to two different heart failure cohorts, one with reduced ejection fraction and preserved ejection fraction in Wang et al. (2018). 
 
-We examine the number of echocardiograms that were performed in the cohort. Currently, the extract only contains transoesophageal echocardiographies or echocardiograms that were performed via an endoscope. 
+```{r discharge-med-tab}
+med_table %>%
+  dplyr::mutate_if(is.numeric,funs(round(.,1))) %>%
+  dplyr::left_join(wang_2013_reduced,by="medication",suffix=c("",".reduced")) %>%
+  dplyr::left_join(wang_2013_preserved,by="medication",suffix=c("",".preserved")) %>%
+  dplyr::select(medication,n,percent,n.reduced,percent.reduced,n.preserved,percent.preserved) %>%
+  flextable() %>%
+  set_header_labels(medication = "Medication", percent="ICD10 (%)", n="N ICD10",
+                    percent.reduced = "HFrEF (%)",n.reduced =  "N HFrEF",
+                    percent.preserved = "HFpEF (%)",n.preserved =  "N HFpEF") %>%
+  footnote(i=1,
+           j=c(4,6),
+           value= as_paragraph(
+             c("Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.",
+               "Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015.")),
+              part = "header") %>%
+  set_caption(caption = "Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference. Note that Wang et al. excludes spironolactone for `Other diuretics`.")
 
-There are **`r nrow(hf_echo_procedures)`** transoesophageal echocardiograms in the extract. However **`r nrow(primary_echo)`** of the echos were associated with the cohort of interest.
-
-Figure \@ref(fig:echo-time-delta-plot) shows the distribution of the admission time and the order of the echo procedure.
-
-```{r echo-time-delta-plot, fig.cap="Distribution of the time difference between admission time and echocardiogram."}
-ggplot(hf_echo_procedures, aes(x=PROCEDURE_ADMIT_TIME_DELTA)) + geom_histogram(bins=10) +
-  labs(x="PROCEDURE_ADMIT_TIME_DELTA (hours)")
 ```
 
-
-# Discharge Diagnosis and ICD10 Diagnosis Concordance
+## Discharge Diagnosis and ICD10 Diagnosis Concordance
 ```{r}
 hf_snomed_encounters <- targets::tar_read(hf_snomed_encounters)
 hf_icd10_encounters <- targets::tar_read(hf_icd10_encounters)
@@ -324,27 +465,184 @@ Table \@ref(tab:icd10-tab) shows a contingency table between discharge diagnosis
 
 snomed_icd10 %>% 
   knitr::kable(digits=2,caption = "Contigency table of discharge diagnosis and ICD10 code.") %>%
-  kableExtra::add_header_above(c("HAS_ICD10"=1,"HAS_SNOMED"=2))
+  kableExtra::add_header_above(c("Has ICD10"=1,"Has SNOMED"=2))
 
 prop_snomed_icd10 %>% 
   knitr::kable(digits=2, caption = "Contigency table of discharge diagnosis and ICD10 code as percentage.") %>%
-  kableExtra::add_header_above(c("HAS_ICD10"=1,"HAS_SNOMED"=2))
+  kableExtra::add_header_above(c("Has ICD10"=1,"Has SNOMED"=2))
 ```
 
-# Secondary Diagnosis
+# Primary or Secondary Heart Failure Diagnosis
 
-The above results focused on those with a primary ICD10 heart failure diagnosis. The next section examines those with a `secondary` or `additional` ICD10 diagnosis.
+The above results focused on those with a primary ICD10 heart failure diagnosis. The next section examines those with a `primary` or `secondary` ICD10 diagnosis.
+
 
 ```{r}
-cohort_journey_keys <- hf_journey %>%
-  dplyr::filter(FACILITY %in%  facility_list, DIAGNOSIS_IMPORTANCE == "secondary_diagnosis") %>%
+total<- bind_rows(secondary_journey_demo, mutate(secondary_journey_demo, GENDER = "Total")) %>%
+  group_by(GENDER) %>%
+  summarise(
+    N = n(),
+    Age = round(mean(AGE_AT_ADMIT)),
+  ) %>%
+  pivot_wider(names_from = "GENDER", values_from = c("N", "Age")) %>%
+  mutate(p_Female = round(N_Female/N_Total*100, 1),
+         p_Male = round(N_Male/N_Total*100, 1)) %>%
+  select(
+         Females = N_Female, p_Female,
+         Males = N_Male, p_Male,
+         N_Total,
+         Age_Female,
+         Age_Male) %>%
+  mutate(Group = "Total")
+  
+
+bind_rows(secondary_journey_demo, mutate(secondary_journey_demo, GENDER = "Total")) %>%
+  group_by(DISPLAY_IDENTIFIER_CAP,GENDER) %>%
+  summarise(
+    N = n(),
+    Age = round(mean(AGE_AT_ADMIT)),
+  ) %>%
+  pivot_wider(names_from = "GENDER", values_from = c("N", "Age")) %>%
+  mutate(p_Female = round(N_Female/N_Total*100, 1),
+         p_Male = round(N_Male/N_Total*100, 1)) %>%
+  select(Group = DISPLAY_IDENTIFIER_CAP,
+         Females = N_Female, p_Female,
+         Males = N_Male, p_Male,
+         N_Total,
+         Age_Female,
+         Age_Male) %>%
+  bind_rows(total) %>%
+  flextable() %>%
+  set_header_labels(Group = "", p_Female = "%", p_Male = "%", N_Total = "N",
+                    Age_Female = "Age (F)", Age_Male = "Age (M)") %>%
+  set_caption("Male and Female counts and mean age stratified by ICD10 diagnosis.") %>%
+  autofit()
+```
+```{r}
+conditional_bar_plot(secondary_journey_demo,"AGE_BINNED","GENDER", "Age and Sex") +
+  scale_fill_discrete(name = "SEX") + 
+  xlab("AGE")
+```
+```{r}
+secondary_journey <- hf_journey %>%
+  dplyr::filter(JOURNEY_KEY %in% cohort_journey_keys_secondary )
+
+p1<-proportion_bar_plot(secondary_journey, "ENCLASS", "Encounter Type") + 
+  xlab("") + ylim(0,550)
+
+p2<- proportion_bar_plot(
+  secondary_journey_demo %>%
+    dplyr::mutate(PRESENTATION_MODE = dplyr::case_when(
+      stringr::str_detect(PRESENTATION_MODE,"triage")~ "Ambulance",
+      TRUE ~ PRESENTATION_MODE)
+    ), "PRESENTATION_MODE", "Mode of Presentation") + xlab("") + ylim(0,520)
+p3 <- proportion_bar_plot(secondary_journey_demo, "TRAJECTORY", "Journey Trajectory") +
+  xlab("") + ylim(0,521) +
+    scale_x_discrete(guide = guide_axis(n.dodge=3))
+p4<-proportion_bar_plot(secondary_journey_demo, "SEPARATION_MODE", "Mode of Separation") + xlab("")+ylim(0,500)
+
+
+
+ggpubr::ggarrange(p1, p2, p3,p4,
+          labels = c("A", "B", "C","D"),
+          ncol = 2, nrow = 2)
+```
+
+
+
+
+```{r}
+secondary_meds_sum <- hf_meds_discharge_sum %>%
+  dplyr::filter(JOURNEY_KEY %in% cohort_journey_keys_secondary )
+
+secondary_med_table<-secondary_meds_sum %>%
+  mutate(NONE = case_when(
+    `Other diuretic` == 0 & `Beta blocker` == 0 & `A2RB/ACE Inhibitor` ==0 ~ 1,
+    TRUE ~ 0
+  )) %>%
+  gather(medication, val, `Other diuretic`:`NONE`) %>%
+  mutate(val = val > 0) %>%
+  group_by(medication) %>%
+  summarise(percent = sum(val)/n()*100,n = sum(val), .groups = "drop") %>%
+  slice(match(c("A2RB/ACE Inhibitor","Beta blocker", "Other diuretic","NONE"), medication))
+
+
+secondary_med_table %>%
+  dplyr::left_join(med_table,by="medication",suffix=c("",".primary")) %>%
+  dplyr::mutate_if(is.numeric,funs(round(.,1))) %>%
+  dplyr::left_join(wang_2013_reduced,by="medication",suffix=c("",".reduced")) %>%
+  dplyr::left_join(wang_2013_preserved,by="medication",suffix=c("",".preserved")) %>%
+  dplyr::select(medication,n,percent,n.primary,percent.primary,n.reduced,percent.reduced,n.preserved,percent.preserved) %>%
+  flextable() %>%
+  set_header_labels(medication = "Medication", percent="ICD10 (%)", n="N ICD10",
+                    percent.reduced = "HFrEF (%)",n.reduced =  "N HFrEF",
+                    percent.preserved = "HFpEF (%)",n.preserved =  "N HFpEF",
+                    percent.primary="Only Primary ICD10",n.primary="N Only Primary ICD10") %>%
+  footnote(i=1,
+           j=c(4,6),
+           value= as_paragraph(
+             c("Data is from Wang et al.'s reduced ejection fraction cohort between 2013-2015.",
+               "Data is from Wang et al.'s preserved ejection fraction cohort between 2013-2015.")),
+              part = "header") %>%
+  set_caption(caption = "Proportion of patients with a relevant medication discharge. Data from Wang et al. (2018) is used as reference.")
+
+```
+There is a greater proportion of journeys with either a primary or secondary diagnosis that have not been discharged with the relevant medication when compared to those only with a primary diagnosis.
+
+Figure \@ref(fig:no-meds-icd-plot) shows the distribution of ICD codes with no discharge medication along with the type of diagnosis, whether `primary` or `secondary` diagnosis. The groups that are typically not given medication on discharge are those with a `secondary` heart failure diagnosis and those with `Chronic heart failure` makes the largest proportion of the group.
+
+```{r no-meds-icd-plot, fig.cap="Distribution of ICD10 codes with no discharge medication."}
+no_meds_journey_keys<- secondary_meds_sum %>%
+  mutate(NONE = case_when(
+    `Other diuretic` == 0 & `Beta blocker` == 0 & `A2RB/ACE Inhibitor` ==0 ~ 1,
+    TRUE ~ 0
+  )) %>%
+  dplyr::filter(NONE == 1) %>%
   dplyr::pull(JOURNEY_KEY)
 
-secondary_journey_demo <- hf_journey_demo_prep %>%
-  dplyr::filter(JOURNEY_KEY %in% cohort_journey_keys )
+no_meds_journeys <- secondary_journey_demo %>%
+  dplyr::filter(JOURNEY_KEY %in% no_meds_journey_keys)
 
-icd10_plot<- proportion_bar_plot(secondary_journey_demo,"DISPLAY_IDENTIFIER_CAP","Additional Diagnosis")
 
-icd10_plot
+conditional_bar_plot(no_meds_journeys,"DIAGNOSIS_IMPORTANCE","DISPLAY_IDENTIFIER_CAP", "ICD10 codes with No Discharge Medication") +
+  scale_fill_discrete(name = "ICD10 Code") + 
+  xlab("Diagnosis Type")
 ```
-The cohort for a secondary diagnosis of heart failure is larger (N = **`r nrow(secondary_journey_demo)`**) than those diagnosed with a primary diagnosis (N = **`r nrow(primary_journey_demo)`**) and also includes encounters coded with `chronic heart failure`.
+
+
+# Appendix
+
+## Demographics
+
+Figure \@ref(fig:code-cat-plot) shows the distribution of ICD10 codes conditioned on age and sex. The plots suggests that older age groups are more likely to be coded as having an ICD10 code of `I50.0 Heart failure` and are less likely to be coded as `I50.1 Left ventricular failure`. There seems to be no significant differences in diagnosis between sex.
+
+```{r code-cat-plot, fig.cap="Distribution of ICD10 codes conditioned on sex and age."}
+
+age_plot<-conditional_bar_plot(primary_journey_demo,"AGE_BINNED","DISPLAY_IDENTIFIER_CAP", "Age by ICD10 diagnosis") +
+  xlab("AGE") + theme(legend.position = "none")
+
+
+sex_plot<-conditional_bar_plot(primary_journey_demo,"GENDER","DISPLAY_IDENTIFIER_CAP", "Sex by ICD10 diagnosis") +
+  scale_fill_discrete(name = "ICD10 Code") + 
+  xlab("SEX") 
+
+  
+
+ggpubr::ggarrange(age_plot, sex_plot,
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
+```
+
+## Investigations
+
+We examine the number of echocardiograms that were performed in the cohort. Currently, the extract only contains transoesophageal echocardiographies or echocardiograms that were performed via an endoscope. 
+
+There are **`r nrow(hf_echo_procedures)`** transoesophageal echocardiograms in the extract. However **`r nrow(primary_echo)`** of the echos were associated with the cohort of interest.
+
+Figure \@ref(fig:echo-time-delta-plot) shows the distribution of the admission time and the order of the echo procedure.
+
+```{r echo-time-delta-plot, fig.cap="Distribution of the time difference between admission time and echocardiogram."}
+ggplot(hf_echo_procedures, aes(x=PROCEDURE_ADMIT_TIME_DELTA)) + geom_histogram(bins=10,alpha=0.5) +
+  labs(x="PROCEDURE_ADMIT_TIME_DELTA (hours)",y="Count") + 
+  theme_minimal()
+```
