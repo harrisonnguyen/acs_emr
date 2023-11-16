@@ -304,6 +304,91 @@ p6<-proportion_bar_plot(primary_journey_demo, "JOURNEY_FINAL_FACILITY", "Journey
 p6
 ```
 
+## Transfers
+
+```{r}
+transfer_journeys_encounters <- primary_journey %>%
+  dplyr::group_by(JOURNEY_KEY) %>%
+  dplyr::filter(dplyr::n() > 1) %>%
+  dplyr::group_by(JOURNEY_KEY) %>%
+  dplyr::arrange(ADMIT_DTTM)
+
+transfer_journeys <- hf_journey_demo_prep %>%
+  dplyr::filter(JOURNEY_KEY %in% transfer_journeys_encounters$JOURNEY_KEY)
+
+
+```
+
+There are **`r nrow(transfer_journeys)`** journeys that contain at least more than 1 encounter. These journeys are associated with **`r nrow(transfer_journeys_encounters)`** encounters. 
+
+Figure \@ref(fig:transfer-journey-char) show the characteristics of these journeys. Most of these transfer journeys comprise of only 2 encounters, however some journeys involve up to 5 encounters. While these journeys begin from various facilities across NSLHD, most journeys end at `Royal North Shore`.
+
+```{r transfer-journey-char, fig.cap="Characteristics of transfers."}
+p1 <- proportion_bar_plot(
+  transfer_journeys_encounters %>%
+  summarise(n = dplyr::n()), "n", "Number of Encounters")
+p2 <- proportion_bar_plot(transfer_journeys_encounters, "FACILITY", "Encounter Facility")+
+    scale_x_discrete(guide = guide_axis(n.dodge=2))
+
+p3 <- proportion_bar_plot(transfer_journeys, "JOURNEY_FIRST_FACILITY", "Journey First Facility")
+
+p4 <- proportion_bar_plot(transfer_journeys, "JOURNEY_FINAL_FACILITY", "Journey Final Facility")
+
+ggpubr::ggarrange(p1, p2,p3,p4,
+          labels = c("A", "B","C","D"),
+          ncol = 2, nrow = 2)
+
+```
+Figure \@ref(fig:transfer-journey-length) shows the distribution of the length of these journeys, where the longest journey is **`r round(max(transfer_journeys$JOURNEY_DAYS))` ** days.
+```{r transfer-journey-length, fig.cap="Distribution of length of journeys."}
+p5<- ggplot(transfer_journeys, aes(x=JOURNEY_DAYS)) + 
+  geom_histogram() + labs(x="Length of Journey (days)")
+p5
+```
+The table below show the facilities of each of these journeys, the interval between the encounters of each journey and the admission class of the encounter. Most of these journeys begin as an admission to ED and then involve a transfer to another facility.
+
+```{r}
+transfer_journeys_encounters %>%
+  dplyr::mutate(DAYS_SINCE_JOURNEY_START = round(difftime(ADMIT_DTTM,JOURNEY_START,units="days")),1) %>%
+  summarize(FACILITY_LIST = paste(FACILITY,collapse=", "),DAYS_SINCE_JOURNEY_START_LIST = paste(DAYS_SINCE_JOURNEY_START,collapse=", "),
+            ENCLASS_LIST = paste(ENCLASS,collapse=", ")) %>%
+  dplyr::select(JOURNEY_KEY,FACILITY_LIST,DAYS_SINCE_JOURNEY_START_LIST,ENCLASS_LIST) %>%
+  knitr::kable()
+```
+
+```{r}
+diagnosis_prepr <- targets::tar_read(input_diagnosis_prepr)
+```
+
+```{r}
+icd10_diag <- diagnosis_prepr %>%
+  dplyr::filter(N_SOURCE_VOCABULARY_DISP == "ICD10-AM")
+transfer_diag <- transfer_journeys_encounters %>%
+  dplyr::left_join(icd10_diag,by="ENCNTR_KEY") 
+```
+
+Table shows the number of ICD10 diagnosis each of these journeys are associated with.
+
+```{r}
+transfer_diag %>%
+  dplyr::group_by(JOURNEY_KEY) %>%
+  dplyr::summarise(N_ICD10_CODE=n()) %>%
+  dplyr::arrange(desc(N_ICD10_CODE)) %>%
+  knitr::kable()
+```
+Table shows the top 20 diagnosis and the number of encounters the diagnosis was associated with.
+
+```{r}
+transfer_diag %>%
+  dplyr::group_by(SOURCE_STRING) %>%
+  dplyr::summarise(N_ENCOUNTERS=dplyr::n(),
+                   N_ENCOUNTERS_PERC = round(dplyr::n()/nrow(transfer_journeys_encounters)*100))%>%
+  dplyr::arrange(desc(N_ENCOUNTERS)) %>%
+  dplyr::slice(c(1:20))%>%
+  knitr::kable()
+```
+
+
 ## Discharge Medications
 
 
@@ -549,7 +634,7 @@ conditional_bar_plot(no_meds_journeys,"DIAGNOSIS_IMPORTANCE","DISPLAY_IDENTIFIER
 # Reference
 
 <div id="refs"></div>
-
+<!--
 # Appendix
 
 ## Demographics
@@ -668,3 +753,4 @@ prop_snomed_icd10 %>%
   knitr::kable(digits=2, caption = "Contigency table of discharge diagnosis and ICD10 code as percentage.") %>%
   kableExtra::add_header_above(c("Has ICD10"=1,"Has SNOMED"=2))
 ```
+-->
