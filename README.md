@@ -1,7 +1,7 @@
 # ACS Analysis
 
-Go to the [project website](https://pages.github.sydney.edu.au/speed-extract/acs) then
-click on `Articles` to see various analysis for ACS.
+Go to the [project website](https://harrisonnguyen.github.io/acs_emr/) then
+click on `Articles` to see various analysis for ACS based on eMR data in North Sydney Local Health District (NSLHD).
 
 These analyses includes:
 

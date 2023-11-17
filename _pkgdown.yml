@@ -1,11 +1,11 @@
-url: https://pages.github.sydney.edu.au/speed-extract/acs/
+url: https://harrisonnguyen.github.io/acs_emr/
 deploy:
   install_metadata: true
 repo: 
   url:
-    home: https://github.sydney.edu.au/speed-extract/acs/
-    source: https://github.sydney.edu.au/speed-extract/acs/blob/master/
-    issue: https://github.sydney.edu.au/speed-extract/acs/issues
+    home: https://github.com/harrisonnguyen/acs_emr
+    source: https://github.com/harrisonnguyen/acs_emr/blob/master/
+    issue: https://github.com/harrisonnguyen/acs_emr/issues
 template:
   params:
     bootswatch: flatly
@@ -15,13 +15,13 @@ output:
   number_sections: true
 authors:
   Harrison Nguyen:
-    href: "https://github.sydney.edu.au/speed-extract/"
+    href: "https://github.com/harrisonnguyen/"
 home:
   links:
   - text: Github
-    href: https://github.sydney.edu.au/speed-extract/acs
+    href: https://github.com/harrisonnguyen/acs_emr
   - text: Get shareable versions of analysis
-    href: https://github.sydney.edu.au/speed-extract/acs/tree/master/doc
+    href: https://github.com/harrisonnguyen/acs_emr/tree/master/doc
 reference:
 - title: Definitions
 - contents:
